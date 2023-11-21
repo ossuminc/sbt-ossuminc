@@ -1,9 +1,6 @@
 package com.ossuminc.sbt
 
 import sbt._
-import sbt.Keys._
-
-import com.ossuminc.sbt.OssumIncKeys._
 import com.ossuminc.sbt.helpers._
 
 object OssumIncPlugin extends AutoPlugin {
@@ -11,7 +8,6 @@ object OssumIncPlugin extends AutoPlugin {
   /** The list of helper objects in this package */
   private val autoPluginHelpers: Seq[AutoPluginHelper] = {
     Seq(
-      helpers.BuildInfo,
       helpers.Git,
       helpers.HandyAliases,
       helpers.Header,
@@ -25,7 +21,6 @@ object OssumIncPlugin extends AutoPlugin {
       helpers.Scala2,
       helpers.Scala3,
       helpers.Scalafmt,
-      helpers.SiteHelper,
       helpers.Unidoc
     )
   }
@@ -42,53 +37,32 @@ object OssumIncPlugin extends AutoPlugin {
   }
 
   object autoImport {
-    import OssumIncKeys._
 
     object With {
 
-      def basic(projectStartYr: Int, developers: Seq[(String, String)])(project: Project): Project = {
+      def basic(project: Project): Project = {
         project.configure(
-          HandyAliases.configure,
+
           ProjectInfo.configure,
           Git.configure,
-          Header.configure(projectStartYr)
+          HandyAliases.configure,
+          Header.configure
         )
       }
 
-      def typical(projectStartYr: Int, developers: Seq[(String, String)])(project: Project): Project = {
+      def typical(project: Project): Project = {
+        project.configure(basic)
         project.configure(
-          HandyAliases.configure,
-          ProjectInfo.configure(projectStartYr, developers),
-          Git.configure,
-          Header.configure(projectStartYr),
           Java.configure,
           Packaging.universalServer,
           Publishing.publishToSonaType,
-//          Release.process,
-          Resolvers,
-          Scala3.apply,
-          Scalafmt.apply,
-          Unidoc.apply
+          helpers.Resolvers.configure,
+          Release.configure,
+          Scala3.configure,
+          Scalafmt.configure,
+          Unidoc.configure
         )
       }
     }
-  }
-
-  def identificationSettings: Seq[Setting[_]] = {
-    Seq(
-    )
-  }
-
-  override def projectSettings: Seq[Def.Setting[_]] = {
-    Defaults.coreDefaultSettings ++ autoPluginHelpers.flatMap(_.projectSettings)
-  }
-
-  override def buildSettings: Seq[Def.Setting[_]] = {
-    super.buildSettings ++ identificationSettings ++
-      autoPluginHelpers.flatMap(_.buildSettings)
-  }
-
-  override def globalSettings: Seq[Def.Setting[_]] = {
-    super.globalSettings ++ autoPluginHelpers.flatMap(_.globalSettings)
   }
 }

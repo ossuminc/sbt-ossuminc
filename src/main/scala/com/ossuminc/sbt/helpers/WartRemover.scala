@@ -15,18 +15,16 @@ object WartRemover extends AutoPluginHelper {
 
   override def autoPlugins: Seq[AutoPlugin] = Seq(wartremover.WartRemover)
 
-  private def filteredWarts(excluded: Seq[Wart]): Seq[Wart] = {
-    Warts.all.filterNot { wart => excluded.contains(wart) }
-  }
-
   def configure(project: Project): Project = {
     project
+      .enablePlugins(wartremover.WartRemover)
       .settings(
         Keys.excludedWarts := Seq.empty[Wart],
-        Compile / compile / wartremoverWarnings := filteredWarts(Keys.excludedWarts.value),
+        Compile / compile / wartremoverWarnings :=
+          Warts.all.filterNot { wart => Keys.excludedWarts.value.contains(wart) },
         Test / compile / wartremoverWarnings := Seq.empty[Wart],
         wartremoverExcluded := {
-          val scalaVer: String = project / scalaVersion.value
+          val scalaVer = scalaVersion.value
           Seq(project.base / "target" / s"scala-$scalaVer" / "src_managed" / "main")
         }
       )

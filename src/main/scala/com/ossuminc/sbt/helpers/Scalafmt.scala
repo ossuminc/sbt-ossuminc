@@ -15,7 +15,7 @@ object Scalafmt extends AutoPluginHelper {
   val scalafmt_path: String = "/ossuminc/sbt-ossuminc/public/main/.scalafmt.conf"
   val scalafmt_conf: String = ".scalafmt.conf"
 
-  def apply(project: Project): Project = {
+  def configure(project: Project): Project = {
     project
       .enablePlugins(ScalafmtPlugin)
       .settings(

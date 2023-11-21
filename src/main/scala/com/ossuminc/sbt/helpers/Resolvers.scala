@@ -1,19 +1,12 @@
 package com.ossuminc.sbt.helpers
 
-import sbt.Keys._
-import sbt.{Resolver, _}
-import com.ossuminc.sbt.OssumIncKeys.privateNexusResolver
+import com.ossuminc.sbt.helpers.Release.Keys.privateNexusResolver
+import sbt.Keys.*
+import sbt.*
 
 object Resolvers extends AutoPluginHelper {
 
-  override def projectSettings: Seq[Setting[_]] = {
-    privateNexusResolver := None
-  }
-
   private final val releases = "releases"
-
-  val jgitRepo =
-    "eclipse-jgit".at("http://download.eclipse.org/jgit/maven")
 
   val standardResolvers: Seq[Resolver] = Seq[Resolver](
     Resolver.bintrayRepo("typesafe", "ivy-releases"),

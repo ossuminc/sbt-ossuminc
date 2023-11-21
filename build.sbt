@@ -95,19 +95,24 @@ lazy val defaultScmInfo = Def.setting {
 //  pushChanges
 //)
 
-addSbtPlugin("com.eed3si9n" % "sbt-buildinfo" % "0.10.0")
-addSbtPlugin("com.typesafe.sbt" % "sbt-git" % "1.0.2")
-addSbtPlugin("de.heikoseeberger" % "sbt-header" % "5.6.5")
-// addSbtPlugin("com.jsuereth" % "sbt-pgp" % "1.1.1")
-// addSbtPlugin("com.github.sbt" % "sbt-release" % "1.0.8")
-addSbtPlugin("com.github.sbt" % "sbt-native-packager" % "1.9.7")
-addSbtPlugin("org.scalameta" % "sbt-scalafmt" % "2.4.4")
-addSbtPlugin("org.scoverage" % "sbt-scoverage" % "1.9.2")
-addSbtPlugin("org.xerial.sbt" % "sbt-sonatype" % "2.3")
-addSbtPlugin("org.scalastyle" %% "scalastyle-sbt-plugin" % "1.0.0")
-addSbtPlugin("com.timushev.sbt" % "sbt-updates" % "0.5.0")
-addSbtPlugin("org.jetbrains" % "sbt-ide-settings" % "1.0.0")
+// Generic plugins from github.sbt project
+addSbtPlugin("com.github.sbt" % "sbt-dynver" % "5.0.1")
+addSbtPlugin("com.github.sbt" % "sbt-native-packager" % "1.9.16")
 addSbtPlugin("com.github.sbt" % "sbt-unidoc" % "0.5.0")
-addSbtPlugin("org.wartremover" % "sbt-wartremover" % "3.1.5")
-addSbtPlugin("com.github.sbt" % "sbt-release" % "1.1.0")
+addSbtPlugin("com.github.sbt" % "sbt-git" % "2.0.1")
+addSbtPlugin("com.github.sbt" % "sbt-unidoc" % "0.5.0")
 addSbtPlugin("com.github.sbt" % "sbt-pgp" % "2.2.1")
+addSbtPlugin("com.github.sbt" % "sbt-release" % "1.1.0")
+
+// Helpers from other sources
+addSbtPlugin("com.eed3si9n" % "sbt-buildinfo" % "0.11.0")
+addSbtPlugin("de.heikoseeberger" % "sbt-header" % "5.10.0")
+addSbtPlugin("com.timushev.sbt" % "sbt-updates" % "0.6.4")
+addSbtPlugin("org.jetbrains" % "sbt-ide-settings" % "1.0.0")
+addSbtPlugin("org.xerial.sbt" % "sbt-sonatype" % "3.9.9")
+
+// Scala specific from various places
+addSbtPlugin("org.scalameta" % "sbt-scalafmt" % "2.5.2")
+addSbtPlugin("org.scoverage" % "sbt-scoverage" % "2.0.9")
+addSbtPlugin("org.scoverage" % "sbt-coveralls" % "1.3.11")
+addSbtPlugin("org.wartremover" % "sbt-wartremover" % "3.1.5")

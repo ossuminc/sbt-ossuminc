@@ -17,15 +17,38 @@
 package com.ossuminc.sbt.helpers
 
 import com.jsuereth.sbtpgp.PgpKeys
-import com.ossuminc.sbt.OssumIncKeys.{ArtifactKind, DebianServerArtifact, DockerServerArtifact, RPMScalaServerArtifact, ZipFileArtifact, checkHeadersOnRelease, checkScalaFormattingOnRelease, checkScalaStyle, runTestsOnRelease}
-import com.ossuminc.sbt.helpers.Release.Keys.{additionalCheckSteps, artifactKinds, checkHeadersOnRelease, checkScalaFormattingOnRelease, privateNexusResolver, runTestsOnRelease}
-import com.typesafe.sbt.packager.universal.UniversalPlugin
+import com.ossuminc.sbt.helpers.Release.Keys.{
+  additionalCheckSteps,
+  artifactKinds,
+  checkHeadersOnRelease,
+  checkScalaFormattingOnRelease,
+  privateNexusResolver,
+  runTestsOnRelease
+}
 import sbt.KeyRanks.APlusTask
 import sbt.Keys.publish
 import sbt.*
 import sbtrelease.{ReleasePlugin, Version}
-import sbtrelease.ReleasePlugin.autoImport.{ReleaseStep, releaseProcess, releasePublishArtifactsAction, releaseStepCommand, releaseUseGlobalVersion, releaseVersionBump}
-import sbtrelease.ReleaseStateTransformations.{checkSnapshotDependencies, commitNextVersion, commitReleaseVersion, inquireVersions, publishArtifacts, pushChanges, runClean, setNextVersion, setReleaseVersion, tagRelease}
+import sbtrelease.ReleasePlugin.autoImport.{
+  ReleaseStep,
+  releaseProcess,
+  releasePublishArtifactsAction,
+  releaseStepCommand,
+  releaseUseGlobalVersion,
+  releaseVersionBump
+}
+import sbtrelease.ReleaseStateTransformations.{
+  checkSnapshotDependencies,
+  commitNextVersion,
+  commitReleaseVersion,
+  inquireVersions,
+  publishArtifacts,
+  pushChanges,
+  runClean,
+  setNextVersion,
+  setReleaseVersion,
+  tagRelease
+}
 
 object Release extends AutoPluginHelper {
 
@@ -43,14 +66,13 @@ object Release extends AutoPluginHelper {
 
     case object DockerServerArtifact extends ArtifactKind
 
-
     val artifactKinds: SettingKey[Seq[ArtifactKind]] =
       settingKey[Seq[ArtifactKind]](
         "The kinds of artifacts the project should produce. " +
           "Defaults to just to ZipFileArtifact"
       )
 
-    val additionalCheckSteps : SettingKey[Seq[ReleaseStep]] =
+    val additionalCheckSteps: SettingKey[Seq[ReleaseStep]] =
       settingKey[Seq[ReleaseStep]](
         "Additional steps to add to the releasing process"
       )
@@ -76,8 +98,8 @@ object Release extends AutoPluginHelper {
         "the SBT credentials file: ~/.sbt/1.0/sonatype.sbt"
     )
 
-    val checkHeadersOnRelease: SettingKey[Boolean] = settingKey[Boolean](
-      "Cause headerCheck to be run when releasing. Default is true")
+    val checkHeadersOnRelease: SettingKey[Boolean] =
+      settingKey[Boolean]("Cause headerCheck to be run when releasing. Default is true")
 
     val runTestsOnRelease: SettingKey[Boolean] = settingKey[Boolean](
       "Cause tests to be run when releasing. Default is true"
@@ -89,7 +111,8 @@ object Release extends AutoPluginHelper {
     )
 
   }
-  override def projectSettings: Seq[sbt.Setting[_]] = {
+
+  private def projectSettings: Seq[sbt.Setting[_]] = {
     Seq[sbt.Setting[_]](
       Keys.additionalCheckSteps := Seq.empty[ReleaseStep],
       Keys.checkScalaFormattingOnRelease := false,
@@ -145,9 +168,9 @@ object Release extends AutoPluginHelper {
   }
 
   def packagingSteps(artifactKinds: Seq[Keys.ArtifactKind]): Seq[ReleaseStep] = {
-    artifactKinds.map[ReleaseStep,Seq[ReleaseStep]] {
+    artifactKinds.map[ReleaseStep, Seq[ReleaseStep]] {
       case Keys.ZipFileArtifact ⇒
-        releaseStepCommand(UniversalPlugin.autoImport.dist)
+        releaseStepCommand("Universal:packageBin")
       case Keys.DebianServerArtifact ⇒
         releaseStepCommand("deb:packageBin")
       case Keys.RPMScalaServerArtifact ⇒
@@ -156,7 +179,6 @@ object Release extends AutoPluginHelper {
         releaseStepCommand("docker:stage")
     }
   }
-
 
   def finalSteps(releaseOSS: Boolean): Seq[ReleaseStep] = {
     Seq[ReleaseStep](
@@ -172,10 +194,11 @@ object Release extends AutoPluginHelper {
     } :+ pushChanges
   }
 
-  val choosePublishTask = TaskKey[Unit](
-    "choose-publish-signed", "Choose which publishing task to use", APlusTask
+  private val choosePublishTask = TaskKey[Unit](
+    "choose-publish-signed",
+    "Choose which publishing task to use",
+    APlusTask
   )
-
 
   def releasePublishTask(
     isOSS: Boolean
@@ -187,20 +210,25 @@ object Release extends AutoPluginHelper {
     }
   }
 
-  def process(project: Project): Project = {
+  def configure(project: Project): Project = {
     project
       .enablePlugins(ReleasePlugin)
+      .settings(projectSettings)
       .settings(
         releaseUseGlobalVersion := true,
         releaseVersionBump := Version.Bump.Bugfix,
-        choosePublishTask :=
-          releasePublishTask(privateNexusResolver.value.isEmpty),
+        choosePublishTask := {
+          val isOSS: Boolean = Keys.privateNexusResolver.value.isEmpty
+          releasePublishTask(isOSS)
+        },
         releasePublishArtifactsAction := choosePublishTask.value,
         releaseProcess := {
           initialSteps ++
             checkingSteps(
-              checkHeadersOnRelease.value, checkScalaFormattingOnRelease.value,
-              runTestsOnRelease.value, additionalCheckSteps.value
+              checkHeadersOnRelease.value,
+              checkScalaFormattingOnRelease.value,
+              runTestsOnRelease.value,
+              additionalCheckSteps.value
             ) ++
             taggingSteps(checkScalaFormattingOnRelease.value) ++
             packagingSteps(artifactKinds.value) ++

@@ -72,11 +72,6 @@ object HandyAliases extends AutoPluginHelper {
     }
   }
 
-  private def addCommandAliases(m: (String, String)*): Unit = {
-    val s = m.map(p => addCommandAlias(p._1, p._2)).reduce(_ ++ _)
-    (_: Project).settings(s: _*)
-  }
-
   private def print_class_path: Def.Initialize[Task[File]] = Def.task {
     val out = target.value
     val cp = (Compile / fullClasspath).value

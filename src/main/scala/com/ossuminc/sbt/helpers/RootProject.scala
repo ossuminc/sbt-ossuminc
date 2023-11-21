@@ -1,10 +1,8 @@
 package com.ossuminc.sbt.helpers
 
-import sbt.{Def, Global, Project, Setting, State, file}
+import sbt.*
 import sbt.Keys.*
-import sbt.internal.SysProp.onChangedBuildSource
 import sbt.librarymanagement.Resolver
-import sbt.nio.Keys.ReloadOnSourceChanges
 
 import java.io.File
 

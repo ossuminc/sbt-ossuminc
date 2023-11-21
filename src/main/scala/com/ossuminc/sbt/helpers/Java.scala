@@ -34,7 +34,7 @@ object Java extends AutoPluginHelper {
     "-Werror"
   )
 
-  def apply(project: Project): Project = {
+  def configure(project: Project): Project = {
     project
       .settings(
         test / javaOptions  ++= Seq("-Xmx512m"),

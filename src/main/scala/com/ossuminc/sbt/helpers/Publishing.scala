@@ -23,7 +23,6 @@ import sbt.*
 import xerial.sbt.Sonatype.*
 import xerial.sbt.Sonatype as SonatypePlugin
 
-import java.net.URI
 import scala.xml.*
 
 /** Settings For SonatypePublishing Plugin */
@@ -54,14 +53,12 @@ object Publishing extends AutoPluginHelper {
               <url>{dev.url.toString}</url>
             </developer>
           }
-         val devList = <developers>{devs}</developers>
-          val liclist = {
-            licenses.value.map {
-              case (nm, url) => makeLicense(nm, url.toExternalForm)
-            }
-            <licenses>{liclist}</licenses>
+          val devList = <developers>{devs}</developers>
+          val licList: scala.xml.Node = {
+            val lics = licenses.value.map { case (nm, url) => makeLicense(nm, url.toExternalForm) }
+            <licenses>{lics}</licenses>
           }
-          NodeSeq.fromSeq(Seq(devList, liclist))
+          NodeSeq.fromSeq(Seq(devList,licList))
         }
       )
   }

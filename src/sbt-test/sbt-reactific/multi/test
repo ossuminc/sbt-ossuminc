@@ -1,0 +1,22 @@
+> publishLocal
+$ exists p1/target/scala-2.12/project1_2.12-0.1.7-SNAPSHOT.jar
+$ exists p1/target/scala-2.12/project1_2.12-0.1.7-SNAPSHOT.pom
+$ exists p1/target/scala-2.12/project1_2.12-0.1.7-SNAPSHOT-javadoc.jar
+$ exists p1/target/scala-2.12/project1_2.12-0.1.7-SNAPSHOT-sources.jar
+$ exists p2/target/scala-2.12/project2_2.12-0.1.7-SNAPSHOT.jar
+$ exists p2/target/scala-2.12/project2_2.12-0.1.7-SNAPSHOT.pom
+$ exists p2/target/scala-2.12/project2_2.12-0.1.7-SNAPSHOT-javadoc.jar
+$ exists p2/target/scala-2.12/project2_2.12-0.1.7-SNAPSHOT-sources.jar
+# Unfortunately scripted plugin doesn't understand ~ and putting full path makes it depend on user name
+#$ exists ~/.ivy2/local/com.reactific/project1_2.11/0.1.7-SNAPSHOT/jars/project1_2.11.jar
+#$ exists ~/.ivy2/local/com.reactific/project1_2.11/0.1.7-SNAPSHOT/srcs/project1_2.11-sources.jar
+#$ exists ~/.ivy2/local/com.reactific/project1_2.11/0.1.7-SNAPSHOT/poms/project1_2.11.pom
+#$ exists ~/.ivy2/local/com.reactific/project1_2.11/0.1.7-SNAPSHOT/docs/project1_2.11-javadoc.jar
+#$ exists ~/.ivy2/local/com.reactific/project1_2.11/0.1.7-SNAPSHOT/zips/project1_2.11.zip
+#$ exists ~/.ivy2/local/com.reactific/project1_2.11/0.1.7-SNAPSHOT/ivys/ivy.xml
+#$ exists ~/.ivy2/local/com.reactific/project2_2.11/0.1.7-SNAPSHOT/srcs/project2_2.11-sources.jar
+#$ exists ~/.ivy2/local/com.reactific/project2_2.11/0.1.7-SNAPSHOT/zips/project2_2.11.zip
+#$ exists ~/.ivy2/local/com.reactific/project2_2.11/0.1.7-SNAPSHOT/jars/project2_2.11.jar
+#$ exists ~/.ivy2/local/com.reactific/project2_2.11/0.1.7-SNAPSHOT/docs/project2_2.11-javadoc.jar
+#$ exists ~/.ivy2/local/com.reactific/project2_2.11/0.1.7-SNAPSHOT/poms/project2_2.11.pom
+#$ exists ~/.ivy2/local/com.reactific/project2_2.11/0.1.7-SNAPSHOT/ivys/ivy.xml

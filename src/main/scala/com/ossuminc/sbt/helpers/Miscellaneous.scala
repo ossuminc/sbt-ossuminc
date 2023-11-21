@@ -16,7 +16,6 @@
 
 package com.ossuminc.sbt.helpers
 
-import com.ossuminc.sbt.OssumIncKeys.{ArtifactKind, ZipFileArtifact, artifactKinds}
 import com.typesafe.sbt.SbtNativePackager.Universal
 import com.typesafe.sbt.packager.Keys.scriptClasspath
 import sbt.Keys._

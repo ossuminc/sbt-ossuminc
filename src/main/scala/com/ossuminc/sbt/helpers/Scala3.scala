@@ -30,7 +30,7 @@ object Scala3 extends AutoPluginHelper {
     )
   }
 
-  def apply(project: Project): Project = {
+  def configure(project: Project): Project = {
     project
       .settings(
         scalaVersion := "3.3.1",

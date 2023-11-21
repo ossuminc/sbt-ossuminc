@@ -16,7 +16,6 @@
 
 package com.ossuminc.sbt.helpers
 
-import com.ossuminc.sbt.helpers.ProjectInfo.Keys.{buildInfoObjectName, gitHubOrganization}
 import sbt.*
 import sbt.Keys.*
 import sbtbuildinfo.BuildInfoKeys.*
@@ -73,7 +72,7 @@ object ProjectInfo extends AutoPluginHelper {
         ThisBuild / organizationHomepage := Some(URI.create("https://com.ossuminc/").toURL),
         ThisBuild / organizationName := "Ossum Inc.",
         ThisBuild / versionScheme := Option("early-semver"),
-        ThisBuild / licenses += ("Apache-2.0", URI.create("https://www.apache.org/licenses/LICENSE-2.0.txt").toURL),
+        ThisBuild / licenses += ("Apache-2.0" -> URI.create("https://www.apache.org/licenses/LICENSE-2.0.txt").toURL),
         ThisBuild / homepage := Some(URI.create("https://github.com/ossuminc/" + normalizedName.value).toURL),
         ThisBuild / developers := List(Developer(
           "reid-spencer", "Reid Spencer", "", url("https://github.com/reid-spencer"))
@@ -84,7 +83,7 @@ object ProjectInfo extends AutoPluginHelper {
         Keys.buildInfoObjectName := "BuildInfo",
         Keys.buildInfoPackage := "com.ossuminc",
         Keys.gitHubRepository := name.value,
-        Keys.projectHomePage := url(s"https://github.com/${gitHubOrganization.value}/${Keys.gitHubRepository.value}"),
+        Keys.projectHomePage := url(s"https://github.com/${Keys.gitHubOrganization.value}/${Keys.gitHubRepository.value}"),
         baseDirectory := thisProject.value.base,
         target := baseDirectory.value / "target",
         logLevel := Level.Info,
