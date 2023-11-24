@@ -48,7 +48,6 @@ object Unidoc extends AutoPluginHelper {
   def configure(mappings: Map[(String, String), URL])(project: Project): Project = {
     project
       .enablePlugins(ScalaUnidocPlugin)
-      .settings(ScalaUnidocPlugin.projectSettings)
       .settings(
         apiURL := Some(
           url(

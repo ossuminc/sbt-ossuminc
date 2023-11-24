@@ -28,9 +28,8 @@ import scala.xml.*
 /** Settings For SonatypePublishing Plugin */
 object Publishing extends AutoPluginHelper {
 
-  object Keys {
+  object Keys {}
 
-  }
   /** The AutoPlugins that we depend upon */
   override def autoPlugins: Seq[AutoPlugin] = Seq(SonatypePlugin)
 

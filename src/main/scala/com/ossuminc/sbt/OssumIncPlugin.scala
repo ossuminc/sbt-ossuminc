@@ -21,6 +21,7 @@ object OssumIncPlugin extends AutoPlugin {
     val git: helpers.Git.type = helpers.Git
     val aliases: helpers.HandyAliases.type = helpers.HandyAliases
     val header: helpers.Header.type = helpers.Header
+    val info: helpers.ProjectInfo.type = helpers.ProjectInfo
     val java: helpers.Java.type = helpers.Java
     val misc: helpers.Miscellaneous.type = helpers.Miscellaneous
     val publishing: helpers.Publishing.type = helpers.Publishing

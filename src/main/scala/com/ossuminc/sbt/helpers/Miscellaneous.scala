@@ -28,6 +28,19 @@ object Miscellaneous extends AutoPluginHelper {
 
   def configure(project: Project): Project = { project }
 
+  private def currBranch: String = {
+    import com.github.sbt.git.JGit
+    val jgit = JGit(new File("."))
+    jgit.branch
+  }
+
+  def buildShellPrompt: Def.Initialize[State => String] = {
+    Def.setting { (state: State) =>
+      val id = Project.extract(state).currentProject.id
+      s"${name.value}($id) : $currBranch : ${version.value}>"
+    }
+  }
+
   private def filter(ms: Seq[(File, String)]): Seq[(File, String)] = {
     ms.filter { case (_, path) =>
       path != "logback.xml" &&

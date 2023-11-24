@@ -29,9 +29,7 @@ object Header extends AutoPluginHelper {
   /** The AutoPlugins that we depend upon */
   override def autoPlugins: Seq[AutoPlugin] = Seq(HeaderPlugin)
 
-  object Keys {
-
-  }
+  object Keys {}
 
   def configure(project: Project): Project = {
     val copyright_holder = "Ossum Inc."
@@ -40,26 +38,24 @@ object Header extends AutoPluginHelper {
     project
       .enablePlugins(HeaderPlugin)
       .settings(
-        Seq(
-          headerEmptyLine := true,
-          startYear := Some(projectStartYear.value),
-          headerLicense := {
-            val years = startYear.value.get.toString + "-" + Year.now().toString
-            Some(
-              HeaderLicense.ALv2(
-                years,
-                copyright_holder,
-                HeaderLicenseStyle.SpdxSyntax
-              )
+        headerEmptyLine := true,
+        startYear := Some(projectStartYear.value),
+        headerLicense := {
+          val years = startYear.value.get.toString + "-" + Year.now().toString
+          Some(
+            HeaderLicense.ALv2(
+              years,
+              copyright_holder,
+              HeaderLicenseStyle.SpdxSyntax
             )
-          },
-          headerMappings ++= Map[FileType, CommentStyle](
-            FileType.sh → CommentStyle.hashLineComment,
-            FileType(".sbt") → CommentStyle.cStyleBlockComment,
-            FileType(".xml") → CommentStyle.xmlStyleBlockComment,
-            FileType(".scala.html") → CommentStyle.twirlStyleBlockComment,
-            FileType(".conf") → CommentStyle.hashLineComment
           )
+        },
+        headerMappings ++= Map[FileType, CommentStyle](
+          FileType.sh -> CommentStyle.hashLineComment,
+          FileType(".sbt") -> CommentStyle.cStyleBlockComment,
+          FileType(".xml") -> CommentStyle.xmlStyleBlockComment,
+          FileType(".scala.html") -> CommentStyle.twirlStyleBlockComment,
+          FileType(".conf") -> CommentStyle.hashLineComment
         )
       )
   }

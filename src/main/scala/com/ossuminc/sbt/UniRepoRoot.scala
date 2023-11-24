@@ -1,25 +1,13 @@
-package com.ossuminc.sbt.helpers
+package com.ossuminc.sbt
+
+import com.ossuminc.sbt.helpers.Miscellaneous.buildShellPrompt
 
 import sbt.*
 import sbt.Keys.*
 import sbt.librarymanagement.Resolver
 
-import java.io.File
+object UniRepoRoot {
 
-object RootProject {
-
-  private def currBranch: String = {
-    import com.github.sbt.git.JGit
-    val jgit = JGit(new File("."))
-    jgit.branch
-  }
-
-  private[sbt] def buildShellPrompt: Def.Initialize[State => String] = {
-    Def.setting { (state: State) =>
-      val id = Project.extract(state).currentProject.id
-      s"${name.value}($id) : $currBranch : ${version.value}>"
-    }
-  }
 
   def apply(id: String): Project = {
     Project
