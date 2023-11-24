@@ -17,10 +17,10 @@
 package com.ossuminc.sbt.helpers
 
 import sbt.Keys.baseDirectory
-import sbt.*
+import sbt._
 import sbtrelease.{ReleasePlugin, Vcs, Version}
-import sbtrelease.ReleasePlugin.autoImport.*
-import sbtrelease.ReleaseStateTransformations.*
+import sbtrelease.ReleasePlugin.autoImport._
+import sbtrelease.ReleaseStateTransformations._
 
 object Release extends AutoPluginHelper {
 
@@ -96,8 +96,7 @@ object Release extends AutoPluginHelper {
       Keys.privateNexusResolver := None,
       releaseVcs := Vcs.detect((ThisBuild / baseDirectory).value),
       releaseUseGlobalVersion := true,
-      releaseVersionBump := Version.Bump.Bugfix,
-
+      releaseVersionBump := Version.Bump.Bugfix
     )
   }
 

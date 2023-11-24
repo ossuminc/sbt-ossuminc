@@ -22,6 +22,12 @@ import sbt.Keys._
 /** Compiler Settings Needed */
 object Scala2 extends AutoPluginHelper {
 
+  object Keys {
+    val titleForDocs: SettingKey[String] = settingKey[String](
+      "Title to use when generating documentation"
+    )
+  }
+
   private val scalac_common_options = Seq(
     "-encoding",
     "UTF-8", // Yes, this is 2 args
@@ -91,6 +97,7 @@ object Scala2 extends AutoPluginHelper {
     project
       .settings(
         scalaVersion := "2.12.12",
+        Keys.titleForDocs := name.value,
         scalacOptions ++= {
           val version = "(\\d)\\.(\\d{2})".r
           scalaVersion.value match {
@@ -105,20 +112,20 @@ object Scala2 extends AutoPluginHelper {
             case _ =>
               scalac_common_options
           }
+        },
+        Compile / doc / scalacOptions ++= {
+          Opts.doc.title(Keys.titleForDocs.value) ++
+            Opts.doc.version(version.value) ++ Seq(
+              "-feature",
+              "-unchecked",
+              "-deprecation",
+              "-diagrams",
+              "-explaintypes",
+              "-language:existentials", // Turn on existentials feature
+              "-language:higherKinds", // Turn on higher kinds feature
+              "-language:implicitConversions" // Turn on implicit conversions
+            )
         }
-//        scalacOptions in (Compile, doc) ++= {
-//          Opts.doc.title(titleForDocs.value) ++
-//            Opts.doc.version(version.value) ++ Seq(
-//            "-feature",
-//            "-unchecked",
-//            "-deprecation",
-//            "-diagrams",
-//            "-explaintypes",
-//            "-language:existentials", // Turn on existentials feature
-//            "-language:higherKinds", // Turn on higher kinds feature
-//            "-language:implicitConversions" // Turn on implicit conversions
-//          )
-//        }
       )
   }
 }
