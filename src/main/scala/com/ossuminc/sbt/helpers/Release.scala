@@ -16,39 +16,11 @@
 
 package com.ossuminc.sbt.helpers
 
-import com.jsuereth.sbtpgp.PgpKeys
-import com.ossuminc.sbt.helpers.Release.Keys.{
-  additionalCheckSteps,
-  artifactKinds,
-  checkHeadersOnRelease,
-  checkScalaFormattingOnRelease,
-  privateNexusResolver,
-  runTestsOnRelease
-}
-import sbt.KeyRanks.APlusTask
-import sbt.Keys.publish
+import sbt.Keys.baseDirectory
 import sbt.*
-import sbtrelease.{ReleasePlugin, Version}
-import sbtrelease.ReleasePlugin.autoImport.{
-  ReleaseStep,
-  releaseProcess,
-  releasePublishArtifactsAction,
-  releaseStepCommand,
-  releaseUseGlobalVersion,
-  releaseVersionBump
-}
-import sbtrelease.ReleaseStateTransformations.{
-  checkSnapshotDependencies,
-  commitNextVersion,
-  commitReleaseVersion,
-  inquireVersions,
-  publishArtifacts,
-  pushChanges,
-  runClean,
-  setNextVersion,
-  setReleaseVersion,
-  tagRelease
-}
+import sbtrelease.{ReleasePlugin, Vcs, Version}
+import sbtrelease.ReleasePlugin.autoImport.*
+import sbtrelease.ReleaseStateTransformations.*
 
 object Release extends AutoPluginHelper {
 
@@ -65,6 +37,8 @@ object Release extends AutoPluginHelper {
     case object RPMScalaServerArtifact extends ArtifactKind
 
     case object DockerServerArtifact extends ArtifactKind
+
+    case object WindowsArtifact extends ArtifactKind
 
     val artifactKinds: SettingKey[Seq[ArtifactKind]] =
       settingKey[Seq[ArtifactKind]](
@@ -112,13 +86,18 @@ object Release extends AutoPluginHelper {
 
   }
 
-  private def projectSettings: Seq[sbt.Setting[_]] = {
+  private def defaultSettings: Seq[sbt.Setting[_]] = {
     Seq[sbt.Setting[_]](
       Keys.additionalCheckSteps := Seq.empty[ReleaseStep],
       Keys.checkScalaFormattingOnRelease := false,
       Keys.runTestsOnRelease := true,
       Keys.checkScalaFormattingOnRelease := true,
-      Keys.checkHeadersOnRelease := true
+      Keys.checkHeadersOnRelease := true,
+      Keys.privateNexusResolver := None,
+      releaseVcs := Vcs.detect((ThisBuild / baseDirectory).value),
+      releaseUseGlobalVersion := true,
+      releaseVersionBump := Version.Bump.Bugfix,
+
     )
   }
 
@@ -177,6 +156,8 @@ object Release extends AutoPluginHelper {
         releaseStepCommand("rpm:packageBin")
       case Keys.DockerServerArtifact ⇒
         releaseStepCommand("docker:stage")
+      case Keys.WindowsArtifact =>
+        releaseStepCommand("Windows:")
     }
   }
 
@@ -194,45 +175,22 @@ object Release extends AutoPluginHelper {
     } :+ pushChanges
   }
 
-  private val choosePublishTask = TaskKey[Unit](
-    "choose-publish-signed",
-    "Choose which publishing task to use",
-    APlusTask
-  )
-
-  def releasePublishTask(
-    isOSS: Boolean
-  ): Def.Initialize[Task[Unit]] = Def.taskDyn[Unit] {
-    if (isOSS) { // releasing open source
-      PgpKeys.publishSigned
-    } else {
-      publish
-    }
-  }
-
   def configure(project: Project): Project = {
     project
       .enablePlugins(ReleasePlugin)
-      .settings(projectSettings)
+      .settings(defaultSettings)
       .settings(
-        releaseUseGlobalVersion := true,
-        releaseVersionBump := Version.Bump.Bugfix,
-        choosePublishTask := {
-          val isOSS: Boolean = Keys.privateNexusResolver.value.isEmpty
-          releasePublishTask(isOSS)
-        },
-        releasePublishArtifactsAction := choosePublishTask.value,
         releaseProcess := {
           initialSteps ++
             checkingSteps(
-              checkHeadersOnRelease.value,
-              checkScalaFormattingOnRelease.value,
-              runTestsOnRelease.value,
-              additionalCheckSteps.value
+              Keys.checkHeadersOnRelease.value,
+              Keys.checkScalaFormattingOnRelease.value,
+              Keys.runTestsOnRelease.value,
+              Keys.additionalCheckSteps.value
             ) ++
-            taggingSteps(checkScalaFormattingOnRelease.value) ++
-            packagingSteps(artifactKinds.value) ++
-            finalSteps(privateNexusResolver.value.isEmpty)
+            taggingSteps(Keys.checkScalaFormattingOnRelease.value) ++
+            packagingSteps(Keys.artifactKinds.value) ++
+            finalSteps(Keys.privateNexusResolver.value.isEmpty)
         }
       )
   }

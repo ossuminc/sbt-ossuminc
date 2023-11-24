@@ -57,7 +57,7 @@ object Unidoc extends AutoPluginHelper {
         ),
         autoAPIMappings := true,
         apiMappings ++= {
-          val cp: Seq[Attributed[File]] = (fullClasspath in Compile).value
+          val cp: Seq[Attributed[File]] = (Compile / fullClasspath).value
           def findManagedDependency(
             organization: String,
             name: String

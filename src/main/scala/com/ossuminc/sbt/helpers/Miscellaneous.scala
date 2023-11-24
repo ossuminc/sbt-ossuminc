@@ -54,9 +54,9 @@ object Miscellaneous extends AutoPluginHelper {
             (base / "libs" ** "*.jar").classpath
           }.value
         },
-        mappings in (Compile, packageBin) ~= filter,
-        mappings in (Compile, packageSrc) ~= filter,
-        mappings in (Compile, packageDoc) ~= filter
+        Compile / packageBin / mappings ~= filter,
+        Compile / packageSrc / mappings ~= filter,
+        Compile / packageDoc / mappings ~= filter
       )
   }
 
@@ -82,7 +82,7 @@ object Miscellaneous extends AutoPluginHelper {
     manifest.getMainAttributes
       .putValue("Class-Path", classPath.mkString(" "))
     val classpathJar = target / "lib" / classpath_jar
-    IO.jar(Seq.empty, classpathJar, manifest)
+    IO.jar(Seq.empty, classpathJar, manifest, None)
     Seq(classpath_jar)
   }
 
@@ -96,12 +96,11 @@ object Miscellaneous extends AutoPluginHelper {
             scriptClasspathOrdering
               .map(Miscellaneous.makeRelativeClasspathNames)
               .value,
-            (target in Universal).value
+            (Universal / target).value
           )
         },
-        mappings in Universal += {
-          (target in Universal).value / "lib" / "classpath.jar" ->
-            "lib/classpath.jar"
+        Universal / mappings += {
+          (Universal / target).value / "lib" / "classpath.jar" -> "lib/classpath.jar"
         }
       ): _*
     )

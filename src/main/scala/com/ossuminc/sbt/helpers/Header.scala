@@ -35,7 +35,6 @@ object Header extends AutoPluginHelper {
 
   def configure(project: Project): Project = {
     val copyright_holder = "Ossum Inc."
-    val years = startYear.value.get.toString + "-" + Year.now().toString
     import HeaderPlugin.autoImport._
     import sbtheader.{CommentStyle, FileType}
     project
@@ -44,13 +43,16 @@ object Header extends AutoPluginHelper {
         Seq(
           headerEmptyLine := true,
           startYear := Some(projectStartYear.value),
-          headerLicense := Some(
-            HeaderLicense.ALv2(
-              years,
-              copyright_holder,
-              HeaderLicenseStyle.SpdxSyntax
+          headerLicense := {
+            val years = startYear.value.get.toString + "-" + Year.now().toString
+            Some(
+              HeaderLicense.ALv2(
+                years,
+                copyright_holder,
+                HeaderLicenseStyle.SpdxSyntax
+              )
             )
-          ),
+          },
           headerMappings ++= Map[FileType, CommentStyle](
             FileType.sh → CommentStyle.hashLineComment,
             FileType(".sbt") → CommentStyle.cStyleBlockComment,
