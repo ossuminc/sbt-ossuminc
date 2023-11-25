@@ -37,15 +37,7 @@ object Unidoc extends AutoPluginHelper {
     ("com.typesafe", "config") -> url("http://typesafehub.github.io/config/latest/api/")
   )
 
-  def knownApiMappings: Map[(String, String), URL] = Map(
-    ("org.scala-lang", "scala-library") -> url(s"http://www.scala-lang.org/api/$scalaVersion/")
-  )
-
   def configure(project: Project): Project = {
-    configure(knownApiMappings)(project)
-  }
-
-  def configure(mappings: Map[(String, String), URL])(project: Project): Project = {
     project
       .enablePlugins(ScalaUnidocPlugin)
       .settings(
@@ -69,6 +61,12 @@ object Unidoc extends AutoPluginHelper {
               jarFile = entry.data
             } yield jarFile).headOption
           }
+
+          val knownApiMappings: Map[(String, String), URL] = Map(
+            ("org.scala-lang", "scala-library") -> url(
+              s"http://www.scala-lang.org/api/${scalaVersion.value}/"
+            ))
+
           for {
             ((org, lib), url) <- knownApiMappings
             dep = findManagedDependency(org, lib) if dep.isDefined
