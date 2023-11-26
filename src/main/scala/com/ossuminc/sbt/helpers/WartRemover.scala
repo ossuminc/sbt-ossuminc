@@ -24,8 +24,9 @@ object WartRemover extends AutoPluginHelper {
           Warts.all.filterNot { wart => Keys.excludedWarts.value.contains(wart) },
         Test / compile / wartremoverWarnings := Seq.empty[Wart],
         wartremoverExcluded := {
-          val scalaVer = scalaVersion.value
-          Seq(project.base / "target" / s"scala-$scalaVer" / "src_managed" / "main")
+          val scalaVer: String = scalaVersion.value
+          val sv = if (scalaVer.startsWith("3")) "3" else scalaVer.take(4)
+          Seq(project.base / "target" / s"scala-$sv" / "src_managed" / "main")
         }
       )
   }

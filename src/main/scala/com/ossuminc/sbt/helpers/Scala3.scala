@@ -13,7 +13,8 @@ object Scala3 extends AutoPluginHelper {
       // "-explain",
       // "-explain-types",
       "-Werror",
-      "-pagewidth", "120"
+      "-pagewidth",
+      "120"
     )
 
   def scala_3_doc_options(version: String): Seq[String] = {
@@ -39,7 +40,5 @@ object Scala3 extends AutoPluginHelper {
         apiURL := Some(url("https://riddl.tech/apidoc/")),
         autoAPIMappings := true
       )
-    project
   }
-
 }

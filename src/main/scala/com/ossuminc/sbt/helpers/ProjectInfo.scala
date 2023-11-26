@@ -30,7 +30,7 @@ object ProjectInfo extends AutoPluginHelper {
   override def autoPlugins: Seq[AutoPlugin] = Seq(sbtbuildinfo.BuildInfoPlugin)
 
   object Keys {
-    val projectHomePage : SettingKey[URL] = settingKey[URL](
+    val projectHomePage: SettingKey[URL] = settingKey[URL](
       "The url of the project's home page"
     )
 
@@ -74,8 +74,8 @@ object ProjectInfo extends AutoPluginHelper {
         ThisBuild / versionScheme := Option("early-semver"),
         ThisBuild / licenses += ("Apache-2.0" -> URI.create("https://www.apache.org/licenses/LICENSE-2.0.txt").toURL),
         ThisBuild / homepage := Some(URI.create("https://github.com/ossuminc/" + normalizedName.value).toURL),
-        ThisBuild / developers := List(Developer(
-          "reid-spencer", "Reid Spencer", "", url("https://github.com/reid-spencer"))
+        ThisBuild / developers := List(
+          Developer("reid-spencer", "Reid Spencer", "", url("https://github.com/reid-spencer"))
         ),
         ThisBuild / Keys.copyrightHolder := "Ossum Inc.",
         ThisBuild / Keys.gitHubOrganization := "ossuminc",
@@ -83,7 +83,12 @@ object ProjectInfo extends AutoPluginHelper {
         Keys.buildInfoObjectName := "BuildInfo",
         Keys.buildInfoPackage := "com.ossuminc",
         Keys.gitHubRepository := name.value,
-        Keys.projectHomePage := url(s"https://github.com/${Keys.gitHubOrganization.value}/${Keys.gitHubRepository.value}"),
+        Keys.projectHomePage := url(
+          s"https://github.com/${Keys.gitHubOrganization.value}/${Keys.gitHubRepository.value}"
+        ),
+        Keys.projectStartYear := 2023,
+        Keys.gitHubOrganization := "ossuminc",
+        Keys.gitHubRepository := "unspecified",
         baseDirectory := thisProject.value.base,
         target := baseDirectory.value / "target",
         logLevel := Level.Info,
@@ -109,18 +114,15 @@ object ProjectInfo extends AutoPluginHelper {
           BuildInfoKey.map(licenses) { case (k, v) =>
             k -> v.map(_._1).mkString(", ")
           },
-          apiURL,
           isSnapshot,
           buildInfoPackage,
           BuildInfoKey.map(startYear) { case (k, v) =>
             k -> v.map(_.toString).getOrElse(Keys.projectStartYear.toString)
           },
           BuildInfoKey.map(startYear) { case (_, v) =>
-            "copyright" -> s"© ${v.map(_.toString).getOrElse(Keys.projectStartYear.toString)}-${
-              Calendar
+            "copyright" -> s"© ${v.map(_.toString).getOrElse(Keys.projectStartYear.toString)}-${Calendar
                 .getInstance()
-                .get(Calendar.YEAR)
-            }} ${organizationName.value}"
+                .get(Calendar.YEAR)} ${organizationName.value}"
           },
           scalaVersion,
           sbtVersion,

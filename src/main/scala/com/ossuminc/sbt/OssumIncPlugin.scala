@@ -35,11 +35,11 @@ object OssumIncPlugin extends AutoPlugin {
     object With {
 
       def these(helpers: AutoPluginHelper*)(project: Project): Project = {
-        helpers.foreach { helper =>
-          helpersToRequire = helpersToRequire :+ helper
-          helper.configure(project)
+        helpers.foreach { helper => helpersToRequire = helpersToRequire :+ helper }
+        helpersToRequire.foldLeft(project) { (p, helper) =>
+          println(s"Configuring ${helper.getClass.getSimpleName}")
+          p.configure(helper.configure)
         }
-        project
       }
 
       def basic(project: Project): Project = {
@@ -47,7 +47,7 @@ object OssumIncPlugin extends AutoPlugin {
       }
 
       def typical(project: Project): Project = {
-        these(git, aliases, header, publishing, resolvers, release, scala3, scalafmt, unidoc)(project)
+        these(git, aliases, header, publishing, release, scala3, scalafmt, unidoc)(project)
       }
 
       def everything(project: Project): Project = {

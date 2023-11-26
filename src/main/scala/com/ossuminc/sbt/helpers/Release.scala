@@ -17,10 +17,10 @@
 package com.ossuminc.sbt.helpers
 
 import sbt.Keys.baseDirectory
-import sbt._
+import sbt.*
 import sbtrelease.{ReleasePlugin, Vcs, Version}
-import sbtrelease.ReleasePlugin.autoImport._
-import sbtrelease.ReleaseStateTransformations._
+import sbtrelease.ReleasePlugin.autoImport.*
+import sbtrelease.ReleaseStateTransformations.*
 
 object Release extends AutoPluginHelper {
 
@@ -88,12 +88,13 @@ object Release extends AutoPluginHelper {
 
   private def defaultSettings: Seq[sbt.Setting[_]] = {
     Seq[sbt.Setting[_]](
+      Keys.artifactKinds := Seq(Keys.ZipFileArtifact),
+      Keys.privateNexusResolver := None,
       Keys.additionalCheckSteps := Seq.empty[ReleaseStep],
       Keys.checkScalaFormattingOnRelease := false,
       Keys.runTestsOnRelease := true,
       Keys.checkScalaFormattingOnRelease := true,
       Keys.checkHeadersOnRelease := true,
-      Keys.privateNexusResolver := None,
       releaseVcs := Vcs.detect((ThisBuild / baseDirectory).value),
       releaseUseGlobalVersion := true,
       releaseVersionBump := Version.Bump.Bugfix
