@@ -27,6 +27,7 @@ object Release extends AutoPluginHelper {
   /** The AutoPlugins that we depend upon */
   override def autoPlugins: Seq[AutoPlugin] = Seq(ReleasePlugin)
 
+  /** THe Keys and types pertaining to releasing artifacts */
   object Keys {
     sealed trait ArtifactKind
 
@@ -83,7 +84,6 @@ object Release extends AutoPluginHelper {
       "Reformat scala source coe with Scalafmt as part of releasing. " +
         "Default is false"
     )
-
   }
 
   private def defaultSettings: Seq[sbt.Setting[_]] = {

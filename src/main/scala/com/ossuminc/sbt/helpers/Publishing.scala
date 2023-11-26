@@ -28,12 +28,10 @@ import scala.xml.*
 /** Settings For SonatypePublishing Plugin */
 object Publishing extends AutoPluginHelper {
 
-  object Keys {}
-
   /** The AutoPlugins that we depend upon */
   override def autoPlugins: Seq[AutoPlugin] = Seq(SonatypePlugin)
 
-  def makeLicense(name: String, url: String): Elem = {
+  private def makeLicense(name: String, url: String): Elem = {
     <license>
       <name>{name}</name>
       <url>{url}</url>
@@ -41,7 +39,7 @@ object Publishing extends AutoPluginHelper {
     </license>
   }
 
-  def publishAsMaven(project: Project): Project = {
+  private def publishAsMaven(project: Project): Project = {
     project
       .settings(
         publishMavenStyle := true,
@@ -65,10 +63,10 @@ object Publishing extends AutoPluginHelper {
       )
   }
 
-  val sonatypeOssSnapshots = "https://oss.sonatype.org/service/local/snapshots"
-  val sonatypeOssStaging = "https://oss.sonatype.org/service/local/staging/deploy/maven2"
+  private val sonatypeOssSnapshots = "https://oss.sonatype.org/service/local/snapshots"
+  private val sonatypeOssStaging = "https://oss.sonatype.org/service/local/staging/deploy/maven2"
 
-  def publishToSonaType(project: Project): Project = {
+  private def publishToSonatype(project: Project): Project = {
     project
       .enablePlugins(SonatypePlugin)
       .settings(sonatypeSettings)
@@ -106,6 +104,6 @@ object Publishing extends AutoPluginHelper {
           )
         )
       }
-    )
+    ).configure(publishToSonatype)
   }
 }

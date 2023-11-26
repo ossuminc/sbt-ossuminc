@@ -50,10 +50,6 @@ object ProjectInfo extends AutoPluginHelper {
       "The name of the business entity or person that holds the copyright"
     )
 
-    val codePackage: SettingKey[String] = settingKey[String](
-      "The main, top level Scala package name that contains the project's code"
-    )
-
     val buildInfoPackage: SettingKey[String] = settingKey[String](
       "The name of the scala package in which the build info object should be created"
     )
@@ -79,7 +75,6 @@ object ProjectInfo extends AutoPluginHelper {
         ),
         ThisBuild / Keys.copyrightHolder := "Ossum Inc.",
         ThisBuild / Keys.gitHubOrganization := "ossuminc",
-        Keys.codePackage := "com.ossuminc",
         Keys.buildInfoObjectName := "BuildInfo",
         Keys.buildInfoPackage := "com.ossuminc",
         Keys.gitHubRepository := name.value,
@@ -116,6 +111,7 @@ object ProjectInfo extends AutoPluginHelper {
           },
           isSnapshot,
           buildInfoPackage,
+          buildInfoObject,
           BuildInfoKey.map(startYear) { case (k, v) =>
             k -> v.map(_.toString).getOrElse(Keys.projectStartYear.toString)
           },

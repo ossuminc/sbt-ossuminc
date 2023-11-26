@@ -14,38 +14,43 @@
  * limitations under the License.
  */
 
-libraryDependencies ++= Seq(
-  "org.scala-sbt" %% "scripted-plugin" % sbtVersion.value
-)
-
-// Generic from sbt project
+// Generic plugins from github.sbt project
 addSbtPlugin("com.github.sbt" % "sbt-dynver" % "5.0.1")
 addSbtPlugin("com.github.sbt" % "sbt-native-packager" % "1.9.16")
 addSbtPlugin("com.github.sbt" % "sbt-unidoc" % "0.5.0")
-addSbtPlugin("com.github.sbt" % "sbt-git" % "2.0.1")
+addSbtPlugin("com.github.sbt" % "sbt-git" % "2.0.0")
 addSbtPlugin("com.github.sbt" % "sbt-unidoc" % "0.5.0")
 addSbtPlugin("com.github.sbt" % "sbt-pgp" % "2.2.1")
 addSbtPlugin("com.github.sbt" % "sbt-release" % "1.1.0")
+addDependencyTreePlugin
 
-// Generic from other sources
+// Helpers from other sources
 addSbtPlugin("com.eed3si9n" % "sbt-buildinfo" % "0.11.0")
 addSbtPlugin("de.heikoseeberger" % "sbt-header" % "5.10.0")
 addSbtPlugin("com.timushev.sbt" % "sbt-updates" % "0.6.4")
-addSbtPlugin("org.jetbrains" % "sbt-ide-settings" % "1.0.0")
-addSbtPlugin("org.xerial.sbt" % "sbt-sonatype" % "2.3")
+addSbtPlugin("org.xerial.sbt" % "sbt-sonatype" % "3.10.0")
 
-// Scala specific
+// Scala specific from various places
 addSbtPlugin("org.scalameta" % "sbt-scalafmt" % "2.5.2")
 addSbtPlugin("org.scoverage" % "sbt-scoverage" % "2.0.9")
 addSbtPlugin("org.scoverage" % "sbt-coveralls" % "1.3.11")
 addSbtPlugin("org.wartremover" % "sbt-wartremover" % "3.1.5")
 
-//addSbtPlugin("org.scala-lang.modules" % "scala-xml_2.12" % "2.2.0")
+addSbtPlugin("com.github.sbt" % "sbt-unidoc" % "0.5.0")
+addSbtPlugin("com.github.sbt" % "sbt-git" % "2.0.1")
+addSbtPlugin("com.github.sbt" % "sbt-unidoc" % "0.5.0")
+addSbtPlugin("com.github.sbt" % "sbt-pgp" % "2.2.1")
+addSbtPlugin("org.xerial.sbt" % "sbt-sonatype" % "3.10.0")
+
+// Scala specific
+addSbtPlugin("org.scoverage" % "sbt-scoverage" % "2.0.9")
+addSbtPlugin("org.scoverage" % "sbt-coveralls" % "1.3.11")
+addSbtPlugin("org.wartremover" % "sbt-wartremover" % "3.1.5")
+
+libraryDependencies ++= Seq(
+  "org.scala-sbt" %% "scripted-plugin" % sbtVersion.value
+)
 
 // This removes a version conflict
-// Uncomment locally if you use metals, otherwise don't slow down other
-// people's builds by leaving it commented in the repo.
-// addSbtPlugin("ch.epfl.scala" % "sbt-bloop" % "1.4.6")
-
 ThisBuild / libraryDependencySchemes +=
   "org.scala-lang.modules" %% "scala-xml" % VersionScheme.Always

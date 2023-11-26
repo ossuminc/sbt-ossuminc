@@ -18,8 +18,9 @@ object OssumIncPlugin extends AutoPlugin {
 
   object autoImport {
 
-    val git: helpers.Git.type = helpers.Git
     val aliases: helpers.HandyAliases.type = helpers.HandyAliases
+    val dynver: helpers.DynamicVersioning.type = helpers.DynamicVersioning
+    val git: helpers.Git.type = helpers.Git
     val header: helpers.Header.type = helpers.Header
     val info: helpers.ProjectInfo.type = helpers.ProjectInfo
     val java: helpers.Java.type = helpers.Java
@@ -37,21 +38,22 @@ object OssumIncPlugin extends AutoPlugin {
       def these(helpers: AutoPluginHelper*)(project: Project): Project = {
         helpers.foreach { helper => helpersToRequire = helpersToRequire :+ helper }
         helpersToRequire.foldLeft(project) { (p, helper) =>
-          println(s"Configuring ${helper.getClass.getSimpleName}")
           p.configure(helper.configure)
         }
       }
 
       def basic(project: Project): Project = {
-        these(git, aliases, header)(project)
+        these(aliases, dynver, git, header)(project)
       }
 
       def typical(project: Project): Project = {
-        these(git, aliases, header, publishing, release, scala3, scalafmt, unidoc)(project)
+        project.configure(basic)
+        these(publishing, release, scala3, scalafmt, unidoc)(project)
       }
 
       def everything(project: Project): Project = {
-        these(git, aliases, misc, header, java, publishing, resolvers, release, scala3, scalafmt, unidoc)(project)
+        project.configure(typical)
+        these(java)(project)
       }
     }
   }

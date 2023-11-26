@@ -1,1 +1,17 @@
+> check
+
+# Check the various commands from Handy Aliases
+> sh ls
+> ! ls
+> copmile
+> tset
+> TEST
+> tq
+> tc
+> ctc
+> print_class_path
+> print_test_class_path
+> print_runtime_class_path
+
+# Check Git plugin command functionality
 > git status
