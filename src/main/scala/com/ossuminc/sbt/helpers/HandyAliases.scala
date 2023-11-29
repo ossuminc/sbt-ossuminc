@@ -16,26 +16,26 @@
 
 package com.ossuminc.sbt.helpers
 
-import sbt._
-import sbt.Keys._
+import sbt.*
+import sbt.Keys.*
 
-import scala.sys.process.Process
+import scala.sys.process.{Process, ProcessLogger}
 
 /** HandyAliases Added To The Build */
 object HandyAliases extends AutoPluginHelper {
 
   object Keys {
-    private[sbt] val printClasspath = TaskKey[File](
+    private[sbt] val printClasspath = TaskKey[Unit](
       "print-class-path",
       "Print the project's compilation class path."
     )
 
-    private[sbt] val printTestClasspath = TaskKey[File](
+    private[sbt] val printTestClasspath = TaskKey[Unit](
       "print-test-class-path",
       "Print the project's testing class path."
     )
 
-    private[sbt] val printRuntimeClasspath = TaskKey[File](
+    private[sbt] val printRuntimeClasspath = TaskKey[Unit](
       "print-runtime-class-path",
       "Print the project's runtime class path."
     )
@@ -47,69 +47,71 @@ object HandyAliases extends AutoPluginHelper {
   def configure(project: Project): Project = {
     project
       .settings(
-        commands ++= Seq(shell_command, bang_command),
-        Keys.printClasspath := { print_class_path.value },
-        Keys.printTestClasspath := { print_test_class_path.value },
-        Keys.printRuntimeClasspath := { print_runtime_class_path.value },
+        commands ++= Seq(shell_command),
+        Keys.printClasspath := { printClassPath.value },
+        Keys.printTestClasspath := { printTestClassPath.value },
+        Keys.printRuntimeClasspath := { printRuntimeClassPath.value },
 
       )
       .settings {
         Seq(
-          addCommandAlias("tq", "test-quick"),
-          addCommandAlias("to", "test-only"),
-          addCommandAlias("cq", "compile-quick"),
+          addCommandAlias("!", "sh"),
+          addCommandAlias("tq", "testQuick"),
+          addCommandAlias("to", "testOnly"),
           addCommandAlias("copmile", "compile"),
           addCommandAlias("tset", "test"),
           addCommandAlias("TEST", "; clean ; test"),
           addCommandAlias("tc", "test:compile"),
           addCommandAlias("ctc", "; clean ; test:compile"),
+          addCommandAlias("pcp", "printClassPath"),
+          addCommandAlias("ptcp", "printTestClassPath"),
+          addCommandAlias("prcp", "printRuntimeClassPath"),
           addCommandAlias(
             "cov",
             "; clean ; coverage ; test ; coverageAggregate ; reload"
-          ),
-          addCommandAlias("!", "sh")
+          )
         ).flatten
-    }
+      }
   }
 
-  private def print_class_path: Def.Initialize[Task[File]] = Def.task {
-    val out = target.value
+  private def printAClasspath(name: String, out: File, cp: Classpath): Unit = {
+    println(s"----- $name: " + out.getCanonicalPath + ": FILES:")
+    println(cp.files.map(_.getCanonicalPath).mkString("\n"))
+    println(s"----- $name: END")
+  }
+
+  private def printClassPath: Def.Initialize[Task[Unit]] = Def.task[Unit] {
+    val out = (Compile / target).value
     val cp = (Compile / fullClasspath).value
-    println("----- Compile: " + out.getCanonicalPath + ": FILES:")
-    println(cp.files.map(_.getCanonicalPath).mkString("\n"))
-    println("----- END")
-    out
+    printAClasspath(Compile.name, out, cp)
   }
 
-  private def print_test_class_path: Def.Initialize[Task[File]] = Def.task {
-    val out = target.value
-    val cp = (Test/ fullClasspath).value
-    println("----- Test: " + out.getCanonicalPath + ": FILES:")
-    println(cp.files.map(_.getCanonicalPath).mkString("\n"))
-    println("----- END")
-    out
+  private def printTestClassPath: Def.Initialize[Task[Unit]] = Def.task[Unit] {
+    val out = (Test / target).value
+    val cp = (Test / fullClasspath).value
+    printAClasspath(Test.name, out, cp)
   }
 
-  private def print_runtime_class_path: Def.Initialize[Task[File]] = Def.task {
-    val out = target.value
+  private def printRuntimeClassPath: Def.Initialize[Task[Unit]] = Def.task[Unit] {
+    val out = (Runtime / target).value
     val cp = (Runtime / fullClasspath).value
-    println("----- Runtime: " + out.getCanonicalPath + ": FILES:")
-    println(cp.files.map(_.getCanonicalPath).mkString("\n"))
-    println("----- END")
-    out
+    printAClasspath(Runtime.name, out, cp)
+  }
+
+  private val handyPL = new ProcessLogger {
+    def out(s: => String): Unit = println(s)
+
+    def err(s: => String): Unit = println(s)
+
+    def buffer[T](f: => T): T = f
   }
 
   private def shell_command: Command = {
-    Command.args("sh", "Invoke a system shell and pass arguments to it") {
-      (state, args) =>
-        Process(args).!; state
+    Command.args("sh", "Invoke a system shell and pass arguments to it") { (state, args) =>
+      val builder = Process(args)
+      builder.run(handyPL)
+      state
     }
   }
 
-  private def bang_command: Command = {
-    Command.args("!", "Invoke a system shell and pass arguments to it") {
-      (state, args) =>
-        Process(args).!; state
-    }
-  }
 }

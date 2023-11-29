@@ -9,9 +9,14 @@
 > tq
 > tc
 > ctc
-> print_class_path
-> print_test_class_path
-> print_runtime_class_path
+> tasks -V
+> printClassPath
+> pcp
+> printTestClassPath
+> ptcp
+> printRuntimeClassPath
+> prcp
 
 # Check Git plugin command functionality
-> git status
+# Can't use any real git commands here because it is run in not-a-git-directory
+> git --version
