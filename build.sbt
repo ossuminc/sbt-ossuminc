@@ -16,7 +16,7 @@
 import java.time.Year
 import de.heikoseeberger.sbtheader.HeaderPlugin.autoImport.headerLicense
 import com.ossuminc.sbt.SingleProject
-import com.ossuminc.sbt.helpers.{ProjectInfo, Scala2, Publishing, Release}
+import com.ossuminc.sbt.helpers.{DynamicVersioning, ProjectInfo, Publishing, Release, Scala2}
 
 Global / onChangedBuildSource := ReloadOnSourceChanges
 
@@ -26,6 +26,7 @@ val plugin = SingleProject("sbt-ossuminc")
   .configure(ProjectInfo.configure)
   .configure(Scala2.configure)
   .configure(Publishing.configure)
+  .configure(DynamicVersioning.configure)
   .configure(Release.configure)
   // .configure(Release.configure)
   .enablePlugins(ScriptedPlugin)
