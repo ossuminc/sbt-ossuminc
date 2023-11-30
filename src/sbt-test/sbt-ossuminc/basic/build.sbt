@@ -1,9 +1,9 @@
 import sbt.Keys.startYear
 import sbt.url
 import com.ossuminc.sbt.OssumIncPlugin
-import com.ossuminc.sbt.SingleProject
+import com.ossuminc.sbt.Root
 
-lazy val root = SingleProject("basic-test")
+lazy val root = Root("basic-test", hasSubProjects = false)
   .enablePlugins(OssumIncPlugin)
   .configure(With.basic)
   .settings(

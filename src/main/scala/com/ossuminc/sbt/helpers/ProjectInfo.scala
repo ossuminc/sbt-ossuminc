@@ -1,5 +1,5 @@
 /*
- * Copyright 2015-2023 Reactific Software LLC & Ossum Inc.
+ * Copyright 2015-2023 Ossum Inc. & Ossum Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -64,11 +64,11 @@ object ProjectInfo extends AutoPluginHelper {
     project
       .enablePlugins(BuildInfoPlugin)
       .settings(
-        ThisBuild / organization := "com.ossuminc",
-        ThisBuild / organizationHomepage := Some(URI.create("https://com.ossuminc/").toURL),
-        ThisBuild / organizationName := "Ossum Inc.",
-        ThisBuild / versionScheme := Option("early-semver"),
-        ThisBuild / licenses += ("Apache-2.0" -> URI.create("https://www.apache.org/licenses/LICENSE-2.0.txt").toURL),
+        organization := "com.ossuminc",
+        organizationHomepage := Some(URI.create("https://com.ossuminc/").toURL),
+        organizationName := "Ossum Inc.",
+        versionScheme := Option("early-semver"),
+        licenses := Seq("Apache-2.0" -> URI.create("https://www.apache.org/licenses/LICENSE-2.0.txt").toURL),
         ThisBuild / homepage := Some(URI.create("https://github.com/ossuminc/" + normalizedName.value).toURL),
         ThisBuild / developers := List(
           Developer("reid-spencer", "Reid Spencer", "", url("https://github.com/reid-spencer"))

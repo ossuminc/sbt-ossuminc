@@ -1,5 +1,5 @@
 /*
- * Copyright 2015-2017 Reactific Software LLC
+ * Copyright 2015-2017 Ossum Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -69,7 +69,7 @@ object Publishing extends AutoPluginHelper {
   private def publishToSonatype(project: Project): Project = {
     project
       .enablePlugins(SonatypePlugin)
-      .settings(sonatypeSettings)
+      .configure(publishAsMaven)
       .settings(
         SonatypeKeys.sonatypeProfileName := organization.value,
         publishSnapshotsTo := MavenRepository("Sonatype OSS Snapshots", sonatypeOssSnapshots),
@@ -78,32 +78,33 @@ object Publishing extends AutoPluginHelper {
           url(s"https://github.com/${gitHubOrganization.value}/${gitHubRepository.value}")
         )
       )
-      .configure(publishAsMaven)
   }
 
   def configure(project: Project): Project = {
-    project.settings(
-      publishSnapshotsTo := Resolver.defaultLocal,
-      publishReleasesTo := Resolver.defaultLocal,
-      Test / publishArtifact := false,
-      publishTo := {
-        if (isSnapshot.value) {
-          Some(publishSnapshotsTo.value)
-        } else {
-          Some(publishReleasesTo.value)
-        }
-      },
-      scmInfo := {
-        val gitUrl =
-          s"//github.com/${gitHubOrganization.value}/${normalizedName.value}"
-        Some(
-          ScmInfo(
-            url("https:" + gitUrl),
-            "scm:git:" + gitUrl + ".git",
-            Some("https:" + gitUrl)
+    project
+      .settings(
+        publishSnapshotsTo := Resolver.defaultLocal,
+        publishReleasesTo := Resolver.defaultLocal,
+        Test / publishArtifact := false,
+        publishTo := {
+          if (isSnapshot.value) {
+            Some(publishSnapshotsTo.value)
+          } else {
+            Some(publishReleasesTo.value)
+          }
+        },
+        scmInfo := {
+          val gitUrl =
+            s"//github.com/${gitHubOrganization.value}/${gitHubRepository.value}"
+          Some(
+            ScmInfo(
+              url("https:" + gitUrl),
+              "scm:git:" + gitUrl + ".git",
+              Some("https:" + gitUrl)
+            )
           )
-        )
-      }
-    ).configure(publishToSonatype)
+        }
+      )
+      .configure(publishToSonatype)
   }
 }

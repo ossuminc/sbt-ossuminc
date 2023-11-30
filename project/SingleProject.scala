@@ -1,1 +1,0 @@
-../src/main/scala/com/ossuminc/sbt/SingleProject.scala

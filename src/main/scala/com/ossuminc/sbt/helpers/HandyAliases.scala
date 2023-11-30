@@ -1,5 +1,5 @@
 /*
- * Copyright 2015-2017 Reactific Software LLC
+ * Copyright 2015-2017 Ossum Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -47,10 +47,10 @@ object HandyAliases extends AutoPluginHelper {
   def configure(project: Project): Project = {
     project
       .settings(
-        commands ++= Seq(shell_command),
-        Keys.printClasspath := { printClassPath.value },
-        Keys.printTestClasspath := { printTestClassPath.value },
-        Keys.printRuntimeClasspath := { printRuntimeClassPath.value },
+        Global / commands ++= Seq(shell_command),
+        Global / Keys.printClasspath := { printClassPath.value },
+        Global / Keys.printTestClasspath := { printTestClassPath.value },
+        Global / Keys.printRuntimeClasspath := { printRuntimeClassPath.value },
 
       )
       .settings {

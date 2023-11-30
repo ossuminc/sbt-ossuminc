@@ -15,20 +15,19 @@
 
 import java.time.Year
 import de.heikoseeberger.sbtheader.HeaderPlugin.autoImport.headerLicense
-import com.ossuminc.sbt.SingleProject
+import com.ossuminc.sbt.Root
 import com.ossuminc.sbt.helpers.{DynamicVersioning, ProjectInfo, Publishing, Release, Scala2}
 
 Global / onChangedBuildSource := ReloadOnSourceChanges
 
 sbtPlugin := true
 
-val plugin = SingleProject("sbt-ossuminc")
+lazy val plugin = Root("sbt-ossuminc", hasSubProjects = false)
   .configure(ProjectInfo.configure)
   .configure(Scala2.configure)
   .configure(Publishing.configure)
   .configure(DynamicVersioning.configure)
   .configure(Release.configure)
-  // .configure(Release.configure)
   .enablePlugins(ScriptedPlugin)
   .settings(
     scalaVersion := "2.12.18",
