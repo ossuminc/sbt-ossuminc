@@ -16,6 +16,7 @@
 
 package com.ossuminc.sbt.helpers
 
+import com.typesafe.sbt.packager.Keys.maintainer
 import sbt.*
 import sbt.Keys.*
 import sbtbuildinfo.BuildInfoKeys.*
@@ -64,15 +65,18 @@ object ProjectInfo extends AutoPluginHelper {
     project
       .enablePlugins(BuildInfoPlugin)
       .settings(
-        organization := "com.ossuminc",
-        organizationHomepage := Some(URI.create("https://com.ossuminc/").toURL),
-        organizationName := "Ossum Inc.",
-        versionScheme := Option("early-semver"),
-        licenses := Seq("Apache-2.0" -> URI.create("https://www.apache.org/licenses/LICENSE-2.0.txt").toURL),
+        ThisBuild / organization := "com.ossuminc",
+        ThisBuild / organizationHomepage := Some(URI.create("https://com.ossuminc/").toURL),
+        ThisBuild / organizationName := "Ossum Inc.",
+        ThisBuild / versionScheme := Option("early-semver"),
+        ThisBuild / licenses := Seq(
+          "Apache-2.0" -> URI.create("https://www.apache.org/licenses/LICENSE-2.0.txt").toURL
+        ),
         ThisBuild / homepage := Some(URI.create("https://github.com/ossuminc/" + normalizedName.value).toURL),
         ThisBuild / developers := List(
           Developer("reid-spencer", "Reid Spencer", "", url("https://github.com/reid-spencer"))
         ),
+        ThisBuild / maintainer := "reid@ossuminc.com",
         ThisBuild / Keys.copyrightHolder := "Ossum Inc.",
         ThisBuild / Keys.gitHubOrganization := "ossuminc",
         Keys.buildInfoObjectName := "BuildInfo",
