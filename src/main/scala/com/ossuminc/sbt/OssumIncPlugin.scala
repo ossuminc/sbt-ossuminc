@@ -18,22 +18,21 @@ object OssumIncPlugin extends AutoPlugin {
 
   object autoImport {
 
-    val aliases: helpers.HandyAliases.type = helpers.HandyAliases
-    val dynver: helpers.DynamicVersioning.type = helpers.DynamicVersioning
-    val git: helpers.Git.type = helpers.Git
-    val header: helpers.Header.type = helpers.Header
-    val info: helpers.ProjectInfo.type = helpers.ProjectInfo
-    val java: helpers.Java.type = helpers.Java
-    val misc: helpers.Miscellaneous.type = helpers.Miscellaneous
-    val publishing: helpers.Publishing.type = helpers.Publishing
-    val release: helpers.Release.type = helpers.Release
-    val resolvers: helpers.Resolvers.type = helpers.Resolvers
-    val scala2: helpers.Scala2.type = helpers.Scala2
-    val scala3: helpers.Scala3.type = helpers.Scala3
-    val scalafmt: helpers.Scalafmt.type = helpers.Scalafmt
-    val unidoc: helpers.Unidoc.type = helpers.Unidoc
-
     object With {
+      val aliases: helpers.HandyAliases.type = helpers.HandyAliases
+      val dynver: helpers.DynamicVersioning.type = helpers.DynamicVersioning
+      val git: helpers.Git.type = helpers.Git
+      val header: helpers.Header.type = helpers.Header
+      val info: helpers.ProjectInfo.type = helpers.ProjectInfo
+      val java: helpers.Java.type = helpers.Java
+      val misc: helpers.Miscellaneous.type = helpers.Miscellaneous
+      val publishing: helpers.Publishing.type = helpers.Publishing
+      val release: helpers.Release.type = helpers.Release
+      val resolvers: helpers.Resolvers.type = helpers.Resolvers
+      val scala2: helpers.Scala2.type = helpers.Scala2
+      val scala3: helpers.Scala3.type = helpers.Scala3
+      val scalafmt: helpers.Scalafmt.type = helpers.Scalafmt
+      val unidoc: helpers.Unidoc.type = helpers.Unidoc
 
       def these(helpers: AutoPluginHelper*)(project: Project): Project = {
         helpers.foreach { helper => helpersToRequire = helpersToRequire :+ helper }
