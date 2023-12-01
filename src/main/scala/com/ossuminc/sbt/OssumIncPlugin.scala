@@ -2,8 +2,9 @@ package com.ossuminc.sbt
 
 import com.ossuminc.sbt.helpers.AutoPluginHelper
 import com.ossuminc.sbt.helpers.Miscellaneous.buildShellPrompt
-import sbt._
-import sbt.Keys._
+import com.ossuminc.sbt.helpers.ProjectInfo.Keys.projectStartYear
+import sbt.{url, *}
+import sbt.Keys.*
 import sbt.librarymanagement.Resolver
 
 object OssumIncPlugin extends AutoPlugin {
@@ -23,18 +24,30 @@ object OssumIncPlugin extends AutoPlugin {
 
     object Root {
 
-      /** Define a Root level project whether it is for a single-project repo or a unirepo with many sub-projects.
-        * This project is configured with a shell prompt, and the standard project information at ThisBuild scope
+      /** Define a Root level project whether it is for a single-project repo or a unirepo with many sub-projects. This
+        * project is configured with a shell prompt, and the standard project information at ThisBuild scope
         * @param id
         *   The artifact id name for the root project.
         */
-      def apply(id: String): Project = {
+      def apply(
+        id: String,
+        org: String = "com.ossuminc",
+        orgName: String = "Ossum, Inc.",
+        orgPage: URL = url("https://com.ossuminc/"),
+        startYr: Int = 2023,
+        devs: List[Developer] = List.empty
+      ): Project = {
         Project
           .apply(id, file("."))
           .configure(helpers.ProjectInfo.configure)
           .configure(helpers.Scalafmt.configure)
           .settings(
             name := id,
+            projectStartYear := startYr,
+            organization := org,
+            organizationName := orgName,
+            organizationHomepage := Some(orgPage),
+            developers := devs,
             Global / shellPrompt := buildShellPrompt.value
           )
       }
@@ -42,10 +55,9 @@ object OssumIncPlugin extends AutoPlugin {
 
     object Module {
 
-      /**
-        * Define a sub-project or module of the root project. Make sure to use the [[Root]] function before
-        * this Module is defined. No configuration is applied but you can do that by using the various
-        * With.* functions in this plugin. `With.typical` is typical for Scala3 development
+      /** Define a sub-project or module of the root project. Make sure to use the [[Root]] function before this Module
+        * is defined. No configuration is applied but you can do that by using the various With.* functions in this
+        * plugin. `With.typical` is typical for Scala3 development
         * @param id
         *   The name of the artifact that will be produced
         * @param dirName
@@ -89,7 +101,7 @@ object OssumIncPlugin extends AutoPlugin {
       }
 
       def these(helpers: AutoPluginHelper*)(project: Project): Project = {
-        val newHelpers = helpers.foldLeft(Seq.empty[AutoPluginHelper]) ( (s,h) => (s :+ h) ++  h.usedHelpers )
+        val newHelpers = helpers.foldLeft(Seq.empty[AutoPluginHelper])((s, h) => (s :+ h) ++ h.usedHelpers)
         helpersToRequire = (helpersToRequire ++ newHelpers).distinct
         newHelpers.foldLeft(project) { (p, helper) =>
           p.configure(helper.configure)
@@ -110,7 +122,8 @@ object OssumIncPlugin extends AutoPlugin {
         these(java)(project)
       }
       def plugin(project: Project): Project = {
-        project.configure(scala2.configure)
+        project
+          .configure(scala2.configure)
           .settings(
             scalaVersion := "2.12.18"
           )

@@ -1,0 +1,40 @@
+name: Continuous Integration
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - name: Set Up JDK 17
+        uses: actions/setup-java@v2
+        with:
+          java-version: '17'
+          distribution: 'temurin'
+      - name: Coursier Caching
+        uses: coursier/cache-action@v6
+      - name: Build, Run Test, Coverage
+        run: |
+          sbt -v clean Test/compile scripted 
+
+      - name: Cleanup Before Caching
+        shell: bash
+        run: |
+          rm -rf "$HOME/.ivy2/local" || true
+          find $HOME/Library/Caches/Coursier/v1        -name "ivydata-*.properties" -delete || true
+          find $HOME/.ivy2/cache                       -name "ivydata-*.properties" -delete || true
+          find $HOME/.cache/coursier/v1                -name "ivydata-*.properties" -delete || true
+          find $HOME/.sbt                              -name "*.lock"               -delete || true
+
+
+#    - name: SonarCloud Scan
+#      uses: SonarSource/sonarcloud-github-action@master
+#      env:
+#        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}  # for PR information, if any
+#        SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}

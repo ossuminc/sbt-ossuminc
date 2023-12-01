@@ -23,8 +23,6 @@ import sbt.plugins.MiniDependencyTreePlugin
 
 object ProjectInfo extends AutoPluginHelper {
 
-  override def autoPlugins: Seq[AutoPlugin] = Seq(sbtbuildinfo.BuildInfoPlugin)
-
   object Keys {
     val projectHomePage: SettingKey[URL] = settingKey[URL](
       "The url of the project's home page"
@@ -56,7 +54,7 @@ object ProjectInfo extends AutoPluginHelper {
         ThisBuild / organizationName := "Ossum Inc.",
         ThisBuild / versionScheme := Option("early-semver"),
         ThisBuild / licenses := Seq("Apache-2.0" -> url("https://www.apache.org/licenses/LICENSE-2.0.txt")),
-        ThisBuild / homepage := Some(url("https://github.com/ossuminc/" + normalizedName.value)),
+        ThisBuild / homepage := Some(Keys.projectHomePage.value),
         ThisBuild / developers := List(
           Developer(
             "reid-spencer",

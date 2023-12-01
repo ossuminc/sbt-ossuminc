@@ -9,6 +9,8 @@ import java.util.Calendar
 
 object BuildInfo extends AutoPluginHelper {
 
+  override def autoPlugins: Seq[AutoPlugin] = Seq(BuildInfoPlugin)
+
   override def usedHelpers: Seq[AutoPluginHelper] = Seq(ProjectInfo)
 
   /** The configuration function to call for this plugin helper
