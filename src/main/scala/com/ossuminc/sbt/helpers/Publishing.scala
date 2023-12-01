@@ -20,8 +20,8 @@ import com.ossuminc.sbt.helpers.ProjectInfo.Keys.{gitHubOrganization, gitHubRepo
 import com.ossuminc.sbt.helpers.Release.Keys.{publishReleasesTo, publishSnapshotsTo}
 import sbt.Keys.*
 import sbt.*
-import xerial.sbt.Sonatype.*
 import xerial.sbt.Sonatype as SonatypePlugin
+import xerial.sbt.Sonatype.autoImport.sonatypeProfileName
 
 import scala.xml.*
 
@@ -39,9 +39,22 @@ object Publishing extends AutoPluginHelper {
     </license>
   }
 
-  private def publishAsMaven(project: Project): Project = {
+  private val sonatypeServer = "01.oss.sonatype.org"
+  private val sonatypeOssSnapshots = s"https://$sonatypeServer/content/repositories/snapshots"
+  private val sonatypeOssStaging = s"https://$sonatypeServer/service/local/staging/deploy/maven2"
+  private val snapshotRepository = MavenRepository("Sonatype OSS Snapshots", sonatypeOssSnapshots)
+  private val releaseRepository = MavenRepository("Sonatype Maven Release Staging", sonatypeOssStaging)
+
+  private def publishToSonatype(project: Project): Project = {
     project
+      .enablePlugins(SonatypePlugin)
       .settings(
+        sonatypeProfileName := "ossum",
+        publishSnapshotsTo := snapshotRepository,
+        publishReleasesTo := releaseRepository,
+        homepage := Some(
+          url(s"https://github.com/${gitHubOrganization.value}/${gitHubRepository.value}")
+        ),
         publishMavenStyle := true,
         pomIncludeRepository := { _ => false },
         pomExtra := {
@@ -59,33 +72,7 @@ object Publishing extends AutoPluginHelper {
             <licenses>{lics}</licenses>
           }
           NodeSeq.fromSeq(Seq(devList, licList))
-        }
-      )
-  }
-
-  private val sonatypeOssSnapshots = "https://oss.sonatype.org/service/local/snapshots"
-  private val sonatypeOssStaging = "https://oss.sonatype.org/service/local/staging/deploy/maven2"
-
-  private def publishToSonatype(project: Project): Project = {
-    project
-      .enablePlugins(SonatypePlugin)
-      .configure(publishAsMaven)
-      .settings(
-        SonatypeKeys.sonatypeProfileName := organization.value,
-        publishSnapshotsTo := MavenRepository("Sonatype OSS Snapshots", sonatypeOssSnapshots),
-        publishReleasesTo := MavenRepository("Sonatype Maven Staging", sonatypeOssStaging),
-        homepage := Some(
-          url(s"https://github.com/${gitHubOrganization.value}/${gitHubRepository.value}")
-        )
-      )
-  }
-
-  def configure(project: Project): Project = {
-    project
-      .settings(
-        publishSnapshotsTo := Resolver.defaultLocal,
-        publishReleasesTo := Resolver.defaultLocal,
-        Test / publishArtifact := false,
+        },
         publishTo := {
           if (isSnapshot.value) {
             Some(publishSnapshotsTo.value)
@@ -93,6 +80,7 @@ object Publishing extends AutoPluginHelper {
             Some(publishReleasesTo.value)
           }
         },
+        Test / publishArtifact := false,
         scmInfo := {
           val gitUrl =
             s"//github.com/${gitHubOrganization.value}/${gitHubRepository.value}"
@@ -105,6 +93,10 @@ object Publishing extends AutoPluginHelper {
           )
         }
       )
+  }
+
+  def configure(project: Project): Project = {
+    project
       .configure(publishToSonatype)
   }
 }

@@ -13,7 +13,7 @@ object Scalafmt extends AutoPluginHelper {
   }
 
   private val scalafmt_path: String = "/ossuminc/sbt-ossuminc/main/.scalafmt.conf"
-  private val scalafmt_conf: String = ".scalafmt.conf"
+  private val scalafmt_conf: String = file(System.getProperty("user.dir")) / ".scalafmt.conf"
 
   def configure(project: Project): Project = {
     project
@@ -21,6 +21,7 @@ object Scalafmt extends AutoPluginHelper {
       .settings(
         update := {
           val log = streams.value.log
+
           val localFile: File = baseDirectory.value / scalafmt_conf
           updateFromPublicRepository(localFile, scalafmt_path, 1.day, log)
           update.value

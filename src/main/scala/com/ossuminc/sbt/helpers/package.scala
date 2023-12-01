@@ -18,6 +18,7 @@ package object helpers {
   ): Unit = {
     val url = URI.create(s"https://raw.githubusercontent.com/$remote").toURL
     val lastModified = local.lastModified()
+
     val conn: HttpURLConnection =
       url.openConnection().asInstanceOf[HttpURLConnection]
     val timeout = 30000

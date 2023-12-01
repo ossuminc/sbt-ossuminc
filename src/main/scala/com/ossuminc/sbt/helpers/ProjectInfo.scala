@@ -19,6 +19,7 @@ package com.ossuminc.sbt.helpers
 import com.typesafe.sbt.packager.Keys.maintainer
 import sbt.*
 import sbt.Keys.*
+import sbt.plugins.MiniDependencyTreePlugin
 import sbtbuildinfo.BuildInfoKeys.*
 import sbtbuildinfo.BuildInfoOption.{BuildTime, ToJson, ToMap}
 import sbtbuildinfo.*
@@ -63,7 +64,7 @@ object ProjectInfo extends AutoPluginHelper {
 
   def configure(project: Project): Project = {
     project
-      .enablePlugins(BuildInfoPlugin)
+      .enablePlugins(BuildInfoPlugin, MiniDependencyTreePlugin)
       .settings(
         ThisBuild / organization := "com.ossuminc",
         ThisBuild / organizationHomepage := Some(URI.create("https://com.ossuminc/").toURL),
