@@ -21,7 +21,7 @@ import com.ossuminc.sbt.helpers.Release.Keys.{publishReleasesTo, publishSnapshot
 import sbt.Keys.*
 import sbt.*
 import xerial.sbt.Sonatype as SonatypePlugin
-import xerial.sbt.Sonatype.autoImport.sonatypeProfileName
+import xerial.sbt.Sonatype.autoImport.{sonatypeProfileName, sonatypeSessionName}
 
 import scala.xml.*
 
@@ -39,7 +39,7 @@ object Publishing extends AutoPluginHelper {
     </license>
   }
 
-  private val sonatypeServer = "01.oss.sonatype.org"
+  private val sonatypeServer = "s01.oss.sonatype.org"
   private val sonatypeOssSnapshots = s"https://$sonatypeServer/content/repositories/snapshots"
   private val sonatypeOssStaging = s"https://$sonatypeServer/service/local/staging/deploy/maven2"
   private val snapshotRepository = MavenRepository("Sonatype OSS Snapshots", sonatypeOssSnapshots)
@@ -50,6 +50,7 @@ object Publishing extends AutoPluginHelper {
       .enablePlugins(SonatypePlugin)
       .settings(
         sonatypeProfileName := "ossum",
+        sonatypeSessionName := organization.value + "/" + name.value,
         publishSnapshotsTo := snapshotRepository,
         publishReleasesTo := releaseRepository,
         homepage := Some(
