@@ -64,7 +64,7 @@ package object helpers {
           )
       }
     } else {
-      log.info(s"Didn't download because remote etag($etag) == local etag($last_etag)")
+      // log.info(s"Didn't download because remote etag($etag) == local etag($last_etag)")
     }
   }
 }
