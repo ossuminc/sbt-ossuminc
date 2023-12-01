@@ -1,9 +1,10 @@
-import com.ossuminc.sbt.{OssumIncPlugin, Root, Module}
 import scala.sys.process.{Process, ProcessLogger}
+
+enablePlugins(OssumIncPlugin)
 
 lazy val root = Root("multi")
   .aggregate(p1, p2)
-  .enablePlugins(OssumIncPlugin)
+  .configure(With.noPublishing)
   .settings(
     TaskKey[Unit]("lslrt") := {
       val proc = Process(Seq("ls", "-lrt"))

@@ -20,12 +20,6 @@ import com.typesafe.sbt.packager.Keys.maintainer
 import sbt.*
 import sbt.Keys.*
 import sbt.plugins.MiniDependencyTreePlugin
-import sbtbuildinfo.BuildInfoKeys.*
-import sbtbuildinfo.BuildInfoOption.{BuildTime, ToJson, ToMap}
-import sbtbuildinfo.*
-
-import java.util.Calendar
-import java.net.URI
 
 object ProjectInfo extends AutoPluginHelper {
 
@@ -51,89 +45,41 @@ object ProjectInfo extends AutoPluginHelper {
     val copyrightHolder: SettingKey[String] = settingKey[String](
       "The name of the business entity or person that holds the copyright"
     )
-
-    val buildInfoPackage: SettingKey[String] = settingKey[String](
-      "The name of the scala package in which the build info object should be created"
-    )
-
-    val buildInfoObjectName: SettingKey[String] = settingKey[String](
-      "The name of the build info scala object that should be created"
-    )
-
   }
 
   def configure(project: Project): Project = {
     project
-      .enablePlugins(BuildInfoPlugin, MiniDependencyTreePlugin)
+      .enablePlugins(MiniDependencyTreePlugin)
       .settings(
         ThisBuild / organization := "com.ossuminc",
-        ThisBuild / organizationHomepage := Some(URI.create("https://com.ossuminc/").toURL),
+        ThisBuild / organizationHomepage := Some(url("https://com.ossuminc/")),
         ThisBuild / organizationName := "Ossum Inc.",
         ThisBuild / versionScheme := Option("early-semver"),
-        ThisBuild / licenses := Seq(
-          "Apache-2.0" -> URI.create("https://www.apache.org/licenses/LICENSE-2.0.txt").toURL
-        ),
-        ThisBuild / homepage := Some(URI.create("https://github.com/ossuminc/" + normalizedName.value).toURL),
+        ThisBuild / licenses := Seq("Apache-2.0" -> url("https://www.apache.org/licenses/LICENSE-2.0.txt")),
+        ThisBuild / homepage := Some(url("https://github.com/ossuminc/" + normalizedName.value)),
         ThisBuild / developers := List(
-          Developer("reid-spencer", "Reid Spencer", "", url("https://github.com/reid-spencer"))
+          Developer(
+            "reid-spencer",
+            "Reid Spencer",
+            "",
+            url("https://github.com/reid-spencer")
+          )
         ),
         ThisBuild / maintainer := "reid@ossuminc.com",
         ThisBuild / Keys.copyrightHolder := "Ossum Inc.",
         ThisBuild / Keys.gitHubOrganization := "ossuminc",
-        Keys.buildInfoObjectName := "BuildInfo",
-        Keys.buildInfoPackage := "com.ossuminc",
         Keys.gitHubRepository := name.value,
         Keys.projectHomePage := url(
           s"https://github.com/${Keys.gitHubOrganization.value}/${Keys.gitHubRepository.value}"
         ),
-        Keys.projectStartYear := 2023,
-        Keys.gitHubOrganization := "ossuminc",
-        Keys.gitHubRepository := "unspecified",
+        ThisBuild / Keys.projectStartYear := 2023,
+        ThisBuild / Keys.gitHubOrganization := "ossuminc",
+        ThisBuild / Keys.gitHubRepository := "unspecified",
         baseDirectory := thisProject.value.base,
         target := baseDirectory.value / "target",
         logLevel := Level.Info,
         Test / fork := false,
-        Test / logBuffered := false,
-        buildInfoObject := Keys.buildInfoObjectName.value,
-        buildInfoPackage := Keys.buildInfoPackage.value,
-        buildInfoOptions := Seq(ToMap, ToJson, BuildTime),
-        buildInfoUsePackageAsPath := true,
-        buildInfoKeys ++= Seq[BuildInfoKey](
-          name,
-          normalizedName,
-          description,
-          version,
-          organization,
-          organizationName,
-          BuildInfoKey.map(organizationHomepage) { case (k, v) =>
-            k -> v.get.toString
-          },
-          BuildInfoKey.map(homepage) { case (_, v) =>
-            "projectHomepage" -> v.map(_.toString).getOrElse(Keys.projectHomePage.value)
-          },
-          BuildInfoKey.map(licenses) { case (k, v) =>
-            k -> v.map(_._1).mkString(", ")
-          },
-          isSnapshot,
-          buildInfoPackage,
-          buildInfoObject,
-          BuildInfoKey.map(startYear) { case (k, v) =>
-            k -> v.map(_.toString).getOrElse(Keys.projectStartYear.toString)
-          },
-          BuildInfoKey.map(startYear) { case (_, v) =>
-            "copyright" -> s"© ${v.map(_.toString).getOrElse(Keys.projectStartYear.toString)}-${Calendar
-                .getInstance()
-                .get(Calendar.YEAR)} ${organizationName.value}"
-          },
-          scalaVersion,
-          sbtVersion,
-          BuildInfoKey.map(scalaVersion) { case (_, v) =>
-            val version = if (v.head == '2') {
-              v.substring(0, v.lastIndexOf('.'))
-            } else v
-            "scalaCompatVersion" -> version
-          }
-        )
+        Test / logBuffered := false
       )
   }
 }

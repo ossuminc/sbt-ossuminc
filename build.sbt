@@ -13,16 +13,17 @@
  * License for  the specific language governing permissions and limitations under the License.
  */
 
+import com.ossuminc.sbt.helpers.Miscellaneous.buildShellPrompt
+
 import java.time.Year
 import de.heikoseeberger.sbtheader.HeaderPlugin.autoImport.headerLicense
-import com.ossuminc.sbt.Root
 import com.ossuminc.sbt.helpers.{DynamicVersioning, ProjectInfo, Publishing, Release, Scala2}
 
 Global / onChangedBuildSource := ReloadOnSourceChanges
 
 sbtPlugin := true
 
-lazy val plugin = Root("sbt-ossuminc", hasSubProjects = false)
+lazy val plugin = project.in(file("."))
   .configure(ProjectInfo.configure)
   .configure(Scala2.configure)
   .configure(Publishing.configure)
@@ -30,7 +31,9 @@ lazy val plugin = Root("sbt-ossuminc", hasSubProjects = false)
   .configure(Release.configure)
   .enablePlugins(ScriptedPlugin)
   .settings(
+    name := "sbt-ossuminc",
     scalaVersion := "2.12.18",
+    Global / shellPrompt := buildShellPrompt.value,
     // Scripted - sbt plugin tests
     scriptedLaunchOpts := {
       scriptedLaunchOpts.value ++
