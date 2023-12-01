@@ -17,7 +17,7 @@ package object helpers {
     log: ManagedLogger
   ): Unit = {
     val url = URI.create(s"https://raw.githubusercontent.com/$remote").toURL
-    val lastModified = local.lastModified()
+    val lastModified: Long = if (local.exists) local.lastModified() else 0L
 
     val conn: HttpURLConnection =
       url.openConnection().asInstanceOf[HttpURLConnection]

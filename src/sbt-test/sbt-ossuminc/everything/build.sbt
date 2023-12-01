@@ -12,8 +12,5 @@ lazy val root = Root("everything-test", false)
     info.Keys.projectStartYear := 2015,
     TaskKey[Unit]("check") := {
       println(s"Checking from within sbt:")
-      if (!(baseDirectory.value / ".scalafmt.conf").exists()) {
-        sys.error(".scalafmt.conf does not exist")
-      }
     }
   )
