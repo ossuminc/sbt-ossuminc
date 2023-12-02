@@ -28,9 +28,6 @@ import scala.xml.*
 /** Settings For SonatypePublishing Plugin */
 object Publishing extends AutoPluginHelper {
 
-  /** The AutoPlugins that we depend upon */
-  override def autoPlugins: Seq[AutoPlugin] = Seq(SonatypePlugin)
-
   private def makeLicense(name: String, url: String): Elem = {
     <license>
       <name>{name}</name>

@@ -13,8 +13,6 @@ object WartRemover extends AutoPluginHelper {
     )
   }
 
-  override def autoPlugins: Seq[AutoPlugin] = Seq(wartremover.WartRemover)
-
   def configure(project: Project): Project = {
     project
       .enablePlugins(wartremover.WartRemover)

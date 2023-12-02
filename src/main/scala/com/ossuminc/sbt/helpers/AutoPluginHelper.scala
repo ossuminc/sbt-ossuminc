@@ -32,11 +32,4 @@ trait AutoPluginHelper extends {
     */
   def configure(project: Project): Project
 
-  def usedHelpers: Seq[AutoPluginHelper] = Seq.empty[AutoPluginHelper]
-
-  /** The AutoPlugins that we depend upon */
-  def autoPlugins: Seq[AutoPlugin] = {
-    Seq.empty[AutoPlugin]
-  }
-
 }

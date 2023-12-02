@@ -29,9 +29,6 @@ object Unidoc extends AutoPluginHelper {
     )
   }
 
-  /** The AutoPlugins that we depend upon */
-  override def autoPlugins: Seq[AutoPlugin] = Seq(ScalaUnidocPlugin)
-
   def akkaMappings: Map[(String, String), URL] = Map(
     ("com.typesafe.akka", "akka-actor") -> url(s"http://doc.akka.io/api/akka/"),
     ("com.typesafe", "config") -> url("http://typesafehub.github.io/config/latest/api/")

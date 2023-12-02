@@ -24,9 +24,6 @@ import sbtrelease.ReleaseStateTransformations.*
 
 object Release extends AutoPluginHelper {
 
-  /** The AutoPlugins that we depend upon */
-  override def autoPlugins: Seq[AutoPlugin] = Seq(ReleasePlugin)
-
   /** THe Keys and types pertaining to releasing artifacts */
   object Keys {
     sealed trait ArtifactKind

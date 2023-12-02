@@ -26,11 +26,6 @@ import java.time.Year
 
 object Header extends AutoPluginHelper {
 
-  /** The AutoPlugins that we depend upon */
-  override def autoPlugins: Seq[AutoPlugin] = Seq(HeaderPlugin)
-
-  object Keys {}
-
   def configure(project: Project): Project = {
     val copyright_holder = "Ossum Inc."
     import HeaderPlugin.autoImport._

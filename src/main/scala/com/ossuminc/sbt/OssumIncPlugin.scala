@@ -1,6 +1,5 @@
 package com.ossuminc.sbt
 
-import com.ossuminc.sbt.helpers.AutoPluginHelper
 import com.ossuminc.sbt.helpers.Miscellaneous.buildShellPrompt
 import com.ossuminc.sbt.helpers.ProjectInfo.Keys.projectStartYear
 import sbt.{url, *}
@@ -8,17 +7,6 @@ import sbt.Keys.*
 import sbt.librarymanagement.Resolver
 
 object OssumIncPlugin extends AutoPlugin {
-
-  /** Capture the AutoPluginHelpers configured in autoImport.With */
-  private var helpersToRequire: Seq[helpers.AutoPluginHelper] = Seq.empty
-
-  override def requires: Plugins = {
-    helpersToRequire.foldLeft(empty) { (b, helper) =>
-      helper.autoPlugins.foldLeft(b) { (b, plugin) =>
-        b && plugin
-      }
-    }
-  }
 
   object autoImport {
 
@@ -74,22 +62,24 @@ object OssumIncPlugin extends AutoPlugin {
       }
     }
 
+    type ConfigFunc = (Project) => Project
+
     object With {
-      val aliases: helpers.HandyAliases.type = helpers.HandyAliases
-      val build_info: helpers.BuildInfo.type = helpers.BuildInfo
-      val dynver: helpers.DynamicVersioning.type = helpers.DynamicVersioning
-      val git: helpers.Git.type = helpers.Git
-      val header: helpers.Header.type = helpers.Header
-      val java: helpers.Java.type = helpers.Java
-      val misc: helpers.Miscellaneous.type = helpers.Miscellaneous
-      val project_info: helpers.ProjectInfo.type = helpers.ProjectInfo
-      val publishing: helpers.Publishing.type = helpers.Publishing
-      val release: helpers.Release.type = helpers.Release
-      val resolvers: helpers.Resolvers.type = helpers.Resolvers
-      val scala2: helpers.Scala2.type = helpers.Scala2
-      val scala3: helpers.Scala3.type = helpers.Scala3
-      val scalafmt: helpers.Scalafmt.type = helpers.Scalafmt
-      val unidoc: helpers.Unidoc.type = helpers.Unidoc
+      def aliases(project: Project): Project = project.configure(helpers.HandyAliases.configure)
+      def build_info(project: Project): Project = project.configure(helpers.BuildInfo.configure)
+      def dynver(project: Project): Project = project.configure(helpers.DynamicVersioning.configure)
+      def git(project: Project): Project = project.configure( helpers.Git.configure)
+      def header(project: Project): Project = project.configure(helpers.Header.configure)
+      def java(project: Project): Project = project.configure(helpers.Java.configure)
+      def misc(project: Project): Project = project.configure( helpers.Miscellaneous.configure)
+      def project_info(project: Project): Project = project.configure(helpers.ProjectInfo.configure)
+      def publishing(project: Project): Project = project.configure(helpers.Publishing.configure)
+      def release(project: Project): Project = project.configure(helpers.Release.configure)
+      def resolvers(project: Project): Project = project.configure(helpers.Resolvers.configure)
+      def scala2(project: Project): Project = project.configure(helpers.Scala2.configure)
+      def scala3(project: Project): Project = project.configure(helpers.Scala3.configure)
+      def scalafmt(project: Project): Project = project.configure(helpers.Scalafmt.configure)
+      def unidoc(project: Project): Project = project.configure(helpers.Unidoc.configure)
 
       def noPublishing(project: Project): Project = {
         project.settings(
@@ -100,16 +90,14 @@ object OssumIncPlugin extends AutoPlugin {
         )
       }
 
-      def these(helpers: AutoPluginHelper*)(project: Project): Project = {
-        val newHelpers = helpers.foldLeft(Seq.empty[AutoPluginHelper])((s, h) => (s :+ h) ++ h.usedHelpers)
-        helpersToRequire = (helpersToRequire ++ newHelpers).distinct
-        newHelpers.foldLeft(project) { (p, helper) =>
-          p.configure(helper.configure)
+      def these(cfuncs: ConfigFunc*)(project: Project): Project = {
+        cfuncs.foldLeft(project) { (p, func) =>
+          p.configure(func)
         }
       }
 
       def basic(project: Project): Project = {
-        these(aliases, build_info, dynver, git, header)(project)
+        these(aliases, dynver, git, header)(project)
       }
 
       def typical(project: Project): Project = {
@@ -119,11 +107,12 @@ object OssumIncPlugin extends AutoPlugin {
 
       def everything(project: Project): Project = {
         project.configure(typical)
-        these(java)(project)
+        these(java, misc, build_info)(project)
       }
+
       def plugin(project: Project): Project = {
         project
-          .configure(scala2.configure)
+          .configure(scala2)
           .settings(
             scalaVersion := "2.12.18"
           )
