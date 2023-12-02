@@ -27,7 +27,8 @@ object Scalafmt extends AutoPluginHelper {
           val log = streams.value.log
           updateFromPublicRepository(scalafmt_conf, Keys.putScalafmtConfETagsIn.value, scalafmt_path, log)
           update.value
-        }
+        },
+        cleanFiles += scalafmt_config_etag_path
       )
   }
 }
