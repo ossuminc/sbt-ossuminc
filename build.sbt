@@ -23,12 +23,12 @@ Global / onChangedBuildSource := ReloadOnSourceChanges
 
 sbtPlugin := true
 
-lazy val plugin = project.in(file("."))
-  .configure(RootProjectInfo.initialize("sbt-ossuminc", startYr=2015))
+lazy val plugin = project
+  .in(file("."))
+  .configure(RootProjectInfo.initialize("sbt-ossuminc", startYr = 2015))
+  .configure(DynamicVersioning.configure)
   .configure(Scala2.configure)
   .configure(Publishing.configure)
-  .configure(DynamicVersioning.configure)
-  .configure(Release.configure)
   .enablePlugins(ScriptedPlugin)
   .settings(
     scalaVersion := "2.12.18",
@@ -47,7 +47,7 @@ lazy val plugin = project.in(file("."))
     libraryDependencies ++= Seq(
       "org.apache.commons" % "commons-lang3" % "3.5",
       "org.slf4j" % "slf4j-simple" % "1.7.25"
-    ),
+    )
 //    headerLicense := {
 //      val years = startYear.value.get.toString + "-" + Year.now().toString
 //      Some(HeaderLicense.ALv2(years, "Ossum Inc."))
