@@ -1,6 +1,6 @@
 package com.ossuminc.sbt.helpers
-import sbt.*
-import sbt.Keys.*
+import sbt._
+import sbt.Keys._
 import sbtbuildinfo.BuildInfoKeys.buildInfoUsePackageAsPath
 import sbtbuildinfo.{BuildInfoKey, BuildInfoPlugin}
 import sbtbuildinfo.BuildInfoPlugin.autoImport.*
@@ -35,7 +35,7 @@ object BuildInfo extends AutoPluginHelper {
             k -> v.get.toString
           },
           BuildInfoKey.map(homepage) { case (_, v) =>
-            "projectHomepage" -> v.map(_.toString).getOrElse(ProjectInfo.Keys.projectHomePage.value)
+            "projectHomepage" -> v.map(_.toString).getOrElse(RootProjectInfo.Keys.projectHomePage.value)
           },
           BuildInfoKey.map(licenses) { case (k, v) =>
             k -> v.map(_._1).mkString(", ")
@@ -44,10 +44,10 @@ object BuildInfo extends AutoPluginHelper {
           buildInfoPackage,
           buildInfoObject,
           BuildInfoKey.map(startYear) { case (k, v) =>
-            k -> v.map(_.toString).getOrElse(ProjectInfo.Keys.projectStartYear.toString)
+            k -> v.map(_.toString).getOrElse(RootProjectInfo.Keys.projectStartYear.toString)
           },
           BuildInfoKey.map(startYear) { case (_, v) =>
-            "copyright" -> s"© ${v.map(_.toString).getOrElse(ProjectInfo.Keys.projectStartYear.value.toString)}-${Calendar
+            "copyright" -> s"© ${v.map(_.toString).getOrElse(RootProjectInfo.Keys.projectStartYear.value.toString)}-${Calendar
                 .getInstance()
                 .get(Calendar.YEAR)} ${organizationName.value}"
           },

@@ -16,8 +16,9 @@
 
 package com.ossuminc.sbt.helpers
 
-import sbt._
+import sbt.{SettingKey, Project, settingKey, URL, url, Attributed, Compile}
 import sbt.Keys._
+import java.io.File
 import sbtunidoc.ScalaUnidocPlugin
 
 /** Plugin Settings For UniDoc, since it is not an AutoPlugin */
@@ -40,7 +41,7 @@ object Unidoc extends AutoPluginHelper {
       .settings(
         apiURL := Some(
           url(
-            s"https://github.com/${ProjectInfo.Keys.gitHubOrganization.value}/${normalizedName.value}/api/"
+            s"https://github.com/${RootProjectInfo.Keys.gitHubOrganization.value}/${normalizedName.value}/api/"
           )
         ),
         autoAPIMappings := true,
@@ -62,7 +63,8 @@ object Unidoc extends AutoPluginHelper {
           val knownApiMappings: Map[(String, String), URL] = Map(
             ("org.scala-lang", "scala-library") -> url(
               s"http://www.scala-lang.org/api/${scalaVersion.value}/"
-            ))
+            )
+          )
 
           for {
             ((org, lib), url) <- knownApiMappings

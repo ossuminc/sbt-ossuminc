@@ -17,29 +17,26 @@ import com.ossuminc.sbt.helpers.Miscellaneous.buildShellPrompt
 
 import java.time.Year
 import de.heikoseeberger.sbtheader.HeaderPlugin.autoImport.headerLicense
-import com.ossuminc.sbt.helpers.{DynamicVersioning, ProjectInfo, Publishing, Release, Scala2}
+import com.ossuminc.sbt.helpers.{DynamicVersioning, Publishing, Release, Scala2, RootProjectInfo}
 
 Global / onChangedBuildSource := ReloadOnSourceChanges
 
 sbtPlugin := true
 
 lazy val plugin = project.in(file("."))
-  .configure(ProjectInfo.configure)
+  .configure(RootProjectInfo.initialize("sbt-ossuminc", startYr=2015))
   .configure(Scala2.configure)
   .configure(Publishing.configure)
   .configure(DynamicVersioning.configure)
   .configure(Release.configure)
   .enablePlugins(ScriptedPlugin)
   .settings(
-    name := "sbt-ossuminc",
     scalaVersion := "2.12.18",
-    Global / shellPrompt := buildShellPrompt.value,
     // Scripted - sbt plugin tests
     scriptedLaunchOpts := {
       scriptedLaunchOpts.value ++
         Seq("-Xmx1024M", "-Dplugin.version=" + version.value)
     },
-    logLevel := Level.Info,
     resolvers ++= Seq(
       // Resolver.sonatypeRepo("releases"),
       // Resolver.sonatypeRepo("snapshots"),
@@ -51,25 +48,25 @@ lazy val plugin = project.in(file("."))
       "org.apache.commons" % "commons-lang3" % "3.5",
       "org.slf4j" % "slf4j-simple" % "1.7.25"
     ),
-    startYear := Some(2015),
-    headerLicense := {
-      val years = startYear.value.get.toString + "-" + Year.now().toString
-      Some(HeaderLicense.ALv2(years, "Ossum Inc."))
-    },
+//    headerLicense := {
+//      val years = startYear.value.get.toString + "-" + Year.now().toString
+//      Some(HeaderLicense.ALv2(years, "Ossum Inc."))
+//    },
     // Publishing to sonatype
     // Sonatype.SonatypeKeys.sonatypeProfileName := "com.reactific"
-    publishTo := {
-      val nexus = "https://oss.sonatype.org/"
-      val snapshotsR =
-        "snapshots".at(nexus + "content/repositories/snapshots")
-      val releasesR =
-        "releases".at(nexus + "service/local/staging/deploy/maven2")
-      val resolver = if (isSnapshot.value) snapshotsR else releasesR
-      Some(resolver)
-    },
-    publishMavenStyle := true,
-    Test / publishArtifact := false,
-    pomIncludeRepository := { _ => false }
+//    publishTo := {
+//      val nexus = "https://oss.sonatype.org/"
+//      val snapshotsR =
+//        "snapshots".at(nexus + "content/repositories/snapshots")
+//      val releasesR =
+//        "releases".at(nexus + "service/local/staging/deploy/maven2")
+//      val resolver = if (isSnapshot.value) snapshotsR else releasesR
+//      Some(resolver)
+//    },
+//    publishMavenStyle := true,
+//
+//    Test / publishArtifact := false,
+//    pomIncludeRepository := { _ => false }
   )
 
 lazy val defaultScmInfo = Def.setting {

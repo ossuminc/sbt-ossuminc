@@ -16,7 +16,7 @@
 
 package com.ossuminc.sbt.helpers
 
-import com.ossuminc.sbt.helpers.ProjectInfo.Keys.projectStartYear
+import RootProjectInfo.Keys.projectStartYear
 import sbt.*
 import sbt.Keys.*
 import de.heikoseeberger.sbtheader

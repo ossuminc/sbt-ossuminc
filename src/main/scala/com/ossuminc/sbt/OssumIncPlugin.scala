@@ -1,8 +1,6 @@
 package com.ossuminc.sbt
 
-import com.ossuminc.sbt.helpers.Miscellaneous.buildShellPrompt
-import com.ossuminc.sbt.helpers.ProjectInfo.Keys.projectStartYear
-import sbt.{url, *}
+import sbt.*
 import sbt.Keys.*
 import sbt.librarymanagement.Resolver
 
@@ -27,16 +25,15 @@ object OssumIncPlugin extends AutoPlugin {
       ): Project = {
         Project
           .apply(id, file("."))
-          .configure(helpers.ProjectInfo.configure)
-          .configure(helpers.Scalafmt.configure)
-          .settings(
-            name := id,
-            projectStartYear := startYr,
-            organization := org,
-            organizationName := orgName,
-            organizationHomepage := Some(orgPage),
-            developers := devs,
-            Global / shellPrompt := buildShellPrompt.value
+          .configure(
+            helpers.RootProjectInfo.initialize(
+              id,
+              org,
+              orgName,
+              orgPage,
+              startYr,
+              devs
+            )
           )
       }
     }
@@ -57,7 +54,8 @@ object OssumIncPlugin extends AutoPlugin {
         Project
           .apply(id, file(dirName))
           .settings(
-            name := id
+            name := id,
+            moduleName := id
           )
       }
     }
@@ -68,11 +66,10 @@ object OssumIncPlugin extends AutoPlugin {
       def aliases(project: Project): Project = project.configure(helpers.HandyAliases.configure)
       def build_info(project: Project): Project = project.configure(helpers.BuildInfo.configure)
       def dynver(project: Project): Project = project.configure(helpers.DynamicVersioning.configure)
-      def git(project: Project): Project = project.configure( helpers.Git.configure)
+      def git(project: Project): Project = project.configure(helpers.Git.configure)
       def header(project: Project): Project = project.configure(helpers.Header.configure)
       def java(project: Project): Project = project.configure(helpers.Java.configure)
-      def misc(project: Project): Project = project.configure( helpers.Miscellaneous.configure)
-      def project_info(project: Project): Project = project.configure(helpers.ProjectInfo.configure)
+      def misc(project: Project): Project = project.configure(helpers.Miscellaneous.configure)
       def publishing(project: Project): Project = project.configure(helpers.Publishing.configure)
       def release(project: Project): Project = project.configure(helpers.Release.configure)
       def resolvers(project: Project): Project = project.configure(helpers.Resolvers.configure)
@@ -116,7 +113,6 @@ object OssumIncPlugin extends AutoPlugin {
           .settings(
             scalaVersion := "2.12.18"
           )
-
       }
     }
   }

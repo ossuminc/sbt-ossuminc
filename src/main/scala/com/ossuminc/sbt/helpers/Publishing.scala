@@ -16,14 +16,14 @@
 
 package com.ossuminc.sbt.helpers
 
-import com.ossuminc.sbt.helpers.ProjectInfo.Keys.{gitHubOrganization, gitHubRepository}
-import com.ossuminc.sbt.helpers.Release.Keys.{publishReleasesTo, publishSnapshotsTo}
 import sbt.Keys.*
 import sbt.*
 import xerial.sbt.Sonatype as SonatypePlugin
 import xerial.sbt.Sonatype.autoImport.{sonatypeProfileName, sonatypeSessionName}
-
 import scala.xml.*
+
+import com.ossuminc.sbt.helpers.Release.Keys.{publishReleasesTo, publishSnapshotsTo}
+import com.ossuminc.sbt.helpers.RootProjectInfo.Keys._
 
 /** Settings For SonatypePublishing Plugin */
 object Publishing extends AutoPluginHelper {
@@ -42,7 +42,7 @@ object Publishing extends AutoPluginHelper {
   private val snapshotRepository = MavenRepository("Sonatype OSS Snapshots", sonatypeOssSnapshots)
   private val releaseRepository = MavenRepository("Sonatype Maven Release Staging", sonatypeOssStaging)
 
-  private def publishToSonatype(project: Project): Project = {
+  def configure(project: Project): Project = {
     project
       .enablePlugins(SonatypePlugin)
       .settings(
@@ -58,16 +58,28 @@ object Publishing extends AutoPluginHelper {
         pomExtra := {
           val devs: Seq[scala.xml.Elem] = developers.value.map { (dev: Developer) =>
             <developer>
-              <id>{dev.id}</id>
-              <name>{dev.name}</name>
-              <email>{dev.email}</email>
-              <url>{dev.url.toString}</url>
+              <id>
+                {dev.id}
+              </id>
+              <name>
+                {dev.name}
+              </name>
+              <email>
+                {dev.email}
+              </email>
+              <url>
+                {dev.url.toString}
+              </url>
             </developer>
           }
-          val devList = <developers>{devs}</developers>
+          val devList = <developers>
+            {devs}
+          </developers>
           val licList: scala.xml.Node = {
             val lics = licenses.value.map { case (nm, url) => makeLicense(nm, url.toExternalForm) }
-            <licenses>{lics}</licenses>
+            <licenses>
+              {lics}
+            </licenses>
           }
           NodeSeq.fromSeq(Seq(devList, licList))
         },
@@ -91,10 +103,5 @@ object Publishing extends AutoPluginHelper {
           )
         }
       )
-  }
-
-  def configure(project: Project): Project = {
-    project
-      .configure(publishToSonatype)
   }
 }

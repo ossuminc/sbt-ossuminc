@@ -16,12 +16,14 @@
 
 package com.ossuminc.sbt.helpers
 
+import com.ossuminc.sbt.helpers.Miscellaneous.buildShellPrompt
+import com.typesafe.sbt.SbtNativePackager
 import com.typesafe.sbt.packager.Keys.maintainer
 import sbt.*
 import sbt.Keys.*
 import sbt.plugins.MiniDependencyTreePlugin
 
-object ProjectInfo extends AutoPluginHelper {
+object RootProjectInfo {
 
   object Keys {
     val projectHomePage: SettingKey[URL] = settingKey[URL](
@@ -45,39 +47,48 @@ object ProjectInfo extends AutoPluginHelper {
     )
   }
 
-  def configure(project: Project): Project = {
+  private val defaultDevs = List(
+    Developer(
+      "reid-spencer",
+      "Reid Spencer",
+      "",
+      url("https://github.com/reid-spencer")
+    )
+  )
+
+  def initialize(
+    id: String,
+    org: String = "com.ossuminc",
+    orgName: String = "Ossum, Inc.",
+    orgPage: URL = url("https://com.ossuminc/"),
+    startYr: Int = 2023,
+    devs: List[Developer] = defaultDevs
+  )(project: Project): Project = {
     project
       .enablePlugins(MiniDependencyTreePlugin)
+      .enablePlugins(SbtNativePackager)
       .settings(
-        ThisBuild / organization := "com.ossuminc",
-        ThisBuild / organizationHomepage := Some(url("https://com.ossuminc/")),
-        ThisBuild / organizationName := "Ossum Inc.",
+        ThisBuild / Keys.copyrightHolder := "Ossum, Inc.",
+        ThisBuild / Keys.gitHubOrganization := "ossuminc",
+        ThisBuild / Keys.gitHubRepository := "unspecified",
+        ThisBuild / Keys.projectHomePage := url(
+          s"https://github.com/${Keys.gitHubOrganization.value}/${Keys.gitHubRepository.value}"
+        ),
+        ThisBuild / Keys.projectStartYear := startYr,
+        ThisBuild / organization := org,
+        ThisBuild / organizationName := orgName,
+        ThisBuild / organizationHomepage := Some(orgPage),
+        ThisBuild / developers := devs,
+        ThisBuild / maintainer := "reid@ossuminc.com",
         ThisBuild / versionScheme := Option("early-semver"),
         ThisBuild / licenses := Seq("Apache-2.0" -> url("https://www.apache.org/licenses/LICENSE-2.0.txt")),
         ThisBuild / homepage := Some(Keys.projectHomePage.value),
-        ThisBuild / developers := List(
-          Developer(
-            "reid-spencer",
-            "Reid Spencer",
-            "",
-            url("https://github.com/reid-spencer")
-          )
-        ),
         ThisBuild / maintainer := "reid@ossuminc.com",
-        ThisBuild / Keys.copyrightHolder := "Ossum Inc.",
-        ThisBuild / Keys.gitHubOrganization := "ossuminc",
-        Keys.gitHubRepository := name.value,
-        Keys.projectHomePage := url(
-          s"https://github.com/${Keys.gitHubOrganization.value}/${Keys.gitHubRepository.value}"
-        ),
-        ThisBuild / Keys.projectStartYear := 2023,
-        ThisBuild / Keys.gitHubOrganization := "ossuminc",
-        ThisBuild / Keys.gitHubRepository := "unspecified",
-        baseDirectory := thisProject.value.base,
-        target := baseDirectory.value / "target",
-        logLevel := Level.Info,
-        Test / fork := false,
-        Test / logBuffered := false
+        ThisBuild / logLevel := Level.Info,
+        ThisBuild / Test / fork := false,
+        ThisBuild / Test / logBuffered := false,
+        Global / shellPrompt := buildShellPrompt.value,
+        name := id
       )
   }
 }
