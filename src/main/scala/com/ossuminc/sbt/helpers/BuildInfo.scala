@@ -28,9 +28,13 @@ object BuildInfo extends AutoPluginHelper {
         buildInfoUsePackageAsPath := true,
         buildInfoKeys ++= Seq[BuildInfoKey](
           normalizedName,
+          moduleName,
           description,
           organization,
           organizationName,
+          RootProjectInfo.Keys.gitHubOrganization,
+          RootProjectInfo.Keys.gitHubRepository,
+          RootProjectInfo.Keys.copyrightHolder,
           BuildInfoKey.map(organizationHomepage) { case (k, v) =>
             k -> v.get.toString
           },

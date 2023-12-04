@@ -16,25 +16,30 @@ object OssumIncPlugin extends AutoPlugin {
         *   The artifact id name for the root project.
         */
       def apply(
-        id: String,
+        artifactName: String = "",
         org: String = "com.ossuminc",
         orgName: String = "Ossum, Inc.",
         orgPage: URL = url("https://com.ossuminc/"),
         startYr: Int = 2023,
         devs: List[Developer] = List.empty
       ): Project = {
-        Project
-          .apply(id, file("."))
+        val result = Project
+          .apply("root", file(System.getProperty("user.dir")))
           .configure(
             helpers.RootProjectInfo.initialize(
-              id,
+              artifactName,
+              startYr,
               org,
               orgName,
               orgPage,
-              startYr,
               devs
             )
           )
+        if (artifactName.isEmpty) {
+          result.configure(With.noPublishing)
+        } else {
+          result.settings(moduleName := artifactName)
+        }
       }
     }
 
@@ -50,12 +55,12 @@ object OssumIncPlugin extends AutoPlugin {
         * @return
         *   The project that was created and configure.
         */
-      def apply(id: String, dirName: String): Project = {
+      def apply(dirName: String, modName: String = ""): Project = {
         Project
-          .apply(id, file(dirName))
+          .apply(dirName, file(dirName))
           .settings(
-            name := id,
-            moduleName := id
+            name := dirName,
+            moduleName := { if (modName.isEmpty) dirName else modName }
           )
       }
     }
@@ -104,7 +109,7 @@ object OssumIncPlugin extends AutoPlugin {
 
       def everything(project: Project): Project = {
         project.configure(typical)
-        these(java, misc, build_info)(project)
+        these(java, misc, build_info, release)(project)
       }
 
       def plugin(project: Project): Project = {
