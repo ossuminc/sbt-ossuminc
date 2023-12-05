@@ -44,11 +44,11 @@ object Publishing extends AutoPluginHelper {
         Keys.sonatypeServer := defaultSonatypeServer,
         sonatypeSessionName := organization.value + "/" + name.value,
         publishSnapshotsTo := {
-          val sonatypeOssSnapshots = s"https://${Keys.sonatypeServer}/content/repositories/snapshots"
+          val sonatypeOssSnapshots = s"https://${Keys.sonatypeServer.value}/content/repositories/snapshots"
           MavenRepository("Sonatype OSS Snapshots", sonatypeOssSnapshots)
         },
         publishReleasesTo := {
-          val sonatypeOssStaging = s"https://${Keys.sonatypeServer}/service/local/staging/deploy/maven2"
+          val sonatypeOssStaging = s"https://${Keys.sonatypeServer.value}/service/local/staging/deploy/maven2"
           MavenRepository("Sonatype Maven Release Staging", sonatypeOssStaging)
         },
         homepage := Some(
