@@ -20,7 +20,7 @@ import sbt.Keys.*
 import sbt.*
 import xerial.sbt.Sonatype as SonatypePlugin
 import xerial.sbt.Sonatype.autoImport.{sonatypeProfileName, sonatypeSessionName}
-import scala.xml.*
+//import scala.xml.*
 
 import com.ossuminc.sbt.helpers.Release.Keys.{publishReleasesTo, publishSnapshotsTo}
 import com.ossuminc.sbt.helpers.RootProjectInfo.Keys._
@@ -28,13 +28,27 @@ import com.ossuminc.sbt.helpers.RootProjectInfo.Keys._
 /** Settings For SonatypePublishing Plugin */
 object Publishing extends AutoPluginHelper {
 
-  private def makeLicense(name: String, url: String): Elem = {
-    <license>
-      <name>{name}</name>
-      <url>{url}</url>
-      <distribution>repo</distribution>
-    </license>
-  }
+//  private def makeLicense(name: String, url: String): Elem = {
+//    <license>
+//      <name>{name}</name>
+//      <url>{url}</url>
+//      <distribution>repo</distribution>
+//    </license>
+//  }
+
+//  private def makeDeveloper(dev: Developer): Elem = {
+//    <developer>
+//      <id>
+//        {dev.id}
+//      </id> <name>
+//      {dev.name}
+//    </name> <email>
+//      {dev.email}
+//    </email> <url>
+//      {dev.url.toExternalForm}
+//    </url>
+//    </developer>
+//  }
 
   private val sonatypeServer = "s01.oss.sonatype.org"
   private val sonatypeOssSnapshots = s"https://$sonatypeServer/content/repositories/snapshots"
@@ -55,34 +69,20 @@ object Publishing extends AutoPluginHelper {
         ),
         publishMavenStyle := true,
         pomIncludeRepository := { _ => false },
-        pomExtra := {
-          val devs: Seq[scala.xml.Elem] = developers.value.map { (dev: Developer) =>
-            <developer>
-              <id>
-                {dev.id}
-              </id>
-              <name>
-                {dev.name}
-              </name>
-              <email>
-                {dev.email}
-              </email>
-              <url>
-                {dev.url.toString}
-              </url>
-            </developer>
-          }
-          val devList = <developers>
-            {devs}
-          </developers>
-          val licList: scala.xml.Node = {
-            val lics = licenses.value.map { case (nm, url) => makeLicense(nm, url.toExternalForm) }
-            <licenses>
-              {lics}
-            </licenses>
-          }
-          NodeSeq.fromSeq(Seq(devList, licList))
-        },
+//        pomExtra := {
+////          val devs: Seq[scala.xml.Elem] = developers.value.map { (dev: Developer) => makeDeveloper(dev) }
+////          val devList = <developers>
+////            {devs}
+////          </developers>
+////          val licList: scala.xml.Node = {
+//            val lics = licenses.value.map { case (nm, url) => makeLicense(nm, url.toExternalForm) }
+//            <licenses>
+//              {lics}
+//            </licenses>
+//          }
+//          //NodeSeq.fromSeq(Seq(devList, licList))
+//          Seq(licList)
+//        },
         publishTo := {
           if (isSnapshot.value) {
             Some(publishSnapshotsTo.value)

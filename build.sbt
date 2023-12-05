@@ -14,14 +14,13 @@
  */
 
 import com.ossuminc.sbt.helpers.Miscellaneous.buildShellPrompt
+import com.ossuminc.sbt.helpers.RootProjectInfo.Keys.{gitHubOrganization, gitHubRepository}
 
 import java.time.Year
 import de.heikoseeberger.sbtheader.HeaderPlugin.autoImport.headerLicense
-import com.ossuminc.sbt.helpers.{DynamicVersioning, Publishing, Release, Scala2, RootProjectInfo}
+import com.ossuminc.sbt.helpers.{DynamicVersioning, Publishing, Release, RootProjectInfo, Scala2}
 
 Global / onChangedBuildSource := ReloadOnSourceChanges
-
-sbtPlugin := true
 
 lazy val plugin = project
   .in(file("."))
@@ -31,6 +30,9 @@ lazy val plugin = project
   .configure(Publishing.configure)
   .enablePlugins(ScriptedPlugin)
   .settings(
+    sbtPlugin := true,
+    gitHubOrganization:= "com.ossuminc",
+    gitHubRepository := "sbt-ossuminc",
     scalaVersion := "2.12.18",
     // Scripted - sbt plugin tests
     scriptedLaunchOpts := {
@@ -48,56 +50,7 @@ lazy val plugin = project
       "org.apache.commons" % "commons-lang3" % "3.5",
       "org.slf4j" % "slf4j-simple" % "1.7.25"
     )
-//    headerLicense := {
-//      val years = startYear.value.get.toString + "-" + Year.now().toString
-//      Some(HeaderLicense.ALv2(years, "Ossum Inc."))
-//    },
-    // Publishing to sonatype
-    // Sonatype.SonatypeKeys.sonatypeProfileName := "com.reactific"
-//    publishTo := {
-//      val nexus = "https://oss.sonatype.org/"
-//      val snapshotsR =
-//        "snapshots".at(nexus + "content/repositories/snapshots")
-//      val releasesR =
-//        "releases".at(nexus + "service/local/staging/deploy/maven2")
-//      val resolver = if (isSnapshot.value) snapshotsR else releasesR
-//      Some(resolver)
-//    },
-//    publishMavenStyle := true,
-//
-//    Test / publishArtifact := false,
-//    pomIncludeRepository := { _ => false }
   )
-
-lazy val defaultScmInfo = Def.setting {
-  val gitUrl = "//github.com/ossuminc/" + normalizedName.value + ".git"
-  ScmInfo(
-    url("https:" ++ gitUrl),
-    "scm:git:" ++ gitUrl,
-    Some("https:" ++ gitUrl)
-  )
-}
-
-// Release process
-//releaseUseGlobalVersion := true
-//releaseVersionBump := sbtrelease.Version.Bump.Bugfix
-//releasePublishArtifactsAction := PgpKeys.publishSigned.value
-//releaseProcess := Seq[ReleaseStep](
-//  checkSnapshotDependencies,
-//  inquireVersions,
-//  runClean,
-//  runTest,
-//  releaseStepCommand("scripted"),
-//  setReleaseVersion,
-//  commitReleaseVersion,
-//  tagRelease,
-//  releaseStepCommand("packageBin"),
-//  publishArtifacts,
-//  setNextVersion,
-//  commitNextVersion,
-//  releaseStepCommand("sonatypeReleaseAll"),
-//  pushChanges
-//)
 
 // Generic plugins from github.sbt project
 addSbtPlugin("com.github.sbt" % "sbt-dynver" % "5.0.1")
