@@ -28,61 +28,34 @@ import com.ossuminc.sbt.helpers.RootProjectInfo.Keys._
 /** Settings For SonatypePublishing Plugin */
 object Publishing extends AutoPluginHelper {
 
-//  private def makeLicense(name: String, url: String): Elem = {
-//    <license>
-//      <name>{name}</name>
-//      <url>{url}</url>
-//      <distribution>repo</distribution>
-//    </license>
-//  }
+  object Keys {
+    val sonatypeServer: SettingKey[String] = settingKey[String](
+      "The host name of the sonatype server to publish artifacts to. Defaults to s01.oss.sonatype.org"
+    )
+  }
 
-//  private def makeDeveloper(dev: Developer): Elem = {
-//    <developer>
-//      <id>
-//        {dev.id}
-//      </id> <name>
-//      {dev.name}
-//    </name> <email>
-//      {dev.email}
-//    </email> <url>
-//      {dev.url.toExternalForm}
-//    </url>
-//    </developer>
-//  }
-
-  private val sonatypeServer = "s01.oss.sonatype.org"
-  private val sonatypeOssSnapshots = s"https://$sonatypeServer/content/repositories/snapshots"
-  private val sonatypeOssStaging = s"https://$sonatypeServer/service/local/staging/deploy/maven2"
-  private val snapshotRepository = MavenRepository("Sonatype OSS Snapshots", sonatypeOssSnapshots)
-  private val releaseRepository = MavenRepository("Sonatype Maven Release Staging", sonatypeOssStaging)
+  private val defaultSonatypeServer = "s01.oss.sonatype.org"
 
   def configure(project: Project): Project = {
     project
       .enablePlugins(SonatypePlugin)
       .settings(
         sonatypeProfileName := "ossum",
+        Keys.sonatypeServer := defaultSonatypeServer,
         sonatypeSessionName := organization.value + "/" + name.value,
-        publishSnapshotsTo := snapshotRepository,
-        publishReleasesTo := releaseRepository,
+        publishSnapshotsTo := {
+          val sonatypeOssSnapshots = s"https://${Keys.sonatypeServer}/content/repositories/snapshots"
+          MavenRepository("Sonatype OSS Snapshots", sonatypeOssSnapshots)
+        },
+        publishReleasesTo := {
+          val sonatypeOssStaging = s"https://${Keys.sonatypeServer}/service/local/staging/deploy/maven2"
+          MavenRepository("Sonatype Maven Release Staging", sonatypeOssStaging)
+        },
         homepage := Some(
           url(s"https://github.com/${gitHubOrganization.value}/${gitHubRepository.value}")
         ),
         publishMavenStyle := true,
         pomIncludeRepository := { _ => false },
-//        pomExtra := {
-////          val devs: Seq[scala.xml.Elem] = developers.value.map { (dev: Developer) => makeDeveloper(dev) }
-////          val devList = <developers>
-////            {devs}
-////          </developers>
-////          val licList: scala.xml.Node = {
-//            val lics = licenses.value.map { case (nm, url) => makeLicense(nm, url.toExternalForm) }
-//            <licenses>
-//              {lics}
-//            </licenses>
-//          }
-//          //NodeSeq.fromSeq(Seq(devList, licList))
-//          Seq(licList)
-//        },
         publishTo := {
           if (isSnapshot.value) {
             Some(publishSnapshotsTo.value)

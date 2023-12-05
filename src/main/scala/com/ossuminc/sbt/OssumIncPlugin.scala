@@ -16,7 +16,8 @@ object OssumIncPlugin extends AutoPlugin {
         *   The artifact id name for the root project.
         */
       def apply(
-        artifactName: String = "",
+        modName: String = "",
+        projName: String = "root",
         org: String = "com.ossuminc",
         orgName: String = "Ossum, Inc.",
         orgPage: URL = url("https://com.ossuminc/"),
@@ -27,7 +28,7 @@ object OssumIncPlugin extends AutoPlugin {
           .apply("root", file(System.getProperty("user.dir")))
           .configure(
             helpers.RootProjectInfo.initialize(
-              artifactName,
+              modName,
               startYr,
               org,
               orgName,
@@ -35,10 +36,11 @@ object OssumIncPlugin extends AutoPlugin {
               devs
             )
           )
-        if (artifactName.isEmpty) {
+          .settings(name := projName)
+        if (modName.isEmpty) {
           result.configure(With.noPublishing)
         } else {
-          result.settings(moduleName := artifactName)
+          result
         }
       }
     }
@@ -68,20 +70,21 @@ object OssumIncPlugin extends AutoPlugin {
     type ConfigFunc = (Project) => Project
 
     object With {
-      def aliases(project: Project): Project = project.configure(helpers.HandyAliases.configure)
-      def build_info(project: Project): Project = project.configure(helpers.BuildInfo.configure)
-      def dynver(project: Project): Project = project.configure(helpers.DynamicVersioning.configure)
-      def git(project: Project): Project = project.configure(helpers.Git.configure)
-      def header(project: Project): Project = project.configure(helpers.Header.configure)
-      def java(project: Project): Project = project.configure(helpers.Java.configure)
-      def misc(project: Project): Project = project.configure(helpers.Miscellaneous.configure)
-      def publishing(project: Project): Project = project.configure(helpers.Publishing.configure)
-      def release(project: Project): Project = project.configure(helpers.Release.configure)
-      def resolvers(project: Project): Project = project.configure(helpers.Resolvers.configure)
-      def scala2(project: Project): Project = project.configure(helpers.Scala2.configure)
-      def scala3(project: Project): Project = project.configure(helpers.Scala3.configure)
-      def scalafmt(project: Project): Project = project.configure(helpers.Scalafmt.configure)
-      def unidoc(project: Project): Project = project.configure(helpers.Unidoc.configure)
+      val aliases: ConfigFunc = helpers.HandyAliases.configure
+      val build_info: ConfigFunc = helpers.BuildInfo.configure
+      val dynver: ConfigFunc = helpers.DynamicVersioning.configure
+      val git: ConfigFunc = helpers.Git.configure
+      val header: ConfigFunc = helpers.Header.configure
+      val java: ConfigFunc = helpers.Java.configure
+      val misc: ConfigFunc = helpers.Miscellaneous.configure
+      val publishing: ConfigFunc = helpers.Publishing.configure
+      val release: ConfigFunc = helpers.Release.configure
+      val resolvers: ConfigFunc = helpers.Resolvers.configure
+      val scala2: ConfigFunc = helpers.Scala2.configure
+      val scala3: ConfigFunc = helpers.Scala3.configure
+      val scalafmt: ConfigFunc = helpers.Scalafmt.configure
+      val scoverage: ConfigFunc = helpers.ScalaCoverage.configure
+      val unidoc: ConfigFunc = helpers.Unidoc.configure
 
       def noPublishing(project: Project): Project = {
         project.settings(
@@ -104,7 +107,7 @@ object OssumIncPlugin extends AutoPlugin {
 
       def typical(project: Project): Project = {
         project.configure(basic)
-        these(scala3, publishing, unidoc)(project)
+        these(scala3, scoverage, publishing, unidoc)(project)
       }
 
       def everything(project: Project): Project = {

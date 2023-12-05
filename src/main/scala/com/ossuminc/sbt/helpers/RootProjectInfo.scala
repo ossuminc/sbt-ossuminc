@@ -57,7 +57,7 @@ object RootProjectInfo {
   )
 
   def initialize(
-    artifactName: String,
+    modName: String,
     startYr: Int = 2023,
     org: String = "com.ossuminc",
     orgName: String = "Ossum, Inc.",
@@ -88,8 +88,7 @@ object RootProjectInfo {
         ThisBuild / Test / fork := false,
         ThisBuild / Test / logBuffered := false,
         Global / shellPrompt := buildShellPrompt.value,
-        moduleName := artifactName,
-        name := "root"
+        moduleName := modName
       )
   }
 }

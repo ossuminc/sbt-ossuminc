@@ -16,22 +16,21 @@
 
 package com.ossuminc.sbt.helpers
 
-import RootProjectInfo.Keys.projectStartYear
+import RootProjectInfo.Keys.{copyrightHolder, projectStartYear}
 import sbt.*
 import sbt.Keys.*
 import de.heikoseeberger.sbtheader
-import de.heikoseeberger.sbtheader.HeaderPlugin
+import de.heikoseeberger.sbtheader.{AutomateHeaderPlugin, HeaderPlugin}
 
 import java.time.Year
 
 object Header extends AutoPluginHelper {
 
   def configure(project: Project): Project = {
-    val copyright_holder = "Ossum Inc."
     import HeaderPlugin.autoImport._
     import sbtheader.{CommentStyle, FileType}
     project
-      .enablePlugins(HeaderPlugin)
+      .enablePlugins(AutomateHeaderPlugin)
       .settings(
         headerEmptyLine := true,
         startYear := Some(projectStartYear.value),
@@ -40,8 +39,8 @@ object Header extends AutoPluginHelper {
           Some(
             HeaderLicense.ALv2(
               years,
-              copyright_holder,
-              HeaderLicenseStyle.SpdxSyntax
+              copyrightHolder.value,
+              HeaderLicenseStyle.Detailed
             )
           )
         },

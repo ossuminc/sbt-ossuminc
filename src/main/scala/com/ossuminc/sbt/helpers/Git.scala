@@ -1,7 +1,7 @@
 package com.ossuminc.sbt.helpers
 
 import com.github.sbt.git.GitPlugin
-import sbt.*
+import sbt._
 
 object Git extends AutoPluginHelper {
 
