@@ -32,3 +32,16 @@ lazy val p1 = Module("project1", "p1")
 lazy val p2 = Module("project2", "p2")
   .configure(With.typical)
   .dependsOn(p1)
+
+lazy val plugin = Plugin("plugin", "plugin")
+  .configure(With.basic)
+  .settings(
+    maxErrors := 50,
+    TaskKey[Unit]("check") := {
+      println(s"Checking from within sbt:")
+      if (sbtPlugin.value == true)
+        println("Confirmed as plugin")
+      else
+        throw new Exception("Failed to be a plugin")
+    }
+  )

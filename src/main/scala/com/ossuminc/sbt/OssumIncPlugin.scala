@@ -67,7 +67,21 @@ object OssumIncPlugin extends AutoPlugin {
       }
     }
 
-    type ConfigFunc = (Project) => Project
+    object Plugin {
+      def apply(dirName: String, modName: String = ""): Project = {
+        Project
+          .apply(dirName, file(dirName))
+          .configure(helpers.Plugin.configure)
+          .settings(
+            name := dirName,
+            moduleName := {
+              if (modName.isEmpty) dirName else modName
+            }
+          )
+      }
+    }
+
+    private type ConfigFunc = Project => Project
 
     object With {
       val aliases: ConfigFunc = helpers.HandyAliases.configure
@@ -92,6 +106,12 @@ object OssumIncPlugin extends AutoPlugin {
           publish := {}, // just to be sure
           publishLocal := {}, // and paranoid
           publishTo := Some(Resolver.defaultLocal)
+        )
+      }
+
+      def coverage(percent: Double = 50.0d)(project: Project): Project = {
+        project.settings(
+          helpers.ScalaCoverage.Keys.coveragePercent := percent
         )
       }
 
