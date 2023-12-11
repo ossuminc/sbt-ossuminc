@@ -13,16 +13,13 @@
  * License for  the specific language governing permissions and limitations under the License.
  */
 
-import com.ossuminc.sbt.helpers.Miscellaneous.buildShellPrompt
 import com.ossuminc.sbt.helpers.RootProjectInfo.Keys.{gitHubOrganization, gitHubRepository}
 
-import java.time.Year
-import de.heikoseeberger.sbtheader.HeaderPlugin.autoImport.headerLicense
-import com.ossuminc.sbt.helpers.{DynamicVersioning, Publishing, Release, RootProjectInfo, Scala2}
+import com.ossuminc.sbt.helpers.{DynamicVersioning, Publishing, RootProjectInfo, Scala2}
 
 Global / onChangedBuildSource := ReloadOnSourceChanges
 
-lazy val plugin = project
+lazy val `sbt-ossuminc` = project
   .in(file("."))
   .configure(RootProjectInfo.initialize("sbt-ossuminc", startYr = 2015))
   .configure(DynamicVersioning.configure)
@@ -31,6 +28,7 @@ lazy val plugin = project
   .enablePlugins(ScriptedPlugin)
   .settings(
     sbtPlugin := true,
+    name := "sbt-ossuminc",
     gitHubOrganization := "com.ossuminc",
     gitHubRepository := "sbt-ossuminc",
     scalaVersion := "2.12.18",
