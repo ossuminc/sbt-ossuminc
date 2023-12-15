@@ -12,7 +12,7 @@ object Plugin {
 
   def configure(project: Project): Project = {
     project
-      .enablePlugins(SbtPlugin, JavaAppPackaging)
+      .enablePlugins(SbtPlugin, JavaAppPackaging, ScriptedPlugin)
       .configure(With.basic, With.scala2, With.scalafmt)
       .disablePlugins(ScoverageSbtPlugin)
       .settings(
