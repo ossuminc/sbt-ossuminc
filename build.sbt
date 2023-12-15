@@ -37,13 +37,11 @@ lazy val `sbt-ossuminc` = project
       scriptedLaunchOpts.value ++
         Seq("-Xmx1024M", "-Dplugin.version=" + version.value)
     },
-    resolvers ++= Seq(
-      // Resolver.sonatypeRepo("releases"),
-      // Resolver.sonatypeRepo("snapshots"),
-      Resolver.bintrayRepo("sbt", "sbt-plugin-releases"),
-      Resolver.typesafeIvyRepo("releases"),
-      "eclipse-jgit".at("https://download.eclipse.org/jgit/maven")
-    ),
+//    resolvers ++= Seq(
+//      Resolver.bintrayRepo("sbt", "sbt-plugin-releases"),
+//      Resolver.typesafeIvyRepo("releases"),
+//      "eclipse-jgit".at("https://download.eclipse.org/jgit/maven")
+//    ),
     libraryDependencies ++= Seq(
       "org.apache.commons" % "commons-lang3" % "3.5",
       "org.slf4j" % "slf4j-simple" % "1.7.25"

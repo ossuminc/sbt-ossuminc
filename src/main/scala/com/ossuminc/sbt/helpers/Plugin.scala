@@ -13,8 +13,8 @@ object Plugin {
   def configure(project: Project): Project = {
     project
       .enablePlugins(SbtPlugin, JavaAppPackaging, ScriptedPlugin)
-      .configure(With.basic, With.scala2, With.scalafmt)
       .disablePlugins(ScoverageSbtPlugin)
+      .configure(With.basic, With.scala2, With.scalafmt, With.publishing)
       .settings(
         sbtPlugin := true,
         scalaVersion := "2.12.18",

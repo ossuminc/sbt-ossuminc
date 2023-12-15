@@ -3,7 +3,6 @@ package com.ossuminc.sbt
 import sbt.*
 import sbt.Keys.*
 import sbt.librarymanagement.Resolver
-import scoverage.ScoverageSbtPlugin
 
 object OssumIncPlugin extends AutoPlugin {
 
@@ -97,8 +96,7 @@ object OssumIncPlugin extends AutoPlugin {
       def apply(dirName: String, modName: String = ""): Project = {
         Project
           .apply(dirName, file(dirName))
-          .disablePlugins(ScoverageSbtPlugin)
-          .configure(helpers.Plugin.configure, helpers.Publishing.configure)
+          .configure(helpers.Plugin.configure)
           .settings(
             name := dirName,
             moduleName := {
