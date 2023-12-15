@@ -3,6 +3,7 @@ package com.ossuminc.sbt
 import sbt.*
 import sbt.Keys.*
 import sbt.librarymanagement.Resolver
+import scoverage.ScoverageSbtPlugin
 
 object OssumIncPlugin extends AutoPlugin {
 
@@ -12,8 +13,22 @@ object OssumIncPlugin extends AutoPlugin {
 
       /** Define a Root level project whether it is for a single-project repo or a unirepo with many sub-projects. This
         * project is configured with a shell prompt, and the standard project information at ThisBuild scope
-        * @param id
+        * @param modName
         *   The artifact id name for the root project.
+        * @param projName
+        *   The name of the sbt project
+        * @param org
+        *   The name of the organization responsible for this project in Java package format
+        * @param orgName
+        *   The legal name of the organization
+        * @param orgPage
+        *   The website to use for the organizaiton
+        * @param startYr
+        *   The year in which this project started, for copyright purposes
+        * @param devs
+        *   A list of Developer specifications to include in POM (required by Maven)
+        * @return
+        *   The project that was created and configured.
         */
       def apply(
         modName: String = "",
@@ -50,12 +65,12 @@ object OssumIncPlugin extends AutoPlugin {
       /** Define a sub-project or module of the root project. Make sure to use the [[Root]] function before this Module
         * is defined. No configuration is applied but you can do that by using the various With.* functions in this
         * plugin. `With.typical` is typical for Scala3 development
-        * @param id
-        *   The name of the artifact that will be produced
         * @param dirName
         *   The name of the sub-directory in which the module is located.
+        * @param modName
+        *   The name of the artifact to be published. If blank, it will default to the dirName
         * @return
-        *   The project that was created and configure.
+        *   The project that was created and configured.
         */
       def apply(dirName: String, modName: String = ""): Project = {
         Project
@@ -68,10 +83,22 @@ object OssumIncPlugin extends AutoPlugin {
     }
 
     object Plugin {
+      /**
+        * Define a sub-project that produces an sbt plugin. It is necessary to also have used the [[Root]] function
+        * because what that function sets up is necessary for publishing this module. scoverage doesn't work with
+        * sbt plugins so it is disabled.
+        * @param dirName
+        *   The name of the directory in which the plugin code and tests exist
+        * @param modName
+        *   The name of the published artifact. If blank, the `dirName` will be used
+        * @return
+        *   The configured sbt project that is ready to build an sbt plugin
+        */
       def apply(dirName: String, modName: String = ""): Project = {
         Project
           .apply(dirName, file(dirName))
-          .configure(helpers.Plugin.configure)
+          .disablePlugins(ScoverageSbtPlugin)
+          .configure(helpers.Plugin.configure, helpers.Publishing.configure)
           .settings(
             name := dirName,
             moduleName := {

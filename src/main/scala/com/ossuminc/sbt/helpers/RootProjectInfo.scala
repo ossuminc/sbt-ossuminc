@@ -84,6 +84,7 @@ object RootProjectInfo {
         ThisBuild / licenses := Seq("Apache-2.0" -> url("https://www.apache.org/licenses/LICENSE-2.0.txt")),
         ThisBuild / homepage := Some(Keys.projectHomePage.value),
         ThisBuild / maintainer := "reid@ossuminc.com",
+        ThisBuild / developers := { if (devs.isEmpty) defaultDevs else devs },
         ThisBuild / logLevel := Level.Info,
         ThisBuild / Test / fork := false,
         ThisBuild / Test / logBuffered := false,
