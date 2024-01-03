@@ -61,9 +61,8 @@ object Unidoc extends AutoPluginHelper {
           }
 
           val knownApiMappings: Map[(String, String), URL] = Map(
-            ("org.scala-lang", "scala-library") -> url(
-              s"http://www.scala-lang.org/api/${scalaVersion.value}/"
-            )
+            ("org.scala-lang", "scala-library") -> url(s"http://www.scala-lang.org/api/${scalaVersion.value}/"),
+            ("org.scalatest", "scalatest") -> url(s"http://https://www.scalatest.org/scaladoc/3.2.17/")
           )
 
           for {

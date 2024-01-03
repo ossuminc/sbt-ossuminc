@@ -35,6 +35,7 @@ object OssumIncPlugin extends AutoPlugin {
         org: String = "com.ossuminc",
         orgName: String = "Ossum, Inc.",
         orgPage: URL = url("https://com.ossuminc/"),
+        maintainerEmail: String = "reid@ossuminc.com",
         startYr: Int = 2023,
         devs: List[Developer] = List.empty
       ): Project = {
@@ -47,10 +48,13 @@ object OssumIncPlugin extends AutoPlugin {
               org,
               orgName,
               orgPage,
+              maintainerEmail,
               devs
             )
           )
-          .settings(name := projName)
+          .settings(
+            name := projName
+          )
         if (modName.isEmpty) {
           result.configure(With.noPublishing)
         } else {

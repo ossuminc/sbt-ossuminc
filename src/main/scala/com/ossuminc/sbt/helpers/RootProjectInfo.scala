@@ -62,6 +62,7 @@ object RootProjectInfo {
     org: String = "com.ossuminc",
     orgName: String = "Ossum, Inc.",
     orgPage: URL = url("https://com.ossuminc/"),
+    maintainerEmail: String = "reid@ossuminc.com",
     devs: List[Developer] = defaultDevs
   )(project: Project): Project = {
     project
@@ -79,7 +80,8 @@ object RootProjectInfo {
         ThisBuild / organizationName := orgName,
         ThisBuild / organizationHomepage := Some(orgPage),
         ThisBuild / developers := devs,
-        ThisBuild / maintainer := "reid@ossuminc.com",
+        ThisBuild / maintainer := maintainerEmail,
+        maintainer := maintainerEmail,
         ThisBuild / versionScheme := Option("early-semver"),
         ThisBuild / licenses := Seq("Apache-2.0" -> url("https://www.apache.org/licenses/LICENSE-2.0.txt")),
         ThisBuild / homepage := Some(Keys.projectHomePage.value),
