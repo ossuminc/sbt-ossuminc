@@ -20,7 +20,6 @@ import sbt.Keys.*
 import sbt.*
 import xerial.sbt.Sonatype as SonatypePlugin
 import xerial.sbt.Sonatype.autoImport.{sonatypeProfileName, sonatypeSessionName}
-//import scala.xml.*
 
 import com.ossuminc.sbt.helpers.Release.Keys.{publishReleasesTo, publishSnapshotsTo}
 import com.ossuminc.sbt.helpers.RootProjectInfo.Keys._

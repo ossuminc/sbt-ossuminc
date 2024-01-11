@@ -19,8 +19,8 @@ package com.ossuminc.sbt.helpers
 import com.ossuminc.sbt.helpers.Miscellaneous.buildShellPrompt
 import com.typesafe.sbt.SbtNativePackager
 import com.typesafe.sbt.packager.Keys.maintainer
-import sbt.*
-import sbt.Keys.*
+import sbt._
+import sbt.Keys._
 import sbt.plugins.MiniDependencyTreePlugin
 
 object RootProjectInfo {
