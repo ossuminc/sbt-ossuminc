@@ -1,8 +1,10 @@
 package com.ossuminc.sbt
 
+import com.ossuminc.sbt.helpers.WartRemover.Keys
 import sbt.*
 import sbt.Keys.*
 import sbt.librarymanagement.Resolver
+import wartremover.Wart
 
 object OssumIncPlugin extends AutoPlugin {
 
@@ -86,10 +88,10 @@ object OssumIncPlugin extends AutoPlugin {
     }
 
     object Plugin {
-      /**
-        * Define a sub-project that produces an sbt plugin. It is necessary to also have used the [[Root]] function
-        * because what that function sets up is necessary for publishing this module. scoverage doesn't work with
-        * sbt plugins so it is disabled.
+
+      /** Define a sub-project that produces an sbt plugin. It is necessary to also have used the [[Root]] function
+        * because what that function sets up is necessary for publishing this module. scoverage doesn't work with sbt
+        * plugins so it is disabled.
         * @param dirName
         *   The name of the directory in which the plugin code and tests exist
         * @param modName
@@ -128,13 +130,15 @@ object OssumIncPlugin extends AutoPlugin {
       val scalafmt: ConfigFunc = helpers.Scalafmt.configure
       val scoverage: ConfigFunc = helpers.ScalaCoverage.configure
       val unidoc: ConfigFunc = helpers.Unidoc.configure
+      val wartRemover: ConfigFunc = helpers.WartRemover.configure
 
       def noPublishing(project: Project): Project = {
         project.settings(
           publishArtifact := false, // no artifact to publish for the virtual root project
           publish := {}, // just to be sure
           publishLocal := {}, // and paranoid
-          publishTo := Some(Resolver.defaultLocal)
+          publishTo := Some(Resolver.defaultLocal),
+          publish / skip := true
         )
       }
 
@@ -142,6 +146,12 @@ object OssumIncPlugin extends AutoPlugin {
         project.settings(
           helpers.ScalaCoverage.Keys.coveragePercent := percent
         )
+      }
+
+      def wartsExcept(excluded: Seq[Wart])(project: Project): Project = {
+        helpers.WartRemover.configure(project).settings {
+          Keys.excludedWarts := excluded
+        }
       }
 
       def these(cfuncs: ConfigFunc*)(project: Project): Project = {
@@ -161,14 +171,15 @@ object OssumIncPlugin extends AutoPlugin {
 
       def everything(project: Project): Project = {
         project.configure(typical)
-        these(java, misc, build_info, release)(project)
+        these(java, misc, build_info, release, wartRemover)(project)
       }
 
       def plugin(project: Project): Project = {
         project
           .configure(scala2)
           .settings(
-            scalaVersion := "2.12.18"
+            scalaVersion := "2.12.18",
+            sbtPlugin := true
           )
       }
     }
