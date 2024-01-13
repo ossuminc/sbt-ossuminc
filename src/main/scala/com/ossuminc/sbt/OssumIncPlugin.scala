@@ -52,7 +52,8 @@ object OssumIncPlugin extends AutoPlugin {
               orgPage,
               maintainerEmail,
               devs
-            )
+            ),
+            helpers.Resolvers.configure
           )
           .settings(
             name := projName
