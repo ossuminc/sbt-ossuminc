@@ -176,8 +176,14 @@ object OssumIncPlugin extends AutoPlugin {
         these(java, misc, build_info, release, wartRemover)(project)
       }
 
-      def native(debugLog: Boolean = true)(project: Project): Project = {
-        helpers.Native.configure(debugLog)(project)
+      def native(
+        targetTriple: String = "arm64-apple-darwin20.6.0",
+        gc: String = "commix",
+        debug: Boolean = true,
+        noLTO: Boolean = false,
+        debugLog: Boolean = false
+      )(project: Project): Project = {
+        helpers.Native.configure(targetTriple, gc, debug, noLTO, debugLog)(project)
       }
 
       def plugin(project: Project): Project = {
