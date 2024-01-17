@@ -35,6 +35,7 @@ addSbtPlugin("org.scalameta" % "sbt-scalafmt" % "2.5.2")
 addSbtPlugin("org.scoverage" % "sbt-scoverage" % "2.0.9")
 addSbtPlugin("org.scoverage" % "sbt-coveralls" % "1.3.11")
 addSbtPlugin("org.wartremover" % "sbt-wartremover" % "3.1.5")
+addSbtPlugin("org.scala-native" % "sbt-scala-native" % "0.4.16")
 
 libraryDependencies ++= Seq(
   "org.scala-sbt" %% "scripted-plugin" % sbtVersion.value

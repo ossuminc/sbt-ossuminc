@@ -123,6 +123,7 @@ object OssumIncPlugin extends AutoPlugin {
       val header: ConfigFunc = helpers.Header.configure
       val java: ConfigFunc = helpers.Java.configure
       val misc: ConfigFunc = helpers.Miscellaneous.configure
+      val native: ConfigFunc = helpers.Native.configure
       val publishing: ConfigFunc = helpers.Publishing.configure
       val release: ConfigFunc = helpers.Release.configure
       val resolvers: ConfigFunc = helpers.Resolvers.configure
@@ -173,6 +174,10 @@ object OssumIncPlugin extends AutoPlugin {
       def everything(project: Project): Project = {
         project.configure(typical)
         these(java, misc, build_info, release, wartRemover)(project)
+      }
+
+      def native(debugLog: Boolean = true)(project: Project): Project = {
+        helpers.Native.configure(debugLog)(project)
       }
 
       def plugin(project: Project): Project = {

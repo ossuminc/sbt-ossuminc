@@ -5,22 +5,16 @@ import sbt.*
 
 object Resolvers extends AutoPluginHelper {
 
-  val standardResolvers: Seq[Resolver] = Seq[Resolver](
-    Resolver.bintrayRepo("typesafe", "ivy-releases"),
-    Resolver.jcenterRepo,
-    Resolver.file(
-      "local",
-      _root_.sbt.file(Path.userHome.absolutePath + "/.ivy2/local")
-    )(Resolver.ivyStylePatterns),
+  private val standardResolvers: Seq[Resolver] = Seq[Resolver](
     Resolver.mavenLocal,
+    Resolver.bintrayRepo("typesafe", "ivy-releases"),
+    Resolver.jcenterRepo
   ) ++ Resolver.sonatypeOssRepos("releases") ++
     Resolver.sonatypeOssRepos("snapshots")
 
-  val sbtResolvers: Seq[Resolver] =
-    Seq(Resolver.bintrayRepo("sbt", "sbt-plugin-releases")) ++ standardResolvers
+  private val sbtResolvers: Seq[Resolver] = standardResolvers :+ Resolver.bintrayRepo("sbt", "sbt-plugin-releases")
 
-  val scalaResolvers: Seq[Resolver] =
-    Seq(Resolver.typesafeIvyRepo("releases")) ++ sbtResolvers
+  private val scalaResolvers: Seq[Resolver] = sbtResolvers :+ Resolver.typesafeIvyRepo("releases")
 
   def configure(resolvers: Seq[Resolver])(project: Project): Project = {
     project.settings(externalResolvers ++= resolvers)
