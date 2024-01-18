@@ -21,6 +21,7 @@ object Native extends AutoPluginHelper {
   }
 
   def configure(
+    buildTarget : String = "static",
     targetTriple: String = "arm64-apple-macosx11.0.0",
     gc: String = "commix",
     debug: Boolean = true,
@@ -45,10 +46,17 @@ object Native extends AutoPluginHelper {
             val lto = if (noLTO) LTO.none else LTO.thin
             val compileOptions = if (verbose) { Seq("-v") } else {Seq.empty}
             val linkOptions = Seq(s"-fuse-ld=$ld64Path")
+            val bTarget = buildTarget match {
+              case "application" => BuildTarget.application
+              case "dynamic" => BuildTarget.libraryDynamic
+              case "static" => BuildTarget.libraryStatic
+              case _ => BuildTarget.libraryStatic
+            }
             c.withLTO(lto)
               .withMode(mode)
               .withGC(GC(gc))
               .withTargetTriple(targetTriple)
+              .withBuildTarget(bTarget)
               .withCompileOptions(c.compileOptions ++ compileOptions)
               .withLinkingOptions(c.linkingOptions ++ linkOptions)
           }
@@ -56,3 +64,17 @@ object Native extends AutoPluginHelper {
       )
   }
 }
+
+
+// nativeConfig ~= { _.withBuildTarget(BuildTarget.libraryDynamic) }
+//application (default)
+//
+//Results in creating ready to use executable program.
+//
+//libraryDynamic
+//
+//Results in dynamic library being built based on entry point methods annotated with @exported, for details see Native code interoperability.
+//
+//libraryStatic
+//
+//Results in building static library using the same semantincs as in the libraryDynamic. Exported methods should handle exceptions, as they might not be able to be catched in the program that is using a produced static library.

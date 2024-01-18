@@ -177,13 +177,25 @@ object OssumIncPlugin extends AutoPlugin {
       }
 
       def native(
-        targetTriple: String = "arm64-apple-darwin20.6.0",
+        buildTarget: String = "static",
+        targetTriple: String = "arm64-apple-macosx11.0.0",
         gc: String = "commix",
         debug: Boolean = true,
         noLTO: Boolean = false,
-        debugLog: Boolean = false
+        debugLog: Boolean = false,
+        verbose: Boolean = false,
+        ld64Path: String = "/opt/homebrew/opt/llvm/bin/ld64.lld"
       )(project: Project): Project = {
-        helpers.Native.configure(targetTriple, gc, debug, noLTO, debugLog)(project)
+        helpers.Native.configure(
+          buildTarget,
+          targetTriple,
+          gc,
+          debug,
+          noLTO,
+          debugLog,
+          verbose,
+          ld64Path
+        )(project)
       }
 
       def plugin(project: Project): Project = {
