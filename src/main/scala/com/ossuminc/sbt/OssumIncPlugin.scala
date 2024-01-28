@@ -118,6 +118,7 @@ object OssumIncPlugin extends AutoPlugin {
     object With {
       val aliases: ConfigFunc = helpers.HandyAliases.configure
       val build_info: ConfigFunc = helpers.BuildInfo.configure
+      val cross: ConfigFunc = helpers.Cross.configure
       val dynver: ConfigFunc = helpers.DynamicVersioning.configure
       val git: ConfigFunc = helpers.Git.configure
       val header: ConfigFunc = helpers.Header.configure
@@ -196,6 +197,14 @@ object OssumIncPlugin extends AutoPlugin {
           verbose,
           ld64Path
         )(project)
+      }
+
+      def cross(
+        withNative: Boolean = true,
+        withJS: Boolean = true,
+        withJVM: Boolean = true
+      )(project: Project): Project = {
+        helpers.Cross.configure(withNative, withJS, withJVM)(project)
       }
 
       def plugin(project: Project): Project = {
