@@ -1,10 +1,8 @@
 package com.ossuminc.sbt
 
-import com.ossuminc.sbt.helpers.WartRemover.Keys
 import sbt.*
 import sbt.Keys.*
 import sbt.librarymanagement.Resolver
-import wartremover.Wart
 
 object OssumIncPlugin extends AutoPlugin {
 
@@ -132,7 +130,6 @@ object OssumIncPlugin extends AutoPlugin {
       val scalafmt: ConfigFunc = helpers.Scalafmt.configure
       val scoverage: ConfigFunc = helpers.ScalaCoverage.configure
       val unidoc: ConfigFunc = helpers.Unidoc.configure
-      val wartRemover: ConfigFunc = helpers.WartRemover.configure
 
       def noPublishing(project: Project): Project = {
         project.settings(
@@ -148,12 +145,6 @@ object OssumIncPlugin extends AutoPlugin {
         project.settings(
           helpers.ScalaCoverage.Keys.coveragePercent := percent
         )
-      }
-
-      def wartsExcept(excluded: Seq[Wart])(project: Project): Project = {
-        helpers.WartRemover.configure(project).settings {
-          Keys.excludedWarts := excluded
-        }
       }
 
       def these(cfuncs: ConfigFunc*)(project: Project): Project = {
@@ -173,7 +164,7 @@ object OssumIncPlugin extends AutoPlugin {
 
       def everything(project: Project): Project = {
         project.configure(typical)
-        these(java, misc, build_info, release, wartRemover)(project)
+        these(java, misc, build_info, release)(project)
       }
 
       def native(
