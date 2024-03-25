@@ -144,6 +144,7 @@ object OssumIncPlugin extends AutoPlugin {
       val build_info: ConfigFunc = helpers.BuildInfo.configure
       val dynver: ConfigFunc = helpers.DynamicVersioning.configure
       val git: ConfigFunc = helpers.Git.configure
+      val githubPackages: ConfigFunc = helpers.GitHubPackagesPublishing.configure
       val header: ConfigFunc = helpers.Header.configure
       val java: ConfigFunc = helpers.Java.configure
       val misc: ConfigFunc = helpers.Miscellaneous.configure
