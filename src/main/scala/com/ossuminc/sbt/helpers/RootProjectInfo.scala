@@ -57,10 +57,10 @@ object RootProjectInfo {
   )
 
   def initialize(
-    modName: String,
-    repoName: String,
+    ghRepoName: String,
+    ghOrgName: String = "ossuminc",
     startYr: Int = 2023,
-    org: String = "com.ossuminc",
+    orgPackage: String = "com.ossuminc",
     orgName: String = "Ossum, Inc.",
     orgPage: URL = url("https://com.ossuminc/"),
     maintainerEmail: String = "reid@ossuminc.com",
@@ -70,18 +70,17 @@ object RootProjectInfo {
       .enablePlugins(MiniDependencyTreePlugin)
       .enablePlugins(SbtNativePackager)
       .settings(
-        ThisBuild / Keys.copyrightHolder := "Ossum, Inc.",
-        ThisBuild / Keys.gitHubOrganization := "ossuminc",
-        ThisBuild / Keys.gitHubRepository := repoName,
+        ThisBuild / Keys.copyrightHolder := orgName,
+        ThisBuild / Keys.gitHubOrganization := ghOrgName,
+        ThisBuild / Keys.gitHubRepository := ghRepoName,
         ThisBuild / Keys.projectHomePage := url(
           s"https://github.com/${Keys.gitHubOrganization.value}/${Keys.gitHubRepository.value}"
         ),
         ThisBuild / Keys.projectStartYear := startYr,
         ThisBuild / versionScheme := Option("early-semver"),
-        ThisBuild / organization := org,
+        ThisBuild / organization := orgPackage,
         ThisBuild / organizationName := orgName,
         ThisBuild / organizationHomepage := Some(orgPage),
-        maintainer := maintainerEmail,
         ThisBuild / licenses := Seq("Apache-2.0" -> url("https://www.apache.org/licenses/LICENSE-2.0.txt")),
         ThisBuild / homepage := Some(Keys.projectHomePage.value),
         ThisBuild / maintainer := { if (maintainerEmail.isEmpty) "reid@ossuminc.com" else maintainerEmail },
@@ -90,7 +89,8 @@ object RootProjectInfo {
         ThisBuild / Test / fork := false,
         ThisBuild / Test / logBuffered := false,
         Global / shellPrompt := buildShellPrompt.value,
-        moduleName := modName
+        maintainer := maintainerEmail,
+        name := ghRepoName
       )
   }
 }
