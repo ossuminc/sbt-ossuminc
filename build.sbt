@@ -29,13 +29,10 @@ lazy val `sbt-ossuminc` = project
   .settings(
     sbtPlugin := true,
     name := "sbt-ossuminc",
-    gitHubOrganization := "com.ossuminc",
-    gitHubRepository := "sbt-ossuminc",
     scalaVersion := "2.12.18",
-    // Scripted - sbt plugin tests
+    // Scripted == sbt plugin tests
     scriptedLaunchOpts := {
-      scriptedLaunchOpts.value ++
-        Seq("-Xmx1024M", "-Dplugin.version=" + version.value)
+      scriptedLaunchOpts.value ++ Seq("-Xmx1024M", "-Dplugin.version=" + version.value)
     },
     libraryDependencies ++= Seq(
       "org.apache.commons" % "commons-lang3" % "3.5",

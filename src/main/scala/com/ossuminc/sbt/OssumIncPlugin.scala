@@ -37,7 +37,7 @@ object OssumIncPlugin extends AutoPlugin {
         ghOrgName: String = "ossuminc",
         orgPackage: String = "com.ossuminc",
         orgName: String = "Ossum, Inc.",
-        orgPage: URL = url("https://com.ossuminc/"),
+        orgPage: URL = url("https://ossuminc.com/"),
         maintainerEmail: String = "reid@ossuminc.com",
         startYr: Int = 2023,
         devs: List[Developer] = List.empty

@@ -62,7 +62,7 @@ object RootProjectInfo {
     startYr: Int = 2023,
     orgPackage: String = "com.ossuminc",
     orgName: String = "Ossum, Inc.",
-    orgPage: URL = url("https://com.ossuminc/"),
+    orgPage: URL = url("https://ossuminc.com/"),
     maintainerEmail: String = "reid@ossuminc.com",
     devs: List[Developer] = defaultDevs
   )(project: Project): Project = {
