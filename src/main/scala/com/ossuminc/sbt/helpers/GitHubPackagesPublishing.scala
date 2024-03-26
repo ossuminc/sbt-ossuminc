@@ -1,7 +1,7 @@
 package com.ossuminc.sbt.helpers
 import sbt.*
 import sbt.Keys.*
-import sbtghpackages.GitHubPackagesKeys.{githubOwner, githubRepository, githubTokenSource}
+import sbtghpackages.GitHubPackagesKeys.{githubOwner, githubPublishTo, githubRepository, githubTokenSource}
 import sbtghpackages.{GitHubPackagesPlugin, TokenSource}
 import sbtghpackages.GitHubPackagesPlugin.autoImport.GHPackagesResolverSyntax
 
@@ -28,7 +28,8 @@ object GitHubPackagesPublishing extends AutoPluginHelper {
         githubRepository := RootProjectInfo.Keys.gitHubRepository.value,
         githubTokenSource := TokenSource.Environment("GITHUB_TOKEN"),
         resolvers += Resolver.githubPackages(RootProjectInfo.Keys.gitHubOrganization.value),
-        publishMavenStyle := true
+        publishMavenStyle := true,
+        publishTo := githubPublishTo.value
       )
   }
 

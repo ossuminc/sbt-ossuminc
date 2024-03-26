@@ -15,7 +15,7 @@
 
 import com.ossuminc.sbt.helpers.RootProjectInfo.Keys.{gitHubOrganization, gitHubRepository}
 
-import com.ossuminc.sbt.helpers.{DynamicVersioning, Publishing, RootProjectInfo, Scala2}
+import com.ossuminc.sbt.helpers.{DynamicVersioning, SonatypePublishing, RootProjectInfo, Scala2}
 
 Global / onChangedBuildSource := ReloadOnSourceChanges
 
@@ -24,7 +24,7 @@ lazy val `sbt-ossuminc` = project
   .configure(RootProjectInfo.initialize("sbt-ossuminc", startYr = 2015))
   .configure(DynamicVersioning.configure)
   .configure(Scala2.configure)
-  .configure(Publishing.configure)
+  .configure(SonatypePublishing.configure)
   .enablePlugins(ScriptedPlugin)
   .settings(
     sbtPlugin := true,

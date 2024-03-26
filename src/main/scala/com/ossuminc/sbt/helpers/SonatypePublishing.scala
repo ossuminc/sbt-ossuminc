@@ -25,7 +25,7 @@ import com.ossuminc.sbt.helpers.Release.Keys.{publishReleasesTo, publishSnapshot
 import com.ossuminc.sbt.helpers.RootProjectInfo.Keys._
 
 /** Settings For SonatypePublishing Plugin */
-object Publishing extends AutoPluginHelper {
+object SonatypePublishing extends AutoPluginHelper {
 
   object Keys {
     val sonatypeServer: SettingKey[String] = settingKey[String](

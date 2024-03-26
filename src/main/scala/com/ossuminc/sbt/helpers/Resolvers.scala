@@ -2,6 +2,7 @@ package com.ossuminc.sbt.helpers
 
 import sbt.Keys.*
 import sbt.*
+import sbtghpackages.GitHubPackagesPlugin.autoImport.GHPackagesResolverSyntax
 
 object Resolvers extends AutoPluginHelper {
 
@@ -20,7 +21,6 @@ object Resolvers extends AutoPluginHelper {
     project.settings(externalResolvers ++= resolvers)
   }
 
-  def configure(project: Project): Project = {
-    configure(scalaResolvers)(project)
-  }
+  def configure(project: Project): Project =
+    configure(Resolver.githubPackages("ossuminc") +: scalaResolvers)(project)
 }

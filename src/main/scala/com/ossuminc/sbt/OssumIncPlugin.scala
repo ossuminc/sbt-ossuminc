@@ -149,7 +149,7 @@ object OssumIncPlugin extends AutoPlugin {
       val java: ConfigFunc = helpers.Java.configure
       val misc: ConfigFunc = helpers.Miscellaneous.configure
       val native: ConfigFunc = helpers.Native.configure
-      val publishing: ConfigFunc = helpers.Publishing.configure
+      val publishing: ConfigFunc = helpers.SonatypePublishing.configure
       val release: ConfigFunc = helpers.Release.configure
       val resolvers: ConfigFunc = helpers.Resolvers.configure
       val scala2: ConfigFunc = helpers.Scala2.configure
