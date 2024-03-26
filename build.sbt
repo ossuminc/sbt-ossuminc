@@ -19,7 +19,7 @@ import com.ossuminc.sbt.helpers.{DynamicVersioning, RootProjectInfo, Scala2, Git
 
 Global / onChangedBuildSource := ReloadOnSourceChanges
 
-lazy val root = project
+lazy val `sbt-ossuminc` = project
   .in(file("."))
   .enablePlugins(ScriptedPlugin)
   .configure(RootProjectInfo.initialize("sbt-ossuminc", "sbt-ossuminc", startYr = 2015))
