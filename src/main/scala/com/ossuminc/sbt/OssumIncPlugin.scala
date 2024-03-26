@@ -16,15 +16,15 @@ object OssumIncPlugin extends AutoPlugin {
       /** Define a Root level project whether it is for a single-project repo or a unirepo with many sub-projects. This
         * project is configured with a shell prompt, and the standard project information at ThisBuild scope
         * @param modName
-        *   The artifact id name for the root project.
+        *   The artifact id name for the root project; blank if none.
         * @param projName
-        *   The name of the sbt project
+        *   The name of the sbt project for sbt's use
         * @param org
         *   The name of the organization responsible for this project in Java package format
         * @param orgName
         *   The legal name of the organization
         * @param orgPage
-        *   The website to use for the organizaiton
+        *   The website to use for the organization
         * @param startYr
         *   The year in which this project started, for copyright purposes
         * @param devs
@@ -34,7 +34,7 @@ object OssumIncPlugin extends AutoPlugin {
         */
       def apply(
         modName: String = "",
-        projName: String = "root",
+        repoName: String = "",
         org: String = "com.ossuminc",
         orgName: String = "Ossum, Inc.",
         orgPage: URL = url("https://com.ossuminc/"),
@@ -48,6 +48,7 @@ object OssumIncPlugin extends AutoPlugin {
           .configure(
             helpers.RootProjectInfo.initialize(
               modName,
+              repoName,
               startYr,
               org,
               orgName,
@@ -56,9 +57,6 @@ object OssumIncPlugin extends AutoPlugin {
               devs
             ),
             helpers.Resolvers.configure
-          )
-          .settings(
-            name := projName
           )
         if (modName.isEmpty) {
           result.configure(With.noPublishing)

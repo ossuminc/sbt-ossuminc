@@ -58,6 +58,7 @@ object RootProjectInfo {
 
   def initialize(
     modName: String,
+    repoName: String,
     startYr: Int = 2023,
     org: String = "com.ossuminc",
     orgName: String = "Ossum, Inc.",
@@ -71,21 +72,19 @@ object RootProjectInfo {
       .settings(
         ThisBuild / Keys.copyrightHolder := "Ossum, Inc.",
         ThisBuild / Keys.gitHubOrganization := "ossuminc",
-        ThisBuild / Keys.gitHubRepository := "unspecified",
+        ThisBuild / Keys.gitHubRepository := repoName,
         ThisBuild / Keys.projectHomePage := url(
           s"https://github.com/${Keys.gitHubOrganization.value}/${Keys.gitHubRepository.value}"
         ),
         ThisBuild / Keys.projectStartYear := startYr,
+        ThisBuild / versionScheme := Option("early-semver"),
         ThisBuild / organization := org,
         ThisBuild / organizationName := orgName,
         ThisBuild / organizationHomepage := Some(orgPage),
-        ThisBuild / developers := devs,
-        ThisBuild / maintainer := maintainerEmail,
         maintainer := maintainerEmail,
-        ThisBuild / versionScheme := Option("early-semver"),
         ThisBuild / licenses := Seq("Apache-2.0" -> url("https://www.apache.org/licenses/LICENSE-2.0.txt")),
         ThisBuild / homepage := Some(Keys.projectHomePage.value),
-        ThisBuild / maintainer := "reid@ossuminc.com",
+        ThisBuild / maintainer := { if (maintainerEmail.isEmpty) "reid@ossuminc.com" else maintainerEmail },
         ThisBuild / developers := { if (devs.isEmpty) defaultDevs else devs },
         ThisBuild / logLevel := Level.Info,
         ThisBuild / Test / fork := false,

@@ -15,17 +15,17 @@
 
 import com.ossuminc.sbt.helpers.RootProjectInfo.Keys.{gitHubOrganization, gitHubRepository}
 
-import com.ossuminc.sbt.helpers.{DynamicVersioning, SonatypePublishing, RootProjectInfo, Scala2}
+import com.ossuminc.sbt.helpers.{DynamicVersioning, RootProjectInfo, Scala2, GitHubPackagesPublishing}
 
 Global / onChangedBuildSource := ReloadOnSourceChanges
 
-lazy val `sbt-ossuminc` = project
+lazy val root = project
   .in(file("."))
-  .configure(RootProjectInfo.initialize("sbt-ossuminc", startYr = 2015))
+  .enablePlugins(ScriptedPlugin)
+  .configure(RootProjectInfo.initialize("sbt-ossuminc", "sbt-ossuminc", startYr = 2015))
   .configure(DynamicVersioning.configure)
   .configure(Scala2.configure)
-  .configure(SonatypePublishing.configure)
-  .enablePlugins(ScriptedPlugin)
+  .configure(GitHubPackagesPublishing.configure)
   .settings(
     sbtPlugin := true,
     name := "sbt-ossuminc",
@@ -37,11 +37,6 @@ lazy val `sbt-ossuminc` = project
       scriptedLaunchOpts.value ++
         Seq("-Xmx1024M", "-Dplugin.version=" + version.value)
     },
-//    resolvers ++= Seq(
-//      Resolver.bintrayRepo("sbt", "sbt-plugin-releases"),
-//      Resolver.typesafeIvyRepo("releases"),
-//      "eclipse-jgit".at("https://download.eclipse.org/jgit/maven")
-//    ),
     libraryDependencies ++= Seq(
       "org.apache.commons" % "commons-lang3" % "3.5",
       "org.slf4j" % "slf4j-simple" % "1.7.25"
