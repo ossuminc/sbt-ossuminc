@@ -27,7 +27,10 @@ object GitHubPackagesPublishing extends AutoPluginHelper {
         githubOwner := RootProjectInfo.Keys.gitHubOrganization.value,
         githubRepository := RootProjectInfo.Keys.gitHubRepository.value,
         githubTokenSource := TokenSource.Environment("GITHUB_TOKEN"),
-        resolvers += Resolver.githubPackages(RootProjectInfo.Keys.gitHubOrganization.value),
+        resolvers += Resolver.githubPackages(
+          RootProjectInfo.Keys.gitHubOrganization.value,
+          RootProjectInfo.Keys.gitHubRepository.value
+        ),
         publishMavenStyle := true,
         publishTo := githubPublishTo.value
       )
