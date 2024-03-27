@@ -1,3 +1,0 @@
-> compile
-> run
-$ exists target/scala-3.3.1/native-test-out
