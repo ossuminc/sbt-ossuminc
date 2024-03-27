@@ -13,16 +13,19 @@ jobs:
       GITHUB_TOKEN: ${{ secrets.WORKFLOW_BUILD_TOKEN }}
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v2
-      - name: Set Up JDK 17
-        uses: actions/setup-java@v2
+      - name: Checkout Source Code
+        uses: actions/checkout@v4
+
+      - name: Setup JDK 21
+        uses: actions/setup-java@v4
         with:
           java-version: '17'
           distribution: 'temurin'
-      - name: Coursier Caching
+
+      - name: Coursier UnCaching
         uses: coursier/cache-action@v6
+
       - name: Build, Run Test, Coverage
-        env:
         run: |
           sbt -v clean Test/compile scripted 
 
