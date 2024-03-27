@@ -8,7 +8,7 @@ object Resolvers extends AutoPluginHelper {
 
   private val standardResolvers: Seq[Resolver] = Seq[Resolver](
     Resolver.mavenLocal,
-    Resolver.bintrayRepo("typesafe", "ivy-releases"),
+    Resolver.githubPackages("ossuminc"),
     Resolver.jcenterRepo
   ) ++ Resolver.sonatypeOssRepos("releases") ++
     Resolver.sonatypeOssRepos("snapshots")
@@ -22,5 +22,5 @@ object Resolvers extends AutoPluginHelper {
   }
 
   def configure(project: Project): Project =
-    configure(Resolver.githubPackages("ossuminc") +: scalaResolvers)(project)
+    configure(scalaResolvers)(project)
 }
