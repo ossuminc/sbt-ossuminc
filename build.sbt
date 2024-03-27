@@ -13,7 +13,6 @@
  * License for  the specific language governing permissions and limitations under the License.
  */
 
-import com.ossuminc.sbt.helpers.RootProjectInfo.Keys.{gitHubOrganization, gitHubRepository}
 
 import com.ossuminc.sbt.helpers.{DynamicVersioning, RootProjectInfo, Scala2, GitHubPackagesPublishing}
 
