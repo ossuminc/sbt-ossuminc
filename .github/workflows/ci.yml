@@ -9,9 +9,6 @@ on:
 
 jobs:
   build:
-    strategy:
-      matrix:
-        compiler: [ clang ]
     env:
       GITHUB_TOKEN: ${{ secrets.WORKFLOW_BUILD_TOKEN }}
     runs-on: ubuntu-latest
