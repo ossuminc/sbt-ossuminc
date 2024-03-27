@@ -174,7 +174,7 @@ object OssumIncPlugin extends AutoPlugin {
       }
 
       def basic(project: Project): Project = {
-        these(aliases, dynver, git, header)(project)
+        these(aliases, dynver, git, header, resolvers)(project)
       }
 
       def typical(project: Project): Project = {
