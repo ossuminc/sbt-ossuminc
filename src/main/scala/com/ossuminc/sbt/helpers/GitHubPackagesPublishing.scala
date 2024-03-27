@@ -7,11 +7,6 @@ import sbtghpackages.GitHubPackagesPlugin.autoImport.GHPackagesResolverSyntax
 
 object GitHubPackagesPublishing extends AutoPluginHelper {
 
-  val githubPackagesResolver: Resolver =
-    Resolver.url("GitHub Packages", url("https://maven.pkg.github.com/"))(
-      Patterns("[organisation]/[module]/[revision]/[artifact].[ext]")
-    )
-
   /** The configuration function to call for this plugin helper
     *
     * @param project
