@@ -13,8 +13,7 @@
  * License for  the specific language governing permissions and limitations under the License.
  */
 
-
-import com.ossuminc.sbt.helpers.{DynamicVersioning, RootProjectInfo, Scala2, GitHubPackagesPublishing}
+import com.ossuminc.sbt.helpers.{DynamicVersioning, RootProjectInfo, Scala2, SonatypePublishing}
 
 Global / onChangedBuildSource := ReloadOnSourceChanges
 
@@ -24,7 +23,7 @@ lazy val `sbt-ossuminc` = project
   .configure(RootProjectInfo.initialize("sbt-ossuminc", startYr = 2015))
   .configure(DynamicVersioning.configure)
   .configure(Scala2.configure)
-  .configure(GitHubPackagesPublishing.configure)
+  .configure(SonatypePublishing.configure)
   .settings(
     sbtPlugin := true,
     name := "sbt-ossuminc",
