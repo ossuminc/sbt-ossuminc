@@ -20,3 +20,6 @@
 # Check Git plugin command functionality
 # Can't use any real git commands here because it is run in not-a-git-directory
 > git --version
+
+# Check build info is correct
+> checkBuildInfo

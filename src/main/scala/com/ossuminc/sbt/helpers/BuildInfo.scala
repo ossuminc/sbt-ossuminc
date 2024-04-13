@@ -48,7 +48,7 @@ object BuildInfo extends AutoPluginHelper {
           buildInfoPackage,
           buildInfoObject,
           BuildInfoKey.map(startYear) { case (k, v) =>
-            k -> v.map(_.toString).getOrElse(RootProjectInfo.Keys.projectStartYear.toString)
+            k -> v.map(_.toString).getOrElse(RootProjectInfo.Keys.projectStartYear.value.toString)
           },
           BuildInfoKey.map(startYear) { case (_, v) =>
             "copyright" -> s"© ${v.map(_.toString).getOrElse(RootProjectInfo.Keys.projectStartYear.value.toString)}-${Calendar
