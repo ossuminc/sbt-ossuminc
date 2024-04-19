@@ -1,6 +1,8 @@
 import sbt.Keys.startYear
 import sbt.url
 
+import java.nio.file.{Files,Path}
+
 enablePlugins(OssumIncPlugin)
 
 lazy val root = Root("basic-test", startYr=2015)
@@ -11,7 +13,10 @@ lazy val root = Root("basic-test", startYr=2015)
       println(s"Checking from within sbt:")
     },
     TaskKey[Boolean]("checkBuildInfo") := {
-      // TODO: Write checkBuildInfo
-      true
+      val dir = Path.of(System.getProperty("user.dir"))
+      val file = dir.resolve("target/scala-2.12/src_managed/main/com/ossuminc/riddl/utils/RiddlBuildInfo.scala")
+      val isReadable = Files.isReadable(file)
+      println(s"Readable: $isReadable: $dir")
+      isReadable
     }
   )
