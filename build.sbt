@@ -34,6 +34,7 @@ lazy val `sbt-ossuminc` = project
     },
     libraryDependencies ++= Seq(
       "org.apache.commons" % "commons-lang3" % "3.5",
+      "de.jflex" % "jflex" % "1.9.1" % "compile",
       "org.slf4j" % "slf4j-simple" % "1.7.25"
     )
   )
