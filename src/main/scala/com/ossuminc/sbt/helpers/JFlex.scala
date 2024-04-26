@@ -1,20 +1,43 @@
 package com.ossuminc.sbt.helpers
 
 import sbt.*
-import sbt.Keys.{sourceDirectory, *}
+import sbt.Keys.*
+
+import java.io.File
+import java.nio.charset.Charset
 
 /** Unit Tests For JFlex */
 object JFlex extends AutoPluginHelper {
 
   object Keys {
-    val jflexOptions: SettingKey[Seq[String]] = settingKey[Seq[String]](
-      "options to pass to the jflex program other than source file"
-    )
+
+    var jflexOutputDirectory: SettingKey[File] = settingKey[File]("directory where Java files will be written")
+    var jflexJlexcompatibility: SettingKey[Boolean] = settingKey[Boolean]("strict JLex compatibility")
+    var jflexNoMinimize: SettingKey[Boolean] = settingKey[Boolean]("don't run minimization algorithm if this is true")
+    var jflexNoBackup: SettingKey[Boolean] = settingKey[Boolean]("don't write backup files if this is true")
+    var jflexVerbose: SettingKey[Boolean] = settingKey[Boolean]("if false, only error/warning output will be generated")
+    var jflexTime: SettingKey[Boolean] = settingKey[Boolean](
+      "if true, jflex will print time statistics about the generation process")
+    var jflexDot: SettingKey[Boolean] = settingKey[Boolean](
+      "If true, jflex will write graphviz .dot files for generated automata")
+    var jflexEncoding: SettingKey[String] = settingKey[String]("Unicode encoding to expect on input")
     val jflexFileSuffix = SettingKey[String](
       "the suffix of jflex files to parse, typically '.flex'"
     )
     val generate = TaskKey[Seq[File]]("generate")
   }
+
+  private case class JFlexOptions(
+    output: File,
+    compatibility: Boolean,
+    no_minimize: Boolean,
+    no_backup: Boolean,
+    verbose: Boolean,
+    time: Boolean,
+    dot: Boolean,
+    encoding: Charset
+  )
+
 
   val Jflex = config("jflex")
   final case class PluginConfiguration(fileSuffix: String = ".flex")
@@ -27,88 +50,81 @@ object JFlex extends AutoPluginHelper {
    * The same project passed as an argument, post configuration
    */
   override def configure(project: Project): Project = {
+    import Keys.*
     project.settings(
-      Keys.jflexOptions := Seq(
-        "--encoding", "utf-8",
-        "-q", "--time"
-      ),
-      sourceDirectories += baseDirectory.value / "src" / "main" / "flex",
+      jflexJlexcompatibility := false,
+      jflexNoMinimize := false,
+      jflexNoBackup := false,
+      jflexVerbose := false,
+      jflexTime := false,
+      jflexDot := false,
+      jflexEncoding := "utf-8",
+      jflexFileSuffix := ".flex",
+      Jflex / sourceDirectory := (Compile / sourceDirectory).value / "flex",
+      Jflex / target := (Compile / sourceDirectory).value / "flex-java",
+      managedSources += (Jflex / target).value / "*.flex",
       managedClasspath := Classpaths.managedJars(Jflex, (Jflex / classpathTypes).value, update.value),
+
       Keys.generate := {
         val out = streams.value
-        val options = Keys.jflexOptions.value
-        val cacheDir = FileFunction.cached(
-          out.cacheDirectory / "flex", inStyle = FilesInfo.lastModified, outStyle = FilesInfo.exists
+        val options = JFlexOptions(
+          jflexOutputDirectory.value, jflexJlexcompatibility.value, jflexNoMinimize.value, jflexNoBackup.value,
+          jflexVerbose.value, jflexTime.value, jflexDot.value,
+          Charset.forName(jflexEncoding.value, Charset.defaultCharset())
         )
-        val cachedCompile = cacheDir { (in: Set[File]) =>
-          generateWithJFlex(in, (Jflex / target ).value,
-            (Jflex / toolConfiguration).value, options, out.log)
+        // Generate a function that translates input flex files to
+        val cachedGeneration: Set[File] => Set[File] = FileFunction.cached(
+          out.cacheDirectory / "flex", inStyle = FilesInfo.lastModified, outStyle = FilesInfo.exists
+        ) { (in: Set[File]) =>
+          generateWithJFlex(in, jflexOutputDirectory.value, options, out.log)
         }
-        cachedCompile(((Jflex/sourceDirectory).value ** ("*" + options.fileSuffix)).get.toSet).toSeq
-      }
-
+        val sourceDir: File = (Jflex / sourceDirectory).value
+        val inputs: Set[File] = ( sourceDir ** s"*.${Keys.jflexFileSuffix.value}").get().toSet
+        cachedGeneration(inputs).toSeq
+      },
+      Compile / sourceGenerators += Keys.generate.taskValue,
+      ivyConfigurations += Jflex,
+      cleanFiles += (Jflex / target).value,
+      Jflex / target := (Compile / sourceManaged).value,
+      compile / unmanagedSourceDirectories += (Jflex / sourceDirectory).value,
+      Compile / sourceGenerators += (Jflex / Keys.generate).taskValue
     )
   }
 
-  val jflexDependency = SettingKey[ModuleID]("jflex-dependency")
-  val toolConfiguration = SettingKey[JFlexToolConfiguration]("jflex-tool-configuration")
-
-  /**
-   * use this if you don't want jflex to run automatically (because, e.g., you're checking it in)
-   * you'll want to set [[target]] in [[jflex]] using [[unmanagedJflexSettings]] or your own variant
-   */
-  lazy val commonJflexSettings: Seq[Def.Setting[_]] = inConfig(Jflex)(Seq(
-    toolConfiguration := JFlexToolConfiguration(),
-    pluginConfiguration := PluginConfiguration(),
-    jflexDependency := "de.jflex" % "jflex" % "1.6.1",
-
-    sourceDirectory := (Compile / sourceDirectory).value / "flex",
-
-
-
-  )) ++ Seq(
-    libraryDependencies += (jflexDependency in Jflex).value,
-    ivyConfigurations += Jflex
-  )
-
-  lazy val unmanagedJflexSettings = commonJflexSettings ++ inConfig(Jflex)(Seq(
-    Jflex / target := (javaSource in Compile).value,
-    managedSources := (Jflex / Keys.generate).value
-  ))
-
-  lazy val jflexSettings: Seq[Def.Setting[_]] = commonJflexSettings ++
-    inConfig(Jflex)(
-      Jflex / target := (Compile / sourceManaged).value
-    ) ++ Seq(
-    compile / unmanagedSourceDirectories += (Jflex / sourceDirectory).value,
-    Compile / sourceGenerators += (Jflex / Keys.generate).taskValue,
-    cleanFiles += (target in Jflex).value
-  )
-
-  private def generateWithJFlex(sources: Set[File], target: File, tool: JFlexToolConfiguration,
-    options: Seq[String], log: Logger) = {
+  private def generateWithJFlex(sources: Set[File], target: File, options: JFlexOptions,
+    log: Logger) = {
     import jflex.generator.LexGenerator
+    import jflex.core.OptionUtils
+    import jflex.option.Options
 
-    // prepare target
+    // configure jflex options directly
+    log.info(s"JFlex: Using JFlex version ${jflex.base.Build.VERSION} to generate source files.")
+    Options.dump = false
+    Options.legacy_dot = false
+    Options.progress = false
+    Options.dot = options.dot
+    Options.verbose = options.verbose
+    Options.time = options.time
+    Options.encoding = options.encoding
+    Options.jlex = options.compatibility
+    Options.no_backup = options.no_backup
+    Options.no_minimize = options.no_minimize
+    Options.directory = options.output
+    OptionUtils.setDir(options.output)
+
+    // Indicate what we're about to do
+    log.info("JFlex: Generating source files for %d source grammars.".format(sources.size))
+
+    // prepare the output directory for the source files ensuring intermediate directories are created
     target.mkdirs()
 
-    // configure jflex tool
-    log.info(s"JFlex: Using JFlex version ${jflex.base.Build.VERSION} to generate source files.")
-    Options.dot = tool.dot
-    Options.verbose = tool.verbose
-    Options.dump = tool.dump
-    OptionUtils.setDir(target.getPath)
-
-    // process grammars
-    val grammars = sources
-    log.info("JFlex: Generating source files for %d grammars.".format(grammars.size))
-
-    // add each grammar file into the jflex tool's list of grammars to process
-    grammars foreach { g =>
-      log.info("JFlex: Grammar file '%s' detected.".format(g.getPath))
-      new LexGenerator(g).generate()
+    // Run each grammar through the LexGenerator tool to produce a Java source input
+    sources foreach { s =>
+      log.info("JFlex: Grammar file '%s' detected.".format(s.getPath))
+      new LexGenerator(s).generate()
     }
 
+    // Return the resulting java files.
     (target ** ("*.java")).get.toSet
   }
 
