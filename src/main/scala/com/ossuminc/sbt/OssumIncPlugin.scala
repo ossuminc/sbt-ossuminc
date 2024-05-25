@@ -147,6 +147,7 @@ object OssumIncPlugin extends AutoPlugin {
       val resolvers: ConfigFunc = helpers.Resolvers.configure
       val scala2: ConfigFunc = helpers.Scala2.configure
       val scala3: ConfigFunc = helpers.Scala3.configure
+      val scalaTest: ConfigFunc = helpers.ScalaTest.configure
       val scalafmt: ConfigFunc = helpers.Scalafmt.configure
       val scoverage: ConfigFunc = helpers.ScalaCoverage.configure
       val unidoc: ConfigFunc = helpers.Unidoc.configure
@@ -179,7 +180,7 @@ object OssumIncPlugin extends AutoPlugin {
 
       def typical(project: Project): Project = {
         project.configure(basic)
-        these(scala3, scoverage, publishing, unidoc)(project)
+        these(scala3, scalaTest, scoverage, publishing, unidoc)(project)
       }
 
       def everything(project: Project): Project = {
