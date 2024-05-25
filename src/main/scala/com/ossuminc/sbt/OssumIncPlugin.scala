@@ -133,6 +133,7 @@ object OssumIncPlugin extends AutoPlugin {
     private type ConfigFunc = Project => Project
 
     object With {
+      val akka: ConfigFunc = helpers.Akka.configure
       val aliases: ConfigFunc = helpers.HandyAliases.configure
       val build_info: ConfigFunc = helpers.BuildInfo.configure
       val dynver: ConfigFunc = helpers.DynamicVersioning.configure
