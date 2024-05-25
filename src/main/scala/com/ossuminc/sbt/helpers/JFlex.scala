@@ -11,15 +11,14 @@ object JFlex extends AutoPluginHelper {
 
   object Keys {
 
-    var jflexOutputDirectory: SettingKey[File] = settingKey[File]("directory where Java files will be written")
     var jflexJlexcompatibility: SettingKey[Boolean] = settingKey[Boolean]("strict JLex compatibility")
     var jflexNoMinimize: SettingKey[Boolean] = settingKey[Boolean]("don't run minimization algorithm if this is true")
     var jflexNoBackup: SettingKey[Boolean] = settingKey[Boolean]("don't write backup files if this is true")
     var jflexVerbose: SettingKey[Boolean] = settingKey[Boolean]("if false, only error/warning output will be generated")
-    var jflexTime: SettingKey[Boolean] = settingKey[Boolean](
-      "if true, jflex will print time statistics about the generation process")
-    var jflexDot: SettingKey[Boolean] = settingKey[Boolean](
-      "If true, jflex will write graphviz .dot files for generated automata")
+    var jflexTime: SettingKey[Boolean] =
+      settingKey[Boolean]("if true, jflex will print time statistics about the generation process")
+    var jflexDot: SettingKey[Boolean] =
+      settingKey[Boolean]("If true, jflex will write graphviz .dot files for generated automata")
     var jflexEncoding: SettingKey[String] = settingKey[String]("Unicode encoding to expect on input")
     val jflexFileSuffix = SettingKey[String](
       "the suffix of jflex files to parse, typically '.flex'"
@@ -28,7 +27,6 @@ object JFlex extends AutoPluginHelper {
   }
 
   private case class JFlexOptions(
-    output: File,
     compatibility: Boolean,
     no_minimize: Boolean,
     no_backup: Boolean,
@@ -38,17 +36,16 @@ object JFlex extends AutoPluginHelper {
     encoding: Charset
   )
 
-
   val Jflex = config("jflex")
   final case class PluginConfiguration(fileSuffix: String = ".flex")
 
   /** The configuration function to call for this plugin helper
-   *
-   * @param project
-   * The project to which the configuration should be applied
-   * @return
-   * The same project passed as an argument, post configuration
-   */
+    *
+    * @param project
+    *   The project to which the configuration should be applied
+    * @return
+    *   The same project passed as an argument, post configuration
+    */
   override def configure(project: Project): Project = {
     import Keys.*
     project.settings(
@@ -62,37 +59,39 @@ object JFlex extends AutoPluginHelper {
       jflexFileSuffix := ".flex",
       Jflex / sourceDirectory := (Compile / sourceDirectory).value / "flex",
       Jflex / target := (Compile / sourceDirectory).value / "flex-java",
-      managedSources += (Jflex / target).value / "*.flex",
-      managedClasspath := Classpaths.managedJars(Jflex, (Jflex / classpathTypes).value, update.value),
-
-      Keys.generate := {
-        val out = streams.value
-        val options = JFlexOptions(
-          jflexOutputDirectory.value, jflexJlexcompatibility.value, jflexNoMinimize.value, jflexNoBackup.value,
-          jflexVerbose.value, jflexTime.value, jflexDot.value,
-          Charset.forName(jflexEncoding.value, Charset.defaultCharset())
-        )
-        // Generate a function that translates input flex files to
-        val cachedGeneration: Set[File] => Set[File] = FileFunction.cached(
-          out.cacheDirectory / "flex", inStyle = FilesInfo.lastModified, outStyle = FilesInfo.exists
-        ) { (in: Set[File]) =>
-          generateWithJFlex(in, jflexOutputDirectory.value, options, out.log)
-        }
-        val sourceDir: File = (Jflex / sourceDirectory).value
-        val inputs: Set[File] = ( sourceDir ** s"*.${Keys.jflexFileSuffix.value}").get().toSet
-        cachedGeneration(inputs).toSeq
-      },
+      Compile / managedSources += (Jflex / target).value / "*.flex",
       Compile / sourceGenerators += Keys.generate.taskValue,
       ivyConfigurations += Jflex,
       cleanFiles += (Jflex / target).value,
       Jflex / target := (Compile / sourceManaged).value,
-      compile / unmanagedSourceDirectories += (Jflex / sourceDirectory).value,
-      Compile / sourceGenerators += (Jflex / Keys.generate).taskValue
+      Compile / unmanagedSourceDirectories += (Jflex / sourceDirectory).value,
+      Keys.generate := {
+        val out = streams.value
+        val options = JFlexOptions(
+          jflexJlexcompatibility.value,
+          jflexNoMinimize.value,
+          jflexNoBackup.value,
+          jflexVerbose.value,
+          jflexTime.value,
+          jflexDot.value,
+          Charset.forName(jflexEncoding.value, Charset.defaultCharset())
+        )
+        // Generate a function that translates input flex files to
+        val cachedGeneration: Set[File] => Set[File] = FileFunction.cached(
+          out.cacheDirectory / "flex",
+          inStyle = FilesInfo.lastModified,
+          outStyle = FilesInfo.exists
+        ) { (in: Set[File]) =>
+          generateWithJFlex(in, (Jflex / target).value, options, out.log)
+        }
+        val sourceDir: File = (Jflex / sourceDirectory).value
+        val inputs: Set[File] = (sourceDir ** s"*.${Keys.jflexFileSuffix.value}").get().toSet
+        cachedGeneration(inputs).toSeq
+      }
     )
   }
 
-  private def generateWithJFlex(sources: Set[File], target: File, options: JFlexOptions,
-    log: Logger) = {
+  private def generateWithJFlex(sources: Set[File], target: File, options: JFlexOptions, log: Logger) = {
     import jflex.generator.LexGenerator
     import jflex.core.OptionUtils
     import jflex.option.Options
@@ -109,8 +108,7 @@ object JFlex extends AutoPluginHelper {
     Options.jlex = options.compatibility
     Options.no_backup = options.no_backup
     Options.no_minimize = options.no_minimize
-    Options.directory = options.output
-    OptionUtils.setDir(options.output)
+    OptionUtils.setDir(target)
 
     // Indicate what we're about to do
     log.info("JFlex: Generating source files for %d source grammars.".format(sources.size))
@@ -125,7 +123,7 @@ object JFlex extends AutoPluginHelper {
     }
 
     // Return the resulting java files.
-    (target ** ("*.java")).get.toSet
+    (target ** "*.java").get.toSet
   }
 
 }

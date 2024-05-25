@@ -21,7 +21,7 @@ lazy val handyPL = new ProcessLogger {
   def buffer[T](f: => T): T = f
 }
 
-lazy val p1 = Module("project1", "p1")
+lazy val p1 = Module("p1", "projectOne")
   .configure(With.typical)
   .settings(
     Compile / unmanagedResourceDirectories := Seq(
@@ -29,8 +29,8 @@ lazy val p1 = Module("project1", "p1")
     )
   )
 
-lazy val p2 = Module("project2", "p2")
-  .configure(With.typical)
+lazy val p2 = Module("p2", "projectTwo")
+  .configure(With.typical, With.jflex)
   .dependsOn(p1)
 
 lazy val plugin = Plugin("plugin", "plugin")

@@ -140,6 +140,7 @@ object OssumIncPlugin extends AutoPlugin {
       val githubPackages: ConfigFunc = helpers.GitHubPackagesPublishing.configure
       val header: ConfigFunc = helpers.Header.configure
       val java: ConfigFunc = helpers.Java.configure
+      val jflex: ConfigFunc = helpers.JFlex.configure
       val misc: ConfigFunc = helpers.Miscellaneous.configure
       val native: ConfigFunc = helpers.Native.configure
       val publishing: ConfigFunc = helpers.SonatypePublishing.configure

@@ -1,6 +1,5 @@
-> publishLocal
-> lslrt
-#$ exists p1/target/scala-3/project1_3-0.1.7-SNAPSHOT.jar
+$ pause
+$ exists p2/src/main/java/test.java
 # Unfortunately scripted plugin doesn't understand ~ and putting full path makes it depend on user name
 #$ exists ~/.ivy2/local/com.reactific/project1_2.11/0.1.7-SNAPSHOT/jars/project1_2.11.jar
 #$ exists ~/.ivy2/local/com.reactific/project1_2.11/0.1.7-SNAPSHOT/srcs/project1_2.11-sources.jar
