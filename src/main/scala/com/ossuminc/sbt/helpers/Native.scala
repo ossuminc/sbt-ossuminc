@@ -38,7 +38,7 @@ object Native extends AutoPluginHelper {
           if (debugLog) { Level.Debug }
           else { Level.Info }
         },
-        scalaVersion := "3.3.1",
+        scalaVersion := "3.3.3",
         // defaults set with common options shown
         nativeConfig ~= { c =>
           {

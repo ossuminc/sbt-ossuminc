@@ -5,7 +5,8 @@ import sbt.Keys.*
 object Akka extends AutoPluginHelper {
 
   sealed trait AkkaVersion {
-    def modules: Seq[ModuleID]
+    def akka_modules: Seq[ModuleID]
+    def akka_test: Seq[ModuleID]
   }
 
   // Akka 24.05 consists of the following module versions:
@@ -33,43 +34,47 @@ object Akka extends AutoPluginHelper {
       val akka_management = "1.5.2"
       val akka_projections = "1.5.4"
       val akka_diagnostics = "2.1.1"
+      val slf4j = "2.0.13"
     }
 
-    def modules: Seq[ModuleID] = Seq(
-      "com.typesafe.akka" %% "akka-testkit" % V.akka_core % Test,
+    def akka_modules: Seq[ModuleID] = Seq(
       "com.typesafe.akka" %% "akka-slf4j" % V.akka_core,
       "com.typesafe.akka" %% "akka-protobuf-v3" % V.akka_core,
       "com.typesafe.akka" %% "akka-serialization-jackson" % V.akka_core,
       "com.typesafe.akka" %% "akka-actor-typed" % V.akka_core,
-      "com.typesafe.akka" %% "akka-actor-testkit-typed" % V.akka_core % Test,
       "com.typesafe.akka" %% "akka-cluster-typed" % V.akka_core,
       "com.typesafe.akka" %% "akka-cluster-sharding" % V.akka_core,
       "com.typesafe.akka" %% "akka-cluster-sharding-typed" % V.akka_core,
       "com.typesafe.akka" %% "akka-distributed-data" % V.akka_core,
       "com.typesafe.akka" %% "akka-cluster-tools" % V.akka_core,
       "com.typesafe.akka" %% "akka-persistence-typed" % V.akka_core,
-      "com.typesafe.akka" %% "akka-persistence-testkit" % V.akka_core % Test,
       "com.typesafe.akka" %% "akka-persistence-query" % V.akka_core,
       "com.typesafe.akka" %% "akka-persistence-cassandra" % V.akka_persistence_cassandra,
       "com.typesafe.akka" %% "akka-persistence" % V.akka_core,
       "com.typesafe.akka" %% "akka-persistence-query" % V.akka_core,
       "com.typesafe.akka" %% "akka-cluster-tools" % V.akka_core,
       "com.typesafe.akka" %% "akka-stream" % V.akka_core,
-      "com.typesafe.akka" %% "akka-stream-testkit" % V.akka_core % Test,
       "com.typesafe.akka" %% "akka-http" % V.akka_http,
-      "com.typesafe.akka" %% "akka-http-testkit" % V.akka_http % "Test",
       "com.lightbend.akka" %% "akka-persistence-r2dbc" % V.akka_persistence_r2dbc,
       "com.lightbend.akka" %% "akka-projection-core" % V.akka_projections,
       "com.lightbend.akka.grpc" %% "akka-grpc-runtime" % V.akka_grpc,
       "com.lightbend.akka.management" %% "akka-management" % V.akka_management,
       "com.lightbend.akka" %% "akka-diagnostics" % V.akka_diagnostics
     )
+    def akka_test: Seq[ModuleID] = Seq(
+      "com.typesafe.akka" %% "akka-testkit" % V.akka_core % Test,
+      "com.typesafe.akka" %% "akka-actor-testkit-typed" % V.akka_core % Test,
+      "com.typesafe.akka" %% "akka-persistence-testkit" % V.akka_core % Test,
+      "com.typesafe.akka" %% "akka-stream-testkit" % V.akka_core % Test,
+      "com.typesafe.akka" %% "akka-http-testkit" % V.akka_http % Test,
+      "org.slf4j" % "slf4j-simple" % V.slf4j
+    )
   }
 
   def configure(version: AkkaVersion = akka_2024_05)(project: Project): Project = {
     project.settings(
       resolvers += "Akka library repository".at("https://repo.akka.io/maven"),
-      libraryDependencies ++= akka_2024_05.modules
+      libraryDependencies ++= akka_2024_05.akka_modules ++ akka_2024_05.akka_test
     )
   }
 

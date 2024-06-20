@@ -50,9 +50,6 @@ object SonatypePublishing extends AutoPluginHelper {
           val sonatypeOssStaging = s"https://${Keys.sonatypeServer.value}/service/local/staging/deploy/maven2"
           MavenRepository("Sonatype Maven Release Staging", sonatypeOssStaging)
         },
-        homepage := Some(
-          url(s"https://github.com/${gitHubOrganization.value}/${gitHubRepository.value}")
-        ),
         publishMavenStyle := true,
         pomIncludeRepository := { _ => false },
         publishTo := {
