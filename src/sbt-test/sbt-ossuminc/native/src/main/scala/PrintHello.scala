@@ -13,5 +13,10 @@
  **********************************************************************************************************************/
 
 object Main {
-  def main(args: Array[String]): Unit = { println("hello") }
+  def main(args: Array[String]): Unit = {
+    if (args.nonEmpty) then
+      print(s"Hello, ${args(0)}")
+    else
+      print(s"Hello, Runner")
+  }
 }

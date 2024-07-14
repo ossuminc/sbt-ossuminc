@@ -1,5 +1,8 @@
 > compile
-> run
-
+> printMarker
 # Check build info is correct
 > checkBuildInfo
+> printMarker
+$ pause
+> run PrintHello Native
+> printMarker
