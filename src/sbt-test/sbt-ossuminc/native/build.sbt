@@ -19,5 +19,6 @@ lazy val root = Root("native", startYr = 2024)
     },
     TaskKey[Boolean]("printMarker", "") := {
       println("=== Marker ===")
+      true
     }
   )

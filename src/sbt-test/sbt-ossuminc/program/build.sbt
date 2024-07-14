@@ -19,5 +19,6 @@ lazy val root = Root(
     maxErrors := 50,
     TaskKey[Unit]("check") := {
       println(s"Checking from within sbt:")
+      true
     }
   )
