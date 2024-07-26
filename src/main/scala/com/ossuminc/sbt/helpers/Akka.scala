@@ -13,7 +13,7 @@ object Akka extends AutoPluginHelper {
   //
   // Akka (core) 2.9.3
   // Akka HTTP 10.6.3
-  // Akka gRPC 2.4.3
+  // Akka gRPC 2.3.4
   // Akka Management 1.5.2
   // Alpakka Kafka 6.0.0
   // Alpakka 8.0.0
@@ -27,7 +27,7 @@ object Akka extends AutoPluginHelper {
   case object akka_2024_05 extends AkkaVersion {
     object V {
       val akka_core = "2.9.3"
-      val akka_grpc = "2.4.3"
+      val akka_grpc = "2.3.4"
       val akka_http = "10.6.3"
       val akka_persistence_r2dbc = "1.2.4"
       val akka_persistence_cassandra = "1.2.1"
@@ -45,17 +45,18 @@ object Akka extends AutoPluginHelper {
       "com.typesafe.akka" %% "akka-cluster-typed" % V.akka_core,
       "com.typesafe.akka" %% "akka-cluster-sharding" % V.akka_core,
       "com.typesafe.akka" %% "akka-cluster-sharding-typed" % V.akka_core,
+      "com.typesafe.akka" %% "akka-discovery" % V.akka_core,
       "com.typesafe.akka" %% "akka-distributed-data" % V.akka_core,
       "com.typesafe.akka" %% "akka-cluster-tools" % V.akka_core,
       "com.typesafe.akka" %% "akka-persistence-typed" % V.akka_core,
       "com.typesafe.akka" %% "akka-persistence-query" % V.akka_core,
+      "com.lightbend.akka" %% "akka-persistence-r2dbc" % V.akka_persistence_r2dbc,
       "com.typesafe.akka" %% "akka-persistence-cassandra" % V.akka_persistence_cassandra,
       "com.typesafe.akka" %% "akka-persistence" % V.akka_core,
       "com.typesafe.akka" %% "akka-persistence-query" % V.akka_core,
       "com.typesafe.akka" %% "akka-cluster-tools" % V.akka_core,
       "com.typesafe.akka" %% "akka-stream" % V.akka_core,
       "com.typesafe.akka" %% "akka-http" % V.akka_http,
-      "com.lightbend.akka" %% "akka-persistence-r2dbc" % V.akka_persistence_r2dbc,
       "com.lightbend.akka" %% "akka-projection-core" % V.akka_projections,
       "com.lightbend.akka.grpc" %% "akka-grpc-runtime" % V.akka_grpc,
       "com.lightbend.akka.management" %% "akka-management" % V.akka_management,
@@ -74,7 +75,7 @@ object Akka extends AutoPluginHelper {
   def configure(version: AkkaVersion = akka_2024_05)(project: Project): Project = {
     project.settings(
       resolvers += "Akka library repository".at("https://repo.akka.io/maven"),
-      libraryDependencies ++= akka_2024_05.akka_modules ++ akka_2024_05.akka_test
+      libraryDependencies ++= version.akka_modules ++ version.akka_test
     )
   }
 
