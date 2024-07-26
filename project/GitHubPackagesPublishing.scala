@@ -1,1 +1,0 @@
-../src/main/scala/com/ossuminc/sbt/helpers/GitHubPackagesPublishing.scala

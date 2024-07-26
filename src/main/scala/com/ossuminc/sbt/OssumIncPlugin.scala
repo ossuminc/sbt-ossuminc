@@ -188,6 +188,13 @@ object OssumIncPlugin extends AutoPlugin {
         these(java, misc, build_info, release)(project)
       }
 
+      def js(
+        hasMain: Boolean = false,
+        forProd: Boolean = false
+      )(project: Project): Project = {
+        helpers.Javascript.configure(hasMain, forProd)(project)
+      }
+
       def native(
         buildTarget: String = "static",
         targetTriple: String = "arm64-apple-macosx11.0.0",
