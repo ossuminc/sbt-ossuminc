@@ -1,7 +1,8 @@
 package com.ossuminc.sbt.helpers
 
+import org.scalajs.sbtplugin.ScalaJSPlugin
 import sbt.*
-import org.scalajs.sbtplugin.ScalaJSPlugin.autoImport._
+import org.scalajs.sbtplugin.ScalaJSPlugin.autoImport.*
 
 object Javascript extends AutoPluginHelper {
 
@@ -11,7 +12,7 @@ object Javascript extends AutoPluginHelper {
 
   def configure(hasMain: Boolean = false, forProd: Boolean = false)(project: Project): Project = {
     project
-      // .enablePlugins(ScalaJSPlugin)
+      .enablePlugins(ScalaJSPlugin)
       .settings(
         // for an application with a main method
         scalaJSUseMainModuleInitializer := hasMain,

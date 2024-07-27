@@ -29,6 +29,7 @@ object OssumIncPlugin extends AutoPlugin {
       val git: ConfigFunc = helpers.Git.configure
       val header: ConfigFunc = helpers.Header.configure
       val java: ConfigFunc = helpers.Java.configure
+      val javascript: ConfigFunc = helpers.Javascript.configure
       val misc: ConfigFunc = helpers.Miscellaneous.configure
       val native: ConfigFunc = helpers.Native.configure
       val publishing: ConfigFunc = helpers.SonatypePublishing.configure

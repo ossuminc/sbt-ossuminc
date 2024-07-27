@@ -2,10 +2,10 @@ package com.ossuminc.sbt
 
 import sbt.*
 import sbt.Keys.*
-import sbtcrossproject.CrossPlugin.autoImport.{JVMPlatform, crossProject}
+import sbtcrossproject.CrossPlugin.autoImport.{JVMPlatform, JVMCrossProjectOps}
 import sbtcrossproject.{CrossProject, CrossType, Platform}
-import scalajscrossproject.*
-import scalanativecrossproject.*
+import scalajscrossproject.ScalaJSCrossPlugin.autoImport.{JSPlatform,JSCrossProjectOps}
+import scalanativecrossproject.ScalaNativeCrossPlugin.autoImport.{NativePlatform,NativeCrossProjectOps}
 
 /** A CrossModule is a module that can be built for JVM, Javascript or Native execution. Use it like:
   * {{{val my_project = CrossModule("my_project", Javascript + JVM + Native).configure(...).settings(...)}}}
@@ -29,17 +29,26 @@ object CrossModule {
   def apply(dirName: String, modName: String = "")(targets: Target*)(
     transforms: Project => Project*
   )(settings: Def.SettingsDefinition*): CrossProject = {
-    val crossProj = crossProject(targets.map(_.platform): _*)
+    val mname = { if (modName.isEmpty) dirName else modName }
+    val crossProj = CrossProject(dirName, file(dirName))(targets.map(_.platform): _*)
       .crossType(CrossType.Full)
+      .withoutSuffixFor(JVMPlatform)
       .enablePlugins(OssumIncPlugin)
       .configure(helpers.Scala3.configure)
       .configure(transforms: _*)
       .settings(settings: _*)
       .settings(
         name := dirName,
-        moduleName := { if (modName.isEmpty) dirName else modName },
+        moduleName := mname,
       )
-    crossProj
+    targets.foldLeft(crossProj) { case (cp: CrossProject, target: Target) =>
+      target match {
+        case JVMTarget => cp.jvmSettings( moduleName := mname )
+        case JSTarget  => cp.jsSettings( moduleName := mname ++ "-js" )
+          .configure(helpers.Javascript.configure(hasMain=false,forProd=true))
+        case NativeTarget => cp.nativeSettings(moduleName := mname ++ "-native")
+      }
+      }
   }
 //  private def mapToProject(cp: CrossProject, target: Target): Project = {
 //    target match {
