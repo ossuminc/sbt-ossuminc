@@ -6,11 +6,11 @@ import scala.sys.process.Process
 
 enablePlugins(OssumIncPlugin)
 
-lazy val cross = Root("cross")
+lazy val cross = Root("cross_test")
   .configure(With.noPublishing)
   .aggregate(cm_jvm, cm_js, cm_native)
 
-lazy val cm = CrossModule("cross", JVM, JS, Native)(With.typical)(maxErrors := 50)
+lazy val cm = CrossModule("cross", "cross_test.cross")(JVM, JS, Native)(With.typical)(maxErrors := 50)
 val cm_jvm = cm.jvm.configure(With.typical)
 val cm_js = cm.js.configure(With.typical)
 val cm_native = cm.native.configure(With.typical)

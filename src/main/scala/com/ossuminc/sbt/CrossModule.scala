@@ -26,18 +26,18 @@ object CrossModule {
     * @return
     *   The project that was created and configured.
     */
-  def apply(modName: String, target: Target*)(
+  def apply(dirName: String, modName: String = "")(targets: Target*)(
     transforms: Project => Project*
   )(settings: Def.SettingsDefinition*): CrossProject = {
-    val crossProj = crossProject(target.map(_.platform): _*)
+    val crossProj = crossProject(targets.map(_.platform): _*)
       .crossType(CrossType.Full)
       .enablePlugins(OssumIncPlugin)
+      .configure(helpers.Scala3.configure)
       .configure(transforms: _*)
       .settings(settings: _*)
       .settings(
-        name := modName,
-        moduleName := modName,
-        scalaVersion := "3.4.2"
+        name := dirName,
+        moduleName := { if (modName.isEmpty) dirName else modName },
       )
     crossProj
   }
