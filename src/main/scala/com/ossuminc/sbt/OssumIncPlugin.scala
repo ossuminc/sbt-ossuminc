@@ -1,8 +1,5 @@
 package com.ossuminc.sbt
 
-import com.typesafe.sbt.packager.archetypes.JavaAppPackaging
-import com.typesafe.sbt.packager.graalvmnativeimage.GraalVMNativeImagePlugin
-import com.typesafe.sbt.packager.universal.UniversalDeployPlugin
 import sbt.*
 import sbt.Keys.*
 import sbt.librarymanagement.Resolver
@@ -10,128 +7,20 @@ import sbt.librarymanagement.Resolver
 object OssumIncPlugin extends AutoPlugin {
 
   object autoImport {
-
-    object Root {
-
-      /** Define a Root level project whether it is for a single-project repo or a unirepo with many sub-projects. This
-        * project is configured with a shell prompt, and the standard project information at ThisBuild scope
-        * @param ghRepoName
-        *   The name of the github repository we are building
-        * @param ghOrgName
-        *   THe name of the github organization/user that contains the `ghRepoName`
-        * @param orgPackage
-        *   The organization part of the JVM package this repo uses for its code
-        * @param orgName
-        *   The legal name of the organization
-        * @param orgPage
-        *   The URL of the website to use for the organization
-        * @param startYr
-        *   The year in which this project started, for copyright purposes
-        * @param devs
-        *   A list of Developer specifications to include in POM (required by Maven)
-        * @return
-        *   The project that was created and configured.
-        */
-      def apply(
-        ghRepoName: String = "",
-        ghOrgName: String = "ossuminc",
-        orgPackage: String = "com.ossuminc",
-        orgName: String = "Ossum, Inc.",
-        orgPage: URL = url("https://ossuminc.com/"),
-        maintainerEmail: String = "reid@ossuminc.com",
-        startYr: Int = 2023,
-        devs: List[Developer] = List.empty
-      ): Project = {
-        Project
-          .apply("root", file(System.getProperty("user.dir")))
-          .enablePlugins(OssumIncPlugin)
-          .configure(
-            helpers.RootProjectInfo.initialize(
-              ghRepoName,
-              ghOrgName,
-              startYr,
-              orgPackage,
-              orgName,
-              orgPage,
-              maintainerEmail,
-              devs
-            ),
-            helpers.Resolvers.configure
-          )
-      }
-    }
-
-    object Module {
-
-      /** Define a sub-project or module of the root project. Make sure to use the [[Root]] function before this Module
-        * is defined. No configuration is applied but you can do that by using the various With.* functions in this
-        * plugin. `With.typical` is typical for Scala3 development
-        * @param dirName
-        *   The name of the sub-directory in which the module is located.
-        * @param modName
-        *   The name of the artifact to be published. If blank, it will default to the dirName
-        * @return
-        *   The project that was created and configured.
-        */
-      def apply(dirName: String, modName: String = ""): Project = {
-        Project
-          .apply(dirName, file(dirName))
-          .enablePlugins(OssumIncPlugin, JavaAppPackaging)
-          .settings(
-            name := dirName,
-            moduleName := { if (modName.isEmpty) dirName else modName }
-          )
-      }
-    }
-
-    object Plugin {
-
-      /** Define a sub-project that produces an sbt plugin. It is necessary to also have used the [[Root]] function
-        * because what that function sets up is necessary for publishing this module. scoverage doesn't work with sbt
-        * plugins so it is disabled.
-        * @param dirName
-        *   The name of the directory in which the plugin code and tests exist
-        * @param modName
-        *   The name of the published artifact. If blank, the `dirName` will be used
-        * @return
-        *   The configured sbt project that is ready to build an sbt plugin
-        */
-      def apply(dirName: String, modName: String = ""): Project = {
-        Project
-          .apply(dirName, file(dirName))
-          .enablePlugins(OssumIncPlugin)
-          .configure(helpers.Plugin.configure)
-          .settings(
-            name := dirName,
-            moduleName := { if (modName.isEmpty) dirName else modName }
-          )
-      }
-    }
-
-    object Program {
-
-      /** Define a sub-project that produces an executable program. It is necessary to also have used the [[Root]]
-        * function because what that function sets up is necessary for publishing this module.
-        * @param dirName
-        *   The name of the directory in which the plugin code and tests exist
-        * @param appName
-        *   The name of the published artifact. If blank, the `dirName` will be used
-        * @return
-        *   The configured sbt project that is ready to build an sbt plugin
-        */
-      def apply(dirName: String, appName: String): Project = {
-        Project
-          .apply(dirName, file(dirName))
-          .enablePlugins(OssumIncPlugin, JavaAppPackaging, UniversalDeployPlugin, GraalVMNativeImagePlugin)
-          .settings(
-            name := dirName,
-            moduleName := { if (appName.isEmpty) dirName else appName }
-          )
-      }
-    }
-
+    // The type of function that `Project.configure` takes as its argument
     private type ConfigFunc = Project => Project
 
+    // Major declarations
+    val Root: com.ossuminc.sbt.Root.type = com.ossuminc.sbt.Root
+    val Module: com.ossuminc.sbt.Module.type = com.ossuminc.sbt.Module
+    val Plugin: com.ossuminc.sbt.Plugin.type = com.ossuminc.sbt.Plugin
+    val Program: com.ossuminc.sbt.Program.type = com.ossuminc.sbt.Program
+    val CrossModule: com.ossuminc.sbt.CrossModule.type = com.ossuminc.sbt.CrossModule
+    val JVM: CrossModule.Target = CrossModule.JVMTarget
+    val JS: CrossModule.Target = CrossModule.JSTarget
+    val Native: CrossModule.Target = CrossModule.NativeTarget
+
+    // Clauses to customize the major declarations
     object With {
       val akka: ConfigFunc = helpers.Akka.configure
       val aliases: ConfigFunc = helpers.HandyAliases.configure

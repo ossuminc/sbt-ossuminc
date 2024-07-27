@@ -1,7 +1,6 @@
 package com.ossuminc.sbt.helpers
 
 import sbt.*
-import org.scalajs.sbtplugin.ScalaJSPlugin
 import org.scalajs.sbtplugin.ScalaJSPlugin.autoImport._
 
 object Javascript extends AutoPluginHelper {
@@ -12,11 +11,14 @@ object Javascript extends AutoPluginHelper {
 
   def configure(hasMain: Boolean = false, forProd: Boolean = false)(project: Project): Project = {
     project
-      .enablePlugins(ScalaJSPlugin)
+      // .enablePlugins(ScalaJSPlugin)
       .settings(
         // for an application with a main method
         scalaJSUseMainModuleInitializer := hasMain,
-        scalaJSLinkerConfig ~= { _.withOptimizer(forProd) }
+        scalaJSLinkerConfig ~= {
+          _.withOptimizer(forProd)
+            .withModuleKind(ModuleKind.CommonJSModule)
+        }
       )
 
   }
