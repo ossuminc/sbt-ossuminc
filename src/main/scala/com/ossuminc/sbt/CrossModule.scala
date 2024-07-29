@@ -1,6 +1,5 @@
 package com.ossuminc.sbt
 
-import org.scalajs.sbtplugin.ScalaJSPlugin
 import sbt.*
 import sbt.Keys.*
 import sbtcrossproject.CrossPlugin.autoImport.{JVMCrossProjectOps, JVMPlatform}
@@ -33,7 +32,9 @@ object CrossModule {
       .crossType(CrossType.Full)
       .withoutSuffixFor(JVMPlatform)
       .enablePlugins(OssumIncPlugin)
-      .enablePlugins(ScalaJSPlugin)
+      .jvmSettings(
+        libraryDependencies += "org.scala-js" %% "scalajs-stubs" % "1.1.0" % "provided"
+      )
       .settings(
         name := dirName,
         moduleName := mname
