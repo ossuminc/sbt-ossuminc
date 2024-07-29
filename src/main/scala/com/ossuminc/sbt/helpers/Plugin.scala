@@ -12,11 +12,10 @@ object Plugin {
 
   def configure(project: Project): Project = {
     project
-      .enablePlugins(SbtPlugin, JavaAppPackaging, ScriptedPlugin)
+      .enablePlugins(SbtPlugin, JavaAppPackaging)
       .disablePlugins(ScoverageSbtPlugin)
       .configure(With.basic, With.scala2, With.scalafmt, With.publishing)
       .settings(
-        sbtPlugin := true,
         scalaVersion := "2.12.18",
         scriptedLaunchOpts := {
           scriptedLaunchOpts.value ++ Seq("-Xmx1024M", "-Dplugin.version=" + version.value)

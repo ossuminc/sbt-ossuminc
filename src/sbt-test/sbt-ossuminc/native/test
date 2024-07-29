@@ -3,7 +3,7 @@
 # Check build info is correct
 > checkBuildInfo
 > printMarker
-$ pause
+# $ pause
 # FIXME: Fails with:
 # FIXME: java.io.IOException: Cannot run program "/private/var/folders/rw/28ry0cy95rbcy6j1pqcvpkww0000gn/T/sbt_fa311451/target/scala-3.3.3/libnative.a": error=13, Permission denied
 #> run PrintHello Native

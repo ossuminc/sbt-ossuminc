@@ -1,10 +1,10 @@
 package com.ossuminc.sbt.helpers
-import sbt._
-import sbt.Keys._
+import sbt.*
+import sbt.Keys.*
 import sbtbuildinfo.BuildInfoKeys.buildInfoUsePackageAsPath
 import sbtbuildinfo.{BuildInfoKey, BuildInfoPlugin}
 import sbtbuildinfo.BuildInfoPlugin.autoImport.*
-import sbtbuildinfo.BuildInfoOption.{BuildTime, ToJson, ToMap}
+import sbtbuildinfo.BuildInfoOption.{BuildTime, ConstantValue, ToJson, ToMap}
 
 import java.util.Calendar
 
@@ -24,7 +24,7 @@ object BuildInfo extends AutoPluginHelper {
       .settings(
         buildInfoObject := "BuildInfo",
         buildInfoPackage := "com.ossuminc",
-        buildInfoOptions := Seq(ToMap, ToJson, BuildTime),
+        buildInfoOptions ++= Seq(ToMap, ToJson, BuildTime, ConstantValue),
         buildInfoUsePackageAsPath := true,
         buildInfoKeys ++= Seq[BuildInfoKey](
           normalizedName,

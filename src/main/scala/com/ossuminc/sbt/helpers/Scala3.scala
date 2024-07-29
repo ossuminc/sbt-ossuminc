@@ -42,7 +42,7 @@ object Scala3 extends AutoPluginHelper {
     project
       .settings(
         scalaVersion := version.getOrElse("3.3.3"),
-        scalacOptions := scala_3_options ++ scala3Options,
+        scalacOptions ++= scala_3_options ++ scala3Options,
         Compile / doc / scalacOptions := scala_3_doc_options((compile / scalaVersion).value),
         apiURL := Some(url("https://riddl.tech/apidoc/")),
         autoAPIMappings := true
