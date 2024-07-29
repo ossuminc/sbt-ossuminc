@@ -1,11 +1,12 @@
 package com.ossuminc.sbt
 
+import org.scalajs.sbtplugin.ScalaJSPlugin
 import sbt.*
 import sbt.Keys.*
-import sbtcrossproject.CrossPlugin.autoImport.{JVMPlatform, JVMCrossProjectOps}
+import sbtcrossproject.CrossPlugin.autoImport.{JVMCrossProjectOps, JVMPlatform}
 import sbtcrossproject.{CrossProject, CrossType, Platform}
-import scalajscrossproject.ScalaJSCrossPlugin.autoImport.{JSPlatform,JSCrossProjectOps}
-import scalanativecrossproject.ScalaNativeCrossPlugin.autoImport.{NativePlatform,NativeCrossProjectOps}
+import scalajscrossproject.ScalaJSCrossPlugin.autoImport.{JSCrossProjectOps, JSPlatform}
+import scalanativecrossproject.ScalaNativeCrossPlugin.autoImport.{NativeCrossProjectOps, NativePlatform}
 
 /** A CrossModule is a module that can be built for JVM, Javascript or Native execution. Use it like:
   * {{{val my_project = CrossModule("my_project", Javascript + JVM + Native).configure(...).settings(...)}}}
@@ -26,29 +27,24 @@ object CrossModule {
     * @return
     *   The project that was created and configured.
     */
-  def apply(dirName: String, modName: String = "")(targets: Target*)(
-    transforms: Project => Project*
-  )(settings: Def.SettingsDefinition*): CrossProject = {
+  def apply(dirName: String, modName: String = "")(targets: Target*): CrossProject = {
     val mname = { if (modName.isEmpty) dirName else modName }
     val crossProj = CrossProject(dirName, file(dirName))(targets.map(_.platform): _*)
       .crossType(CrossType.Full)
       .withoutSuffixFor(JVMPlatform)
       .enablePlugins(OssumIncPlugin)
-      .configure(helpers.Scala3.configure)
-      .configure(transforms: _*)
-      .settings(settings: _*)
+      .enablePlugins(ScalaJSPlugin)
       .settings(
         name := dirName,
-        moduleName := mname,
+        moduleName := mname
       )
     targets.foldLeft(crossProj) { case (cp: CrossProject, target: Target) =>
       target match {
-        case JVMTarget => cp.jvmSettings( moduleName := mname )
-        case JSTarget  => cp.jsSettings( moduleName := mname ++ "-js" )
-          .configure(helpers.Javascript.configure(hasMain=false,forProd=true))
+        case JVMTarget    => cp.jvmSettings(moduleName := mname)
+        case JSTarget     => cp.jsSettings(moduleName := mname ++ "-js")
         case NativeTarget => cp.nativeSettings(moduleName := mname ++ "-native")
       }
-      }
+    }
   }
 //  private def mapToProject(cp: CrossProject, target: Target): Project = {
 //    target match {
