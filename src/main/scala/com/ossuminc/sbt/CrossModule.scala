@@ -27,11 +27,13 @@ object CrossModule {
     *   The project that was created and configured.
     */
   def apply(dirName: String, modName: String = "")(targets: Target*): CrossProject = {
+    import org.scalajs.sbtplugin.ScalaJSPlugin
     val mname = { if (modName.isEmpty) dirName else modName }
     val crossProj = CrossProject(dirName, file(dirName))(targets.map(_.platform): _*)
       .crossType(CrossType.Full)
       .withoutSuffixFor(JVMPlatform)
       .enablePlugins(OssumIncPlugin)
+      .jsEnablePlugins(ScalaJSPlugin)
       .jvmSettings(
         libraryDependencies += "org.scala-js" %% "scalajs-stubs" % "1.1.0" % "provided"
       )
@@ -47,11 +49,4 @@ object CrossModule {
       }
     }
   }
-//  private def mapToProject(cp: CrossProject, target: Target): Project = {
-//    target match {
-//      case JVMTarget    => cp.jvm
-//      case JSTarget     => cp.js
-//      case NativeTarget => cp.native
-//    }
-//  }
 }

@@ -80,9 +80,10 @@ object OssumIncPlugin extends AutoPlugin {
 
       def js(
         hasMain: Boolean = false,
-        forProd: Boolean = false
+        forProd: Boolean = true,
+        withCommonJSModule: Boolean = false
       )(project: Project): Project = {
-        helpers.Javascript.configure(hasMain, forProd)(project)
+        helpers.Javascript.configure(hasMain, forProd, withCommonJSModule)(project)
       }
 
       def native(
