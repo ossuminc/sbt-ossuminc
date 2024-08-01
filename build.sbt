@@ -26,38 +26,37 @@ lazy val `sbt-ossuminc` = project
   .configure(SonatypePublishing.configure)
   .settings(
     name := "sbt-ossuminc",
-    scalaVersion := "2.12.18",
+    scalaVersion := "2.12.19",
     // Scripted == sbt plugin tests
     scriptedLaunchOpts := {
       scriptedLaunchOpts.value ++ Seq("-Xmx1024M", "-Dplugin.version=" + version.value)
     },
     libraryDependencies ++= Seq(
-      "org.apache.commons" % "commons-lang3" % "3.5",
-      "org.slf4j" % "slf4j-simple" % "1.7.25"
+      "org.apache.commons" % "commons-lang3" % "3.15.0",
+      "org.slf4j" % "slf4j-simple" % "2.0.13"
     )
   )
 
 // Generic plugins from github.sbt project
 addSbtPlugin("com.github.sbt" % "sbt-dynver" % "5.0.1")
-addSbtPlugin("com.github.sbt" % "sbt-native-packager" % "1.9.16")
-addSbtPlugin("com.github.sbt" % "sbt-git" % "2.0.0")
+addSbtPlugin("com.github.sbt" % "sbt-native-packager" % "1.10.4")
+addSbtPlugin("com.github.sbt" % "sbt-git" % "2.0.1")
 addSbtPlugin("com.github.sbt" % "sbt-pgp" % "2.2.1")
-addSbtPlugin("com.github.sbt" % "sbt-release" % "1.1.0")
+addSbtPlugin("com.github.sbt" % "sbt-release" % "1.4.0")
 addSbtPlugin("com.github.sbt" % "sbt-unidoc" % "0.5.0")
 
 // Helpers from other sources
-addSbtPlugin("com.eed3si9n" % "sbt-buildinfo" % "0.11.0")
+addSbtPlugin("com.eed3si9n" % "sbt-buildinfo" % "0.12.0")
 addSbtPlugin("de.heikoseeberger" % "sbt-header" % "5.10.0")
 addSbtPlugin("com.timushev.sbt" % "sbt-updates" % "0.6.4")
 addSbtPlugin("org.xerial.sbt" % "sbt-sonatype" % "3.11.1")
-addSbtPlugin("com.codecommit" % "sbt-github-packages" % "0.5.3")
 
 // Scala specific from various places
-addSbtPlugin("ch.epfl.scala" % "sbt-scalafix" % "0.11.1")
+addSbtPlugin("ch.epfl.scala" % "sbt-scalafix" % "0.12.1")
 addSbtPlugin("org.scalameta" % "sbt-scalafmt" % "2.5.2")
-addSbtPlugin("org.scoverage" % "sbt-scoverage" % "2.0.9")
-addSbtPlugin("org.scoverage" % "sbt-coveralls" % "1.3.11")
-addSbtPlugin("org.scala-native" % "sbt-scala-native" % "0.5.3")
+addSbtPlugin("org.scoverage" % "sbt-scoverage" % "2.1.0")
+addSbtPlugin("org.scoverage" % "sbt-coveralls" % "1.3.13")
+addSbtPlugin("org.scala-native" % "sbt-scala-native" % "0.5.4")
 addSbtPlugin("org.scala-js" % "sbt-scalajs" % "1.16.0")
 addSbtPlugin("org.portable-scala" % "sbt-scalajs-crossproject"      % "1.3.2")
 addSbtPlugin("org.portable-scala" % "sbt-scala-native-crossproject" % "1.3.2")

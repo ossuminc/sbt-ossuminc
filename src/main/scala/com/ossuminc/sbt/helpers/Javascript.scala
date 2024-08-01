@@ -17,11 +17,18 @@ object Javascript extends AutoPluginHelper {
         // for an application with a main method
         scalaJSUseMainModuleInitializer := hasMain,
         scalaJSLinkerConfig ~= {
-          _.withOptimizer(forProd)
-            .withModuleKind({
-              if (withCommonJSModule) { ModuleKind.CommonJSModule }
-              else { ModuleKind.ESModule }
-            })
+          if (hasMain) {
+            _.withOptimizer(forProd)
+          } else {
+            _.withOptimizer(forProd)
+              .withModuleKind({
+                if (withCommonJSModule) {
+                  ModuleKind.CommonJSModule
+                } else {
+                  ModuleKind.ESModule
+                }
+              })
+          }
         }
       )
 

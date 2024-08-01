@@ -2,13 +2,11 @@ package com.ossuminc.sbt.helpers
 
 import sbt.Keys.*
 import sbt.*
-import sbtghpackages.GitHubPackagesPlugin.autoImport.GHPackagesResolverSyntax
 
 object Resolvers extends AutoPluginHelper {
 
   private val standardResolvers: Seq[Resolver] = Seq[Resolver](
     Resolver.mavenLocal,
-    Resolver.githubPackages("ossuminc"),
     Resolver.jcenterRepo
   ) ++ Resolver.sonatypeOssRepos("releases") ++
     Resolver.sonatypeOssRepos("snapshots")
