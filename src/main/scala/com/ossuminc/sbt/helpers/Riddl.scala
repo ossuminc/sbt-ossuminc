@@ -13,7 +13,7 @@ object Riddl extends AutoPluginHelper {
     project.settings(
       libraryDependencies += {
         if (forJS) {
-          "com.ossuminc" %%% "riddl-diagrams" % version
+          "com.ossuminc" %%% "riddl-diagrams-js" % version
         } else {
           "com.ossuminc" %%% "riddlc" % version
         }
