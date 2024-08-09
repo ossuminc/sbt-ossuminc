@@ -29,6 +29,8 @@ addSbtPlugin("com.eed3si9n" % "sbt-buildinfo" % "0.12.0")
 addSbtPlugin("de.heikoseeberger" % "sbt-header" % "5.10.0")
 addSbtPlugin("com.timushev.sbt" % "sbt-updates" % "0.6.4")
 addSbtPlugin("org.xerial.sbt" % "sbt-sonatype" % "3.11.1")
+addSbtPlugin("com.thesamet" % "sbt-protoc" % "1.0.7")
+libraryDependencies += "com.thesamet.scalapb" %% "scalapbc" % "0.11.17"
 
 // Scala specific from various places
 addSbtPlugin("ch.epfl.scala" % "sbt-scalafix" % "0.12.1")
@@ -41,7 +43,8 @@ addSbtPlugin("org.portable-scala" % "sbt-scalajs-crossproject"      % "1.3.2")
 addSbtPlugin("org.portable-scala" % "sbt-scala-native-crossproject" % "1.3.2")
 
 libraryDependencies ++= Seq(
-  "org.scala-sbt" %% "scripted-plugin" % sbtVersion.value
+  "org.scala-sbt" %% "scripted-plugin" % sbtVersion.value,
+  "com.thesamet.scalapb" %% "compilerplugin" % "0.11.11"
 )
 
 // This removes a version conflict
