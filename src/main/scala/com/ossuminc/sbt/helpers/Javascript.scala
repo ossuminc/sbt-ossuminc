@@ -1,7 +1,10 @@
 package com.ossuminc.sbt.helpers
 
 import sbt.*
+import sbt.Keys.libraryDependencies
+import org.scalajs.sbtplugin.ScalaJSPlugin
 import org.scalajs.sbtplugin.ScalaJSPlugin.autoImport.*
+import org.portablescala.sbtplatformdeps.PlatformDepsPlugin.autoImport.*
 
 object Javascript extends AutoPluginHelper {
 
@@ -13,6 +16,8 @@ object Javascript extends AutoPluginHelper {
     project: Project
   ): Project = {
     project
+      .enablePlugins(ScalaJSPlugin)
+      // .settings(ScalaJSPlugin.testConfigSettings) <-- generates undefined settings
       .settings(
         // for an application with a main method
         scalaJSUseMainModuleInitializer := hasMain,
@@ -29,7 +34,13 @@ object Javascript extends AutoPluginHelper {
                 }
               })
           }
-        }
+        },
+        libraryDependencies ++= Seq(
+          "io.github.cquiroz" %%% "scala-java-time" % "2.6.0",
+          "org.scalactic" %%% "scalactic" % "3.2.19" % "test",
+          "org.scalatest" %%% "scalatest" % "3.2.19" % "test",
+          "org.scalatest" %%% "scalatest-funspec" % "3.2.19" % "test"
+        )
       )
 
   }

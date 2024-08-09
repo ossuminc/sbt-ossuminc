@@ -2,10 +2,12 @@ package com.ossuminc.sbt
 
 import sbt.*
 import sbt.Keys.*
+
 import sbtcrossproject.CrossPlugin.autoImport.{JVMCrossProjectOps, JVMPlatform}
 import sbtcrossproject.{CrossProject, CrossType, Platform}
-import scalajscrossproject.ScalaJSCrossPlugin.autoImport.{JSCrossProjectOps, JSPlatform}
-import scalanativecrossproject.ScalaNativeCrossPlugin.autoImport.{NativeCrossProjectOps, NativePlatform}
+import scalajscrossproject.ScalaJSCrossPlugin.autoImport.*
+import scalanativecrossproject.ScalaNativeCrossPlugin.autoImport.*
+import org.portablescala.sbtplatformdeps.PlatformDepsPlugin.autoImport.*
 
 /** A CrossModule is a module that can be built for JVM, Javascript or Native execution. Use it like:
   * {{{val my_project = CrossModule("my_project", Javascript + JVM + Native).configure(...).settings(...)}}}
@@ -36,6 +38,14 @@ object CrossModule {
       .jsEnablePlugins(ScalaJSPlugin)
       .jvmSettings(
         libraryDependencies += "org.scala-js" %% "scalajs-stubs" % "1.1.0" % "provided"
+      )
+      .jsSettings(
+        libraryDependencies ++= Seq(
+          "io.github.cquiroz" %%% "scala-java-time" % "2.6.0",
+          "org.scalactic" %%% "scalactic" % "3.2.19" % "test",
+          "org.scalatest" %%% "scalatest" % "3.2.19" % "test",
+          "org.scalatest" %%% "scalatest-funspec" % "3.2.19" % "test"
+        )
       )
       .settings(
         name := dirName,
