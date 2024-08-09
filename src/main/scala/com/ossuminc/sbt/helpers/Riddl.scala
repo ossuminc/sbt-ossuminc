@@ -9,7 +9,7 @@ object Riddl extends AutoPluginHelper {
   override def configure(project: Project): Project =
     configure()(project)
 
-  def configure(forJS: Boolean = false, version: String = "0.47.0-35-281f2c10")(project: Project): Project =
+  def configure(forJS: Boolean = false, version: String = "0.47.0-36-2d5a004")(project: Project): Project =
     project.settings(
       libraryDependencies += {
         if (forJS) {
