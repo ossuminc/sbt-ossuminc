@@ -7,7 +7,7 @@ enablePlugins(OssumIncPlugin)
 
 lazy val root = Root("scalajs", startYr = 2024)
   .enablePlugins(ScalaJSPlugin)
-  .configure(With.basic, With.js(hasMain = true))
+  .configure(With.basic, With.js("test main", hasMain = true))
   .settings(
     scalaVersion:= "3.4.2",
     maxErrors := 50,
