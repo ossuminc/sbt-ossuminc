@@ -71,7 +71,7 @@ object OssumIncPlugin extends AutoPlugin {
 
       def typical(project: Project): Project = {
         project.configure(basic)
-        these(scala3, scalaTest, scoverage, publishing, unidoc)(project)
+        these(scala3, scalaTest, publishing, unidoc)(project)
       }
 
       def everything(project: Project): Project = {
