@@ -41,7 +41,39 @@ object OssumIncPlugin extends AutoPlugin {
       val scalaTest: ConfigFunc = helpers.ScalaTest.configure
       val scalafmt: ConfigFunc = helpers.Scalafmt.configure
       val scoverage: ConfigFunc = helpers.ScalaCoverage.configure
-      val unidoc: ConfigFunc = helpers.Unidoc.configure
+
+      def these(cfuncs: ConfigFunc*)(project: Project): Project = {
+        cfuncs.foldLeft(project) { (p, func) =>
+          p.configure(func)
+        }
+      }
+
+      def basic(project: Project): Project = {
+        these(aliases, dynver, git, header, resolvers)(project)
+      }
+
+      def typical(project: Project): Project = {
+        project.configure(basic)
+        these(scala3, scalaTest, publishing)(project)
+      }
+
+      def everything(project: Project): Project = {
+        project.configure(typical)
+        these(java, misc, build_info, release)(project)
+      }
+
+      def unidoc(
+        apiOutput: File = file("target/unidoc"),
+        baseURL: Option[String] = None,
+        inclusions: Seq[ProjectReference] = Seq.empty,
+        exclusions: Seq[ProjectReference] = Seq.empty,
+        logoPath: Option[String] = None,
+        externalMappings: Seq[Seq[String]] = Seq.empty
+      )(project: Project): Project = {
+        project
+          .configure(helpers.Unidoc.configure(apiOutput, baseURL, inclusions,exclusions, logoPath, externalMappings))
+      }
+
 
       def noPublishing(project: Project): Project = {
         project.settings(
@@ -59,26 +91,6 @@ object OssumIncPlugin extends AutoPlugin {
           .settings(
             helpers.ScalaCoverage.Keys.coveragePercent := percent
           )
-      }
-
-      def these(cfuncs: ConfigFunc*)(project: Project): Project = {
-        cfuncs.foldLeft(project) { (p, func) =>
-          p.configure(func)
-        }
-      }
-
-      def basic(project: Project): Project = {
-        these(aliases, dynver, git, header, resolvers)(project)
-      }
-
-      def typical(project: Project): Project = {
-        project.configure(basic)
-        these(scala3, scalaTest, publishing, unidoc)(project)
-      }
-
-      def everything(project: Project): Project = {
-        project.configure(typical)
-        these(java, misc, build_info, release)(project)
       }
 
       def js(
@@ -120,7 +132,7 @@ object OssumIncPlugin extends AutoPlugin {
         project
           .configure(scala2)
           .settings(
-            scalaVersion := "2.12.18",
+            scalaVersion := "2.12.19",
             sbtPlugin := true
           )
       }
