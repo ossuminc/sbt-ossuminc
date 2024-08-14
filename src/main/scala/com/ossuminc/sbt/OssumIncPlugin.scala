@@ -54,9 +54,11 @@ object OssumIncPlugin extends AutoPlugin {
       }
 
       def coverage(percent: Double = 50.0d)(project: Project): Project = {
-        project.settings(
-          helpers.ScalaCoverage.Keys.coveragePercent := percent
-        )
+        project
+          .configure(helpers.ScalaCoverage.configure)
+          .settings(
+            helpers.ScalaCoverage.Keys.coveragePercent := percent
+          )
       }
 
       def these(cfuncs: ConfigFunc*)(project: Project): Project = {
