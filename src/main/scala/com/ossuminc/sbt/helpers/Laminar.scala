@@ -10,7 +10,7 @@ object Laminar extends AutoPluginHelper {
     project.settings(
       libraryDependencies ++= Seq(
         "org.scala-js" %%% "scalajs-dom" % "2.8.0",
-        "com.raquo" %%% "laminar" % "17.0.0"
+        "com.raquo" %%% "laminar" % "17.1.0"
       )
     )
 }
