@@ -31,7 +31,6 @@ object OssumIncPlugin extends AutoPlugin {
       val java: ConfigFunc = helpers.Java.configure
       val javascript: ConfigFunc = helpers.Javascript.configure
       val misc: ConfigFunc = helpers.Miscellaneous.configure
-      val laminar: ConfigFunc = helpers.Laminar.configure
       val native: ConfigFunc = helpers.Native.configure
       val publishing: ConfigFunc = helpers.SonatypePublishing.configure
       val release: ConfigFunc = helpers.Release.configure
@@ -101,6 +100,9 @@ object OssumIncPlugin extends AutoPlugin {
       )(project: Project): Project = {
         helpers.Javascript.configure(header, hasMain, forProd, withCommonJSModule)(project)
       }
+
+      def laminar(version: String = "17.1.0", domVersion: String = "2.8.0")(project: Project): Project =
+        helpers.Laminar.configure(version, domVersion)(project)
 
       def native(
         buildTarget: String = "static",
