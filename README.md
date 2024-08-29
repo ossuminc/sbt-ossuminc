@@ -248,6 +248,7 @@ Here are descriptions of all the parameterless configuration functions you can u
 * `With.java` -
 * `With.javascript` - 
 * `With.misc` -
+* `With.noMiMa` - turn Migration Manager off for this project (prevents build-stopping errors)
 * `With.publishing` - configure the project to publish signed artifacts to Sonatype/Maven 
 * `With.release` - enable the `sbt-release` plugin
 * `With.resolvers` - enable a group of resolvers for resolving dependencies
@@ -264,14 +265,6 @@ Here are descriptions of all the parameterless configuration functions you can u
 
 Here are the descriptions of the configuration functions that take parameters:
 
-* `With.unidoc` - enable the `sbt-unidoc` plugin with the following options:
-  * apiOutput: File = file("target/unidoc")
-  * baseURL: Option[String] = None
-  * inclusions: Seq[ProjectReference] = Seq.empty
-  * exclusions: Seq[ProjectReference] = Seq.empty
-  * logoPath: Option[String] = None
-  * externalMappings: Seq[Seq[String]] = Seq.empty
-
 * `With.coverage` - enable code coverage plugins with the following options:
   * percent: Double = 50.0d
 
@@ -280,6 +273,15 @@ Here are the descriptions of the configuration functions that take parameters:
   * hasMain: Boolean = false,
   *  forProd: Boolean = true,
   *  withCommonJSModule: Boolean = false
+
+* `With.laminar` - for Scala.js modules, include laminar and DOM support with the following options:
+  * version: String = "17.1.0"
+  * domVersion: String = "2.8.0"
+
+* `With.MiMa` - turns on Migration manager and you must specify at least the first option:
+  * previousVersion: String // the previous version of the artifact/project to check against
+  * excludedClasses: Seq[String] = Seq.empty // classes to exclude from compatibility checks
+  * reportSignatureIssues: Boolean = false // full signature checks, including generic type parameters
 
 * `With.native` - enable native code generation with `scala-native` with the following options: 
   buildTarget: String = "static"
@@ -291,14 +293,19 @@ Here are the descriptions of the configuration functions that take parameters:
   verbose: Boolean = false
   ld64Path: String = "/opt/homebrew/opt/llvm/bin/ld64.lld"
 
-* `With.laminar` - for Scala.js modules, include laminar and DOM support with the following options:
-  * version: String = "17.1.0"
-  * domVersion: String = "2.8.0"
-
 * `With.riddl` - for JVM or JS modules, include a specific version of RIDDL libraries with the
   following options:
   * forJS: Boolean
   * version: String
+
+* `With.unidoc` - enable the `sbt-unidoc` plugin with the following options:
+  * apiOutput: File = file("target/unidoc")
+  * baseURL: Option[String] = None
+  * inclusions: Seq[ProjectReference] = Seq.empty
+  * exclusions: Seq[ProjectReference] = Seq.empty
+  * logoPath: Option[String] = None
+  * externalMappings: Seq[Seq[String]] = Seq.empty
+
   
 
 

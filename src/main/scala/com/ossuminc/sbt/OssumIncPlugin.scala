@@ -35,6 +35,7 @@ object OssumIncPlugin extends AutoPlugin {
       val javascript: ConfigFunc = helpers.Javascript.configure
       val misc: ConfigFunc = helpers.Miscellaneous.configure
       val native: ConfigFunc = helpers.Native.configure
+      val noMiMa: ConfigFunc = helpers.MiMa.configure
       val publishing: ConfigFunc = helpers.SonatypePublishing.configure
       val release: ConfigFunc = helpers.Release.configure
       val resolvers: ConfigFunc = helpers.Resolvers.configure
@@ -106,6 +107,13 @@ object OssumIncPlugin extends AutoPlugin {
 
       def laminar(version: String = "17.1.0", domVersion: String = "2.8.0")(project: Project): Project =
         helpers.Laminar.configure(version, domVersion)(project)
+
+      def MiMa(
+        previousVersion: String,
+        excludedClasses: Seq[String] = Seq.empty,
+        reportSignatureIssues: Boolean = false
+      )(project:Project): Project =
+        helpers.MiMa.configure(previousVersion, excludedClasses, reportSignatureIssues)(project)
 
       def native(
         buildTarget: String = "static",
