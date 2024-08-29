@@ -4,6 +4,8 @@ import sbt.*
 import sbt.Keys.*
 import sbt.librarymanagement.Resolver
 
+/** And sbt plugin for many different kind of projects and used for every project at Ossum Inc.
+ *  */
 object OssumIncPlugin extends AutoPlugin {
 
   object autoImport {
@@ -16,6 +18,7 @@ object OssumIncPlugin extends AutoPlugin {
     val Plugin: com.ossuminc.sbt.Plugin.type = com.ossuminc.sbt.Plugin
     val Program: com.ossuminc.sbt.Program.type = com.ossuminc.sbt.Program
     val CrossModule: com.ossuminc.sbt.CrossModule.type = com.ossuminc.sbt.CrossModule
+    val DocSite: com.ossuminc.sbt.DocSite.type = com.ossuminc.sbt.DocSite
     val JVM: CrossModule.Target = CrossModule.JVMTarget
     val JS: CrossModule.Target = CrossModule.JSTarget
     val Native: CrossModule.Target = CrossModule.NativeTarget

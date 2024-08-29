@@ -3,6 +3,7 @@ package com.ossuminc.sbt
 import sbt.*
 import sbt.Keys.*
 
+/** The object for configuration a sbt autoplugin */
 object Plugin {
 
   /** Define a sub-project that produces an sbt plugin. It is necessary to also have used the [[Root]] function because

@@ -23,6 +23,7 @@ import sbt.{File, Project, ProjectReference, file}
  */
 object DocSite {
 
+  /** Apply the DocSite  */
   def apply(
     dirName: String,
     apiOutput: File,

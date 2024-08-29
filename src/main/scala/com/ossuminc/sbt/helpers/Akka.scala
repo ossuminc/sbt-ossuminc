@@ -2,6 +2,7 @@ package com.ossuminc.sbt.helpers
 import sbt.*
 import sbt.Keys.*
 
+/** A helper that can be used to configure the complex dependencies in the Akka Platform */
 object Akka extends AutoPluginHelper {
 
   sealed trait AkkaVersion {
@@ -24,6 +25,7 @@ object Akka extends AutoPluginHelper {
   // Akka Diagnostics 2.1.1
   // Akka Insights 2.20.0
 
+  /**  An object to define the components of the Akka 2024.05 release of Akka Platform */
   case object akka_2024_05 extends AkkaVersion {
     object V {
       val akka_core = "2.9.3"

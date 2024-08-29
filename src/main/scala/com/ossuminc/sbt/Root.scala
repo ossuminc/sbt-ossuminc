@@ -2,6 +2,7 @@ package com.ossuminc.sbt
 
 import sbt.{Developer, Project, URL, file, url}
 
+/** A configuration object for a root project of a monorepo composed of subordinate sbt projects */
 object Root {
 
   /** Define a Root level project whether it is for a single-project repo or a unirepo with many sub-projects. This

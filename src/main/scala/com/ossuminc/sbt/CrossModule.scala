@@ -18,11 +18,11 @@ object CrossModule {
   case object JSTarget extends Target { def platform: Platform = JSPlatform }
   case object NativeTarget extends Target { def platform: Platform = NativePlatform }
 
-  /** Define a sub-project or module of the root project. Make sure to use the [[Root]] function before this Module is
-    * defined. No configuration is applied but you can do that by using the various With.* functions in this plugin.
+  /** Define a subproject or module of the root project. Make sure to use the [[Root]] function before this Module is
+    * defined. No configuration is applied, but you can do that by using the various With.* functions in this plugin.
     * `With.typical` is typical for Scala3 development
     * @param dirName
-    *   The name of the sub-directory in which the module is located.
+    *   The name of the subdirectory in which the module is located.
     * @param modName
     *   The name of the artifact to be published. If blank, it will default to the dirName
     * @return

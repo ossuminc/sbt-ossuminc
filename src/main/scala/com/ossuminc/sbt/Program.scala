@@ -3,7 +3,7 @@ package com.ossuminc.sbt
 import com.typesafe.sbt.packager.archetypes.JavaAppPackaging
 import com.typesafe.sbt.packager.graalvmnativeimage.GraalVMNativeImagePlugin
 import com.typesafe.sbt.packager.universal.UniversalDeployPlugin
-import sbt.Keys.{moduleName, name}
+import sbt.Keys.{mainClass, moduleName, name}
 import sbt.{Project, file}
 
 object Program {
@@ -17,13 +17,14 @@ object Program {
     * @return
     *   The configured sbt project that is ready to build an sbt plugin
     */
-  def apply(dirName: String, appName: String): Project = {
+  def apply(dirName: String, appName: String, mainClazz: Option[String] = None): Project = {
     Project
       .apply(dirName, file(dirName))
       .enablePlugins(OssumIncPlugin, JavaAppPackaging, UniversalDeployPlugin, GraalVMNativeImagePlugin)
       .settings(
         name := dirName,
-        moduleName := { if (appName.isEmpty) dirName else appName }
+        moduleName := { if (appName.isEmpty) dirName else appName },
+        mainClass := mainClazz
       )
   }
 }
