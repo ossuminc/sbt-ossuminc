@@ -259,7 +259,7 @@ Here are descriptions of all the parameterless configuration functions you can u
 * `With.basic` - shorthand for adding these: aliases, dynver, git, header, resolvers
 * `With.typical` - shorthand for With.basic and scala3, scalaTest and publishing
 * `With.everything` - shorthand for With.typical and java, misc, build_info, release
-* `With.nopublishing` - turns publishing off making the project unpublishable, handy for Root project
+* `With.noPublishing` - turns publishing off making the project unpublishable, handy for Root project
 * `With.plugin` - makes the project produce an sbt autoplugin 
 
 Here are the descriptions of the configuration functions that take parameters:
