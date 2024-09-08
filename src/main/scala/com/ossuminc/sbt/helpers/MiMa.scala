@@ -6,6 +6,8 @@ import sbt.Keys.*
 import sbt.Project
 import com.typesafe.tools.mima.plugin.MimaKeys.*
 import com.typesafe.tools.mima.plugin.MimaKeys.{mimaFailOnNoPrevious, mimaPreviousArtifacts}
+import com.typesafe.tools.mima.plugin.MimaPlugin
+import sbttastymima.TastyMiMaPlugin
 import sbttastymima.TastyMiMaPlugin.autoImport.*
 
 /** LightbendLabs Migration Manager support. This includes the sbt-mima-plugin to check for
@@ -16,9 +18,12 @@ object MiMa extends AutoPluginHelper {
 
   /** Mark a project as not processed by MiMa */
   def configure(project: Project): Project = {
-    project.settings(
-      mimaFailOnNoPrevious := false
-    )
+    project
+      .disablePlugins(MimaPlugin,TastyMiMaPlugin)
+      .settings(
+        mimaPreviousArtifacts := Set.empty,
+        mimaFailOnNoPrevious := false
+      )
   }
 
   /** Configure MiMa to operate on this project
@@ -40,8 +45,12 @@ object MiMa extends AutoPluginHelper {
    excludedClasses: Seq[String] = Seq.empty,
    reportSignatureIssues: Boolean = false
   )(project: Project): Project = {
-    project.settings(
-      mimaPreviousArtifacts := Set(organization.value %% moduleName.value % previousVersion),
+    project
+      .enablePlugins(TastyMiMaPlugin)
+      .enablePlugins(MimaPlugin)
+      .enablePlugins()
+      .settings(
+      mimaPreviousArtifacts := Set[ModuleID](organization.value %% moduleName.value % previousVersion),
       tastyMiMaPreviousArtifacts += { organization.value %% moduleName.value % previousVersion },
       mimaReportSignatureProblems := reportSignatureIssues,
       mimaBinaryIssueFilters ++= excludedClasses.map { className =>
