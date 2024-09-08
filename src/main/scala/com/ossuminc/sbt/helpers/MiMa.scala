@@ -6,6 +6,7 @@ import sbt.Keys.*
 import sbt.Project
 import com.typesafe.tools.mima.plugin.MimaKeys.*
 import com.typesafe.tools.mima.plugin.MimaKeys.{mimaFailOnNoPrevious, mimaPreviousArtifacts}
+import sbttastymima.TastyMiMaPlugin.autoImport.*
 
 /** LightbendLabs Migration Manager support. This includes the sbt-mima-plugin to check for
  * backwards binary compatibility in Scala libraries.
@@ -41,6 +42,7 @@ object MiMa extends AutoPluginHelper {
   )(project: Project): Project = {
     project.settings(
       mimaPreviousArtifacts := Set(organization.value %% moduleName.value % previousVersion),
+      tastyMiMaPreviousArtifacts += { organization.value %% moduleName.value % previousVersion },
       mimaReportSignatureProblems := reportSignatureIssues,
       mimaBinaryIssueFilters ++= excludedClasses.map { className =>
         ProblemFilters.exclude[Problem](className)
