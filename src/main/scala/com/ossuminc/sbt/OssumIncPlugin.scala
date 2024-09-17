@@ -116,24 +116,17 @@ object OssumIncPlugin extends AutoPlugin {
         helpers.MiMa.configure(previousVersion, excludedClasses, reportSignatureIssues)(project)
 
       def native(
-        buildTarget: String = "static",
-        targetTriple: String = "arm64-apple-macosx11.0.0",
-        gc: String = "commix",
-        debug: Boolean = true,
-        noLTO: Boolean = false,
+        mode: String = "debug",
+        lto: String = "full",
+        gc: String = "none",
+        buildTarget : String = "static",
         debugLog: Boolean = false,
         verbose: Boolean = false,
+        targetTriple: String = "arm64-apple-macosx11.0.0",
         ld64Path: String = "/opt/homebrew/opt/llvm/bin/ld64.lld"
       )(project: Project): Project = {
         helpers.Native.configure(
-          buildTarget,
-          targetTriple,
-          gc,
-          debug,
-          noLTO,
-          debugLog,
-          verbose,
-          ld64Path
+          mode, lto, gc, buildTarget, debugLog, verbose, targetTriple, ld64Path
         )(project)
       }
 
