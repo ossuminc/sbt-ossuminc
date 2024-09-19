@@ -66,14 +66,17 @@ object Native extends AutoPluginHelper {
               case "static" => BuildTarget.libraryStatic
               case _ => BuildTarget.libraryStatic
             }
-            c.withLTO(snLTO)
+            val d = c.withLTO(snLTO)
               .withMode(snMode)
               .withGC(GC(gc))
-              .withTargetTriple(targetTriple)
               .withBuildTarget(bTarget)
               .withCompileOptions(c.compileOptions ++ compileOptions)
               .withLinkingOptions(c.linkingOptions ++ linkOptions)
               .withEmbedResources(true)
+            if (targetTriple.nonEmpty)
+              d.withTargetTriple(targetTriple)
+            else
+              d
           }
         },
         Test/nativeConfig ~= { c => c.withBuildTarget(BuildTarget.application) }
