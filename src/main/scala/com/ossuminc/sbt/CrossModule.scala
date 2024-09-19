@@ -2,11 +2,11 @@ package com.ossuminc.sbt
 
 import sbt.*
 import sbt.Keys.*
-
 import sbtcrossproject.CrossPlugin.autoImport.{JVMCrossProjectOps, JVMPlatform}
 import sbtcrossproject.{CrossProject, CrossType, Platform}
 import scalajscrossproject.ScalaJSCrossPlugin.autoImport.*
 import scalanativecrossproject.ScalaNativeCrossPlugin.autoImport.*
+import scala.scalanative.sbtplugin.ScalaNativePlugin
 import org.portablescala.sbtplatformdeps.PlatformDepsPlugin.autoImport.*
 
 /** A CrossModule is a module that can be built for JVM, Javascript or Native execution. Use it like:
@@ -31,32 +31,48 @@ object CrossModule {
   def apply(dirName: String, modName: String = "")(targets: Target*): CrossProject = {
     import org.scalajs.sbtplugin.ScalaJSPlugin
     val mname = { if (modName.isEmpty) dirName else modName }
-    val crossProj = CrossProject(dirName, file(dirName))(targets.map(_.platform): _*)
+    val cp1 = CrossProject(dirName, file(dirName))(targets.map(_.platform): _*)
       .crossType(CrossType.Full)
       .withoutSuffixFor(JVMPlatform)
       .enablePlugins(OssumIncPlugin)
-      .jsEnablePlugins(ScalaJSPlugin)
-      .jvmSettings(
-        libraryDependencies += "org.scala-js" %% "scalajs-stubs" % "1.1.0" % "provided"
-      )
-      .jsSettings(
-        libraryDependencies ++= Seq(
-          "io.github.cquiroz" %%% "scala-java-time" % "2.6.0",
-          "org.scalactic" %%% "scalactic" % "3.2.19" % "test",
-          "org.scalatest" %%% "scalatest" % "3.2.19" % "test",
-          "org.scalatest" %%% "scalatest-funspec" % "3.2.19" % "test"
-        )
-      )
       .settings(
         name := dirName,
         moduleName := mname
       )
-    targets.foldLeft(crossProj) { case (cp: CrossProject, target: Target) =>
+    val cp2 = targets.foldLeft(cp1) { case (cp: CrossProject, target: Target) =>
       target match {
         case JVMTarget    => cp.jvmSettings(moduleName := mname)
         case JSTarget     => cp.jsSettings(moduleName := mname ++ "-js")
         case NativeTarget => cp.nativeSettings(moduleName := mname ++ "-native")
       }
     }
+
+    val cp3 =
+      if (targets.contains(CrossModule.JVMTarget)) {
+        if (targets.contains(CrossModule.JSTarget)) {
+          cp2.jvmSettings(libraryDependencies += "org.scala-js" %% "scalajs-stubs" % "1.1.0" % "provided")
+        } else
+          cp2
+      } else
+        cp2
+    val cp4 =
+      if (targets.contains(CrossModule.JSTarget)) {
+        cp3
+          .jsEnablePlugins(ScalaJSPlugin)
+          .jsSettings(
+            libraryDependencies ++= Seq(
+              "io.github.cquiroz" %%% "scala-java-time" % "2.6.0",
+              "org.scalactic" %%% "scalactic" % "3.2.19" % "test",
+              "org.scalatest" %%% "scalatest" % "3.2.19" % "test",
+              "org.scalatest" %%% "scalatest-funspec" % "3.2.19" % "test"
+            )
+          )
+      } else cp3
+    if (targets.contains(CrossModule.NativeTarget)) {
+      val cp = cp4.nativeEnablePlugins(ScalaNativePlugin)
+      if (targets.contains(CrossModule.JSTarget))
+        cp.nativeSettings(libraryDependencies += "org.scala-js" %% "scalajs-stubs" % "1.1.0" % "provided")
+      else cp
+    } else cp4
   }
 }

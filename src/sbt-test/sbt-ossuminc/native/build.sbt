@@ -6,7 +6,7 @@ import java.nio.file.{Files, Path}
 enablePlugins(OssumIncPlugin)
 
 lazy val root = Root("native", startYr = 2024)
-  .configure(With.basic, With.build_info, With.native(noLTO = true))
+  .configure(With.basic, With.build_info, With.native())
   .settings(
     maxErrors := 50,
     mainClass in (Compile, run) := Some("PrintHello"),
