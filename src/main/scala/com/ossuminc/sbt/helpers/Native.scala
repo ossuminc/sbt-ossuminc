@@ -27,7 +27,7 @@ object Native extends AutoPluginHelper {
     buildTarget : String = "static",
     debugLog: Boolean = false,
     verbose: Boolean = false,
-    targetTriple: String = "arm64-apple-darwin23.6.0",
+    targetTriple: String = "",
     ld64Path: String = "/opt/homebrew/opt/llvm/bin/ld64.lld"
   )(project: Project): Project = {
     project
