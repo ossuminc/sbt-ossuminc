@@ -1,6 +1,6 @@
 # sbt-ossuminc
 [![Scala.js](https://www.scala-js.org/assets/badges/scalajs-1.16.0.svg)](https://www.scala-js.org)
-
+[![scala-native](https://www.scala-native.org/assets/badges/scala-native-0.5.5.svg)](https://www.scala-native.org)
 ## Purpose 
 An sbt plugin that can be used for a wide range of projects. This plugin
 is the only requirement for every project at Ossum Inc. and is maintained

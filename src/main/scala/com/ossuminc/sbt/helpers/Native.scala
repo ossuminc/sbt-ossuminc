@@ -5,6 +5,7 @@ import sbt.Keys.*
 import scala.scalanative.sbtplugin.ScalaNativePlugin
 import scala.scalanative.sbtplugin.ScalaNativePlugin.autoImport.*
 import scala.scalanative.build._
+import org.portablescala.sbtplatformdeps.PlatformDepsPlugin.autoImport.*
 
 object Native extends AutoPluginHelper {
 
@@ -79,7 +80,11 @@ object Native extends AutoPluginHelper {
               d
           }
         },
-        Test/nativeConfig ~= { c => c.withBuildTarget(BuildTarget.application) }
+        Test/nativeConfig ~= { c => c.withBuildTarget(BuildTarget.application) },
+        libraryDependencies ++= Seq(
+          "org.scalactic" %%% "scalactic" % "3.2.19" % Test,
+          "org.scalatest" %%% "scalatest" % "3.2.19" % Test
+        )
       )
   }
 }
