@@ -22,20 +22,16 @@ object Javascript extends AutoPluginHelper {
         // for an application with a main method
         scalaJSUseMainModuleInitializer := hasMain,
         scalaJSLinkerConfig ~= {
-          if (hasMain) {
-            _.withOptimizer(forProd)
-          } else {
-            _.withOptimizer(forProd)
-              .withModuleKind({
-                if (withCommonJSModule) {
-                  ModuleKind.CommonJSModule
-                } else {
-                  ModuleKind.ESModule
-                }
-              })
-              .withSourceMap(true)
-              .withJSHeader("// " + header + "\n")
-          }
+          _.withOptimizer(forProd)
+            .withModuleKind({
+              if (withCommonJSModule) {
+                ModuleKind.CommonJSModule
+              } else {
+                ModuleKind.ESModule
+              }
+            })
+            .withSourceMap(!forProd)
+            .withJSHeader("// " + header + "\n")
         },
         libraryDependencies ++= Seq(
           "io.github.cquiroz" %%% "scala-java-time" % "2.6.0",
