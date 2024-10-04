@@ -13,6 +13,7 @@ lazy val root = Root("program-test",
   ))
   )
   .configure(With.typical)
+  .configure(With.riddl(nonJVMDependency=false))
   .settings(
     name := "program-test",
     maxErrors := 50,
