@@ -9,8 +9,9 @@ import scalanativecrossproject.ScalaNativeCrossPlugin.autoImport.*
 import scala.scalanative.sbtplugin.ScalaNativePlugin
 import org.portablescala.sbtplatformdeps.PlatformDepsPlugin.autoImport.*
 
-/** A CrossModule is a module that can be built for JVM, Javascript or Native execution. Use it like:
-  * {{{val my_project = CrossModule("my_project", Javascript + JVM + Native).configure(...).settings(...)}}}
+/** A CrossModule is a module that can be built for JVM, Javascript or Native execution. As with all modules the
+ * first set of paUse it like:
+  * {{{val my_project = CrossModule("dir_name", "module_name")(Javascript + JVM + Native).configure(...).settings(...)}}}
   */
 object CrossModule {
   sealed trait Target { def platform: Platform }
@@ -31,7 +32,7 @@ object CrossModule {
   def apply(dirName: String, modName: String = "")(targets: Target*): CrossProject = {
     import org.scalajs.sbtplugin.ScalaJSPlugin
     val mname = { if (modName.isEmpty) dirName else modName }
-    val cp1 = CrossProject(dirName, file(dirName))(targets.map(_.platform): _*)
+    val cp2 = CrossProject(dirName, file(dirName))(targets.map(_.platform): _*)
       .crossType(CrossType.Full)
       .withoutSuffixFor(JVMPlatform)
       .enablePlugins(OssumIncPlugin)
@@ -39,13 +40,6 @@ object CrossModule {
         name := dirName,
         moduleName := mname
       )
-    val cp2 = targets.foldLeft(cp1) { case (cp: CrossProject, target: Target) =>
-      target match {
-        case JVMTarget    => cp.jvmSettings(moduleName := mname)
-        case JSTarget     => cp.jsSettings(moduleName := mname ++ "-js")
-        case NativeTarget => cp.nativeSettings(moduleName := mname ++ "-native")
-      }
-    }
 
     val cp3 =
       if (targets.contains(CrossModule.JVMTarget)) {

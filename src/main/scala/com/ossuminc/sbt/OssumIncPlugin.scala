@@ -130,8 +130,8 @@ object OssumIncPlugin extends AutoPlugin {
         )(project)
       }
 
-      def riddl(forJS: Boolean, version: String)(project:Project):Project = {
-        project.configure(helpers.Riddl.configure(forJS, version))
+      def riddl(version: String)(project:Project):Project = {
+        project.configure(helpers.Riddl.configure(version))
       }
 
       def plugin(project: Project): Project = {
