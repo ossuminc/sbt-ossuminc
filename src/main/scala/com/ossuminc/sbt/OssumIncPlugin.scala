@@ -143,7 +143,68 @@ object OssumIncPlugin extends AutoPlugin {
           )
       }
 
-      /** Configure ScalablyTyped/Converter to generate Scala.js facades for a set of Typescript dependencies.
+      /** Configure ScalablyTyped/Converter to generate Scala.js facades for a set of Typescript dependencies
+       * that are loaded using `scalajs-bundler`. If you don't want to use `scalajs-bundler`, use
+       *
+       * @see https://scalablytyped.org/docs/plugin#how-it-works
+       * @see https://scalablytyped.org/docs/usage
+       * @param dependencies
+       *   The list of TypeScript dependencies from NPM that you want to convert. This should be a Map value
+       *   similar to the "dependencies" item from `package.json`:
+       *   {{{
+       *      Map(
+       *        "react-router-dom" -> "5.1.2",
+       *        "@types/react-router-dom" -> "5.1.2"
+       *      )
+       *   }}}
+       *   Note that some packages contain first-party typescript type definitions, while for others
+       *   like react-router-dom we need to get separate @types packages. These are originally from
+       *   DefinitelyTyped.
+       *   This parameter is required.
+       * @param useNPM
+       *   Whether to use NPM or Yarn. This parameter is optional and defaults to `true`.
+       *   This helper checks for updated npm dependencies on each compile, and yarn responds much faster than npm.
+       *   Yarn will need to be present on your system for this to work. You should also check in yarn.lock.
+       * @param useScalaJsDom
+       *   @see https://scalablytyped.org/docs/conversion-options#stusescalajsdom
+       * @param minimizeAllTransitives
+       *   When set to true, all transitive dependencies will be minimized. Otherwise, none will be. Exceptions
+       *   to this rule can be made with the `exceptions` parameter.
+       *   Default: true (minimize all transitive dependencies)
+       * @param exceptions
+       *   A list of exceptions to the "All" or "None" approach for `allTransitives` parameter.
+       *   Default value is List.empty()
+       * @see https://scalablytyped.org/docs/library-developer#compiling-all-that-generated-code
+       * @param ignore
+       *  A list of transitive dependencies to ignore (i.e. do not generate Scala.js facades for them)
+       *  Default value is List.empty()
+       * @see https://scalablytyped.org/docs/conversion-options#stignore
+       * @param outputPackage
+       *  The name of the scala package to which you want the Scala.js facades generated
+       *  Default value: "org.ossum.sauce"
+       * @param withDebugOutput
+       *  Turn on verbose debug output. Default is false
+       * @return Project
+       */
+      def scalablyTypedWithScalaJsBundler(
+        dependencies: Map[String,String],
+        useNPM: Boolean = true,
+        useScalaJsDom: Boolean = false,
+        minimizeAllTransitives: Boolean = true,
+        exceptions: List[String] = List.empty[String],
+        ignore: List[String] = List.empty[String],
+        outputPackage: String = "org.ossum.sauce",
+        withDebugOutput: Boolean = false
+      )(project: Project): Project = {
+        helpers.ScalablyTyped.withScalajsBundler(
+          dependencies, useNPM, useScalaJsDom, minimizeAllTransitives, exceptions, ignore, outputPackage,
+          withDebugOutput
+        )(project)
+      }
+
+      /** Configure ScalablyTyped/Converter to generate Scala.js facades for a set of Typescript dependencies
+       * without using `scalajs-bundler`. If you want to use `scalajs-bundler`, use
+       * the `With.scalablyTypedWithScalaJsBundler` helper.
        *
        * @see https://scalablytyped.org/docs/plugin#how-it-works
        * @see https://scalablytyped.org/docs/usage
@@ -186,19 +247,17 @@ object OssumIncPlugin extends AutoPlugin {
        * @return Project
        */
       def scalablyTyped(
-        dependencies: Map[String,String],
-        useNPM: Boolean = true,
         useScalaJsDom: Boolean = false,
         minimizeAllTransitives: Boolean = true,
         exceptions: List[String] = List.empty[String],
         ignore: List[String] = List.empty[String],
         outputPackage: String = "org.ossum.sauce",
         withDebugOutput: Boolean = false
-      )(project: Project): Project =
-        helpers.ScalablyTyped(
-          dependencies, useNPM, useScalaJsDom, minimizeAllTransitives, exceptions, ignore, outputPackage,
-          withDebugOutput
+      )(project:Project): Project = {
+        helpers.ScalablyTyped.withoutScalajsBundler(
+          useScalaJsDom, minimizeAllTransitives, exceptions, ignore, outputPackage, withDebugOutput
         )(project)
+      }
     }
   }
 

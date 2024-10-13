@@ -7,5 +7,5 @@ enablePlugins(OssumIncPlugin)
 
 lazy val root = Root("scalably-typed-test", startYr=2024)
   .configure(With.typical)
-  .configure(With.scalablyTyped(Map("chart.js" -> "4.4.3")))
+  .configure(With.scalablyTypedWithScalaJsBundler(Map("chart.js" -> "4.4.3")))
 

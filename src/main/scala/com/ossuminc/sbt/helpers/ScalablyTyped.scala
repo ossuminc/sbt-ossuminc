@@ -1,18 +1,40 @@
 package com.ossuminc.sbt.helpers
 
 import org.scalablytyped.converter.Selection
-import org.scalablytyped.converter.plugin.STKeys.{stMinimize, stSourceGenMode}
+import org.scalablytyped.converter.plugin.STKeys.{externalNpm, stMinimize, stSourceGenMode}
 import org.scalablytyped.converter.plugin.ScalablyTypedPluginBase.autoImport.*
-import org.scalablytyped.converter.plugin.{ScalablyTypedConverterGenSourcePlugin, SourceGenMode}
+import org.scalablytyped.converter.plugin.{ScalablyTypedConverterExternalNpmPlugin, ScalablyTypedConverterGenSourcePlugin, SourceGenMode}
 import sbt.*
+import sbt.Keys.baseDirectory
 import scalajsbundler.sbtplugin.ScalaJSBundlerPlugin.autoImport.{npmDependencies, useYarn}
+
+import scala.sys.process.Process
 
 /** An AutoPluginHelper to make using ScalablyTyped easier  */
 object ScalablyTyped extends AutoPluginHelper {
 
-  override def configure(project: Project): Project = apply(Map.empty)(project)
+  override def configure(project: Project): Project = withoutScalajsBundler()(project)
 
-  def apply(
+  def withoutScalajsBundler(
+    useScalaJsDom: Boolean = false,
+    allTransitives: Boolean = true,
+    exceptions: List[String] = List.empty[String],
+    ignore: List[String] = List.empty[String],
+    outputPackage: String = "org.ossum.sauce",
+    withDebugOutput: Boolean = false
+  )(project: Project): Project = {
+    val newProj = project
+      .enablePlugins(ScalablyTypedConverterExternalNpmPlugin)
+      .settings(
+          externalNpm := {
+            Process("yarn", baseDirectory.value).!
+            baseDirectory.value.getParentFile
+          }
+        )
+    configure(useScalaJsDom, allTransitives, exceptions, ignore, outputPackage, withDebugOutput)(newProj)
+  }
+
+  def withScalajsBundler(
      dependencies: Map[String,String],
      useNPM: Boolean = true,
      useScalaJsDom: Boolean = false,
@@ -22,11 +44,24 @@ object ScalablyTyped extends AutoPluginHelper {
      outputPackage: String = "org.ossum.sauce",
      withDebugOutput: Boolean = false
   )(project: Project): Project = {
-    project
+    val newproj = project
       .enablePlugins(ScalablyTypedConverterGenSourcePlugin)
       .settings(
-        Compile / npmDependencies ++= dependencies.toSeq,
         useYarn := !useNPM,
+        Compile / npmDependencies ++= dependencies.toSeq,
+      )
+    configure(useScalaJsDom, allTransitives, exceptions, ignore, outputPackage, withDebugOutput)(newproj)
+  }
+
+  def configure(
+    useScalaJsDom: Boolean = false,
+    allTransitives: Boolean = true,
+    exceptions: List[String] = List.empty[String],
+    ignore: List[String] = List.empty[String],
+    outputPackage: String = "org.ossum.sauce",
+    withDebugOutput: Boolean = false
+ )(project: Project ): Project = {
+    project.settings(
         stSourceGenMode := SourceGenMode.ResourceGenerator,
         Compile / stMinimize := {
           if (allTransitives) {
