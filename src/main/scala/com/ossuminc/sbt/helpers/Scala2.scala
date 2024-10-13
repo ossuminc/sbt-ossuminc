@@ -40,15 +40,15 @@ object Scala2 extends AutoPluginHelper {
     "-unchecked",
     // Enable additional warnings where generated code depends on assumptions.
     "-Xlint", // Turn on all linting warnings
-    "-Xfuture", // Turn on future language features
+    // "-Xfuture", // Turn on future language features
     "-Xfatal-warnings", // compiler warnings are fatal
     "-Ywarn-numeric-widen", // Warn when numeric types are widened
     "-Ywarn-value-discard", // Warn when non-Unit values are discarded
     "-Ywarn-dead-code", // Warn when dead code is identified.
-    "-Ywarn-nullary-override",
+    // d"-Ywarn-nullary-override"
     // Warn when non-nullary overrides nullary,
     // e.g. `def foo()` over `def foo`.
-    "-Ywarn-nullary-unit" // Warn when nullary methods return Unit.
+    // "-Ywarn-nullary-unit" // Warn when nullary methods return Unit.
   )
 
   private val scalac_2_10_options: Seq[String] =

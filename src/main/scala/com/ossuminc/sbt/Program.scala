@@ -19,7 +19,7 @@ object Program {
     */
   def apply(dirName: String, appName: String, mainClazz: Option[String] = None): Project = {
     Project
-      .apply(dirName, file(dirName))
+      .apply(appName, file(dirName))
       .enablePlugins(OssumIncPlugin, JavaAppPackaging, UniversalDeployPlugin, GraalVMNativeImagePlugin)
       .settings(
         name := dirName,

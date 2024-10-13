@@ -16,8 +16,9 @@
 
 package com.ossuminc.sbt.helpers
 
-import sbt._
-import sbt.Keys._
+import com.typesafe.sbt.packager.archetypes.JavaAppPackaging
+import sbt.*
+import sbt.Keys.*
 
 /** Compiler Settings Needed */
 object Java extends AutoPluginHelper {
@@ -27,15 +28,14 @@ object Java extends AutoPluginHelper {
     "-deprecation",
     "-encoding", "UTF-8",
     "-Xlint",
-    "-Xdoclint:all",
     "-Xmaxerrs", "50",
     "-Xmaxwarns", "50",
-    "-Xprefer:source",
-    "-Werror"
+    "-Xprefer:source"
   )
 
   def configure(project: Project): Project = {
     project
+      .enablePlugins(JavaAppPackaging)
       .settings(
         test / javaOptions  ++= Seq("-Xmx512m"),
         javacOptions ++= java_compile_options
