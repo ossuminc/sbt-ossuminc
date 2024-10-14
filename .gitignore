@@ -1,15 +1,12 @@
-/.idea/
-/target/
-/project/project/
-/project/target/
+.idea/
+.run/
+.bsp/
+target/
 *.class
 *.log
-**/project/project/
-**/project/target/
-**/.idea/
-**/.bsp/
 # virtual machine crash logs, see http://www.java.com/en/download/help/error_hotspot.xml
 hs_err_pid*
+# Apple stuff
 .DS_Store
-**/.DS_Store
+
 

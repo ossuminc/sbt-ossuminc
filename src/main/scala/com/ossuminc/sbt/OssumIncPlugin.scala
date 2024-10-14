@@ -208,23 +208,9 @@ object OssumIncPlugin extends AutoPlugin {
        *
        * @see https://scalablytyped.org/docs/plugin#how-it-works
        * @see https://scalablytyped.org/docs/usage
-       * @param dependencies
-       *   The list of TypeScript dependencies from NPM that you want to convert. This should be a Map value
-       *   similar to the "dependencies" item from `package.json`:
-       *   {{{
-       *      Map(
-       *        "react-router-dom" -> "5.1.2",
-       *        "@types/react-router-dom" -> "5.1.2"
-       *      )
-       *   }}}
-       *   Note that some packages contain first-party typescript type definitions, while for others
-       *   like react-router-dom we need to get separate @types packages. These are originally from
-       *   DefinitelyTyped.
-       *   This parameter is required.
-       * @param useNPM
-       *   Whether to use NPM or Yarn. This parameter is optional and defaults to `true`.
-       *   This helper checks for updated npm dependencies on each compile, and yarn responds much faster than npm.
-       *   Yarn will need to be present on your system for this to work. You should also check in yarn.lock.
+       * @param packageJsonDir
+       *   The directory containing the `package.json` file from which dependencies will be processed by
+       *   ScalablyTyped. This parameter is required.
        * @param useScalaJsDom
        *   @see https://scalablytyped.org/docs/conversion-options#stusescalajsdom
        * @param minimizeAllTransitives
@@ -247,6 +233,7 @@ object OssumIncPlugin extends AutoPlugin {
        * @return Project
        */
       def scalablyTyped(
+        packageJsonDir: File,
         useScalaJsDom: Boolean = false,
         minimizeAllTransitives: Boolean = true,
         exceptions: List[String] = List.empty[String],
@@ -255,7 +242,7 @@ object OssumIncPlugin extends AutoPlugin {
         withDebugOutput: Boolean = false
       )(project:Project): Project = {
         helpers.ScalablyTyped.withoutScalajsBundler(
-          useScalaJsDom, minimizeAllTransitives, exceptions, ignore, outputPackage, withDebugOutput
+          packageJsonDir, useScalaJsDom, minimizeAllTransitives, exceptions, ignore, outputPackage, withDebugOutput
         )(project)
       }
     }

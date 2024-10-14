@@ -5,7 +5,6 @@ import org.scalablytyped.converter.plugin.STKeys.{externalNpm, stMinimize, stSou
 import org.scalablytyped.converter.plugin.ScalablyTypedPluginBase.autoImport.*
 import org.scalablytyped.converter.plugin.{ScalablyTypedConverterExternalNpmPlugin, ScalablyTypedConverterGenSourcePlugin, SourceGenMode}
 import sbt.*
-import sbt.Keys.baseDirectory
 import scalajsbundler.sbtplugin.ScalaJSBundlerPlugin.autoImport.{npmDependencies, useYarn}
 
 import scala.sys.process.Process
@@ -13,9 +12,10 @@ import scala.sys.process.Process
 /** An AutoPluginHelper to make using ScalablyTyped easier  */
 object ScalablyTyped extends AutoPluginHelper {
 
-  override def configure(project: Project): Project = withoutScalajsBundler()(project)
+  override def configure(project: Project): Project = withoutScalajsBundler(file("."))(project)
 
   def withoutScalajsBundler(
+    packageJsonDir: File,
     useScalaJsDom: Boolean = false,
     allTransitives: Boolean = true,
     exceptions: List[String] = List.empty[String],
@@ -23,12 +23,13 @@ object ScalablyTyped extends AutoPluginHelper {
     outputPackage: String = "org.ossum.sauce",
     withDebugOutput: Boolean = false
   )(project: Project): Project = {
+    val package_json_dir = packageJsonDir.getAbsoluteFile
     val newProj = project
       .enablePlugins(ScalablyTypedConverterExternalNpmPlugin)
       .settings(
           externalNpm := {
-            Process("yarn", baseDirectory.value).!
-            baseDirectory.value.getParentFile
+            Process("yarn", package_json_dir).!
+            package_json_dir
           }
         )
     configure(useScalaJsDom, allTransitives, exceptions, ignore, outputPackage, withDebugOutput)(newProj)
