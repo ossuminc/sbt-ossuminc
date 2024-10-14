@@ -28,7 +28,7 @@ object ScalablyTyped extends AutoPluginHelper {
       .enablePlugins(ScalablyTypedConverterExternalNpmPlugin)
       .settings(
           externalNpm := {
-            Process("npm", package_json_dir).!
+            Process("npm install", package_json_dir).!
             package_json_dir
           }
         )
