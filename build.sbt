@@ -17,6 +17,19 @@ import com.ossuminc.sbt.helpers.{DynamicVersioning, RootProjectInfo, Scala2, Son
 
 Global / onChangedBuildSource := ReloadOnSourceChanges
 
+organization := "com.ossuminc"
+sonatypeProfileName := "ossum"
+name := "sbt-ossuminc"
+licenses := Seq(("Apache V2", url("https://www.apache.org/licenses/LICENSE-2.0.html")))
+description := "An sbt plugin that coalesces many other plugins and makes configuration easier"
+developers := List(Developer("reid-spencer", "Reid Spencer", "reid at ossuminc com", url("https://github.com/reid-spencer")))
+startYear := Some(2015)
+homepage := scmInfo.value map (_.browseUrl)
+scmInfo := Some(ScmInfo(url("https://ossum.tech/sbt-ossouminc"), "scm:git:git@github.com:ossuminc/sbt-ossuminc.git"))
+
+lazy val scala212 = "2.12.20"
+lazy val scala3 = "3.3.4"
+
 lazy val `sbt-ossuminc` = project
   .in(file("."))
   .enablePlugins(SbtPlugin)
@@ -26,7 +39,15 @@ lazy val `sbt-ossuminc` = project
   .configure(SonatypePublishing.configure)
   .settings(
     name := "sbt-ossuminc",
-    scalaVersion := "2.12.19",
+    scalaVersion := scala212,
+//    crossScalaVersions := Seq(scala212, scala3),
+//    (pluginCrossBuild / sbtVersion) := {
+//      scalaBinaryVersion.value match {
+//        case "2.12" => "0.16.2"
+//        case v: String if v.startsWith("3")      => "2.0.0-M2"
+//        case _ => "0.16.2"
+//      }
+//    },
     // Scripted == sbt plugin tests
     scriptedLaunchOpts := {
       scriptedLaunchOpts.value ++ Seq("-Xmx1024M", "-Dplugin.version=" + version.value)
@@ -36,6 +57,8 @@ lazy val `sbt-ossuminc` = project
       "org.slf4j" % "slf4j-simple" % "2.0.13"
     )
   )
+
+
 
 // Generic plugins from github.sbt project
 addSbtPlugin("com.github.sbt" % "sbt-dynver" % "5.0.1")

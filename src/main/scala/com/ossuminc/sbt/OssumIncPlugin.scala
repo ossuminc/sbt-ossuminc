@@ -143,6 +143,45 @@ object OssumIncPlugin extends AutoPlugin {
           )
       }
 
+      /** Run ScalablyTypedConverter to convert typescript packages to Scala.js modules.
+       * The arguments are very similar to the `stc` command line arguments
+       *
+       * @see https://scalablytyped.org/docs/cli
+       * @param packageJsonDir
+       *   The directory in which the `package.json` file and `node-modules` directory are found. The
+       *   dependencies in the `package.json` file control what gets converted.
+       * @param useScalaJsDomTypes
+       *   Use the Types from the ScalaJSDom, if set to true.
+       * @param scalaJsVersion
+       *   The version of ScalaJs that you are converting for.
+       * @param scalaVersion
+       *   The version of Scala that you want to use for the converted code.
+       * @param outputPackage
+       *   The package name into which the code should be generated. Defaults to `org.ossum.sauce`
+       * @param stdlib
+       * Which parts of typescript stdlib you want to enable
+       * @param ignoredLibs
+       * Libraries you want to ignore
+       * @param libsToTranslate
+       * Libraries you want to convert from `node_modules`
+       * @return
+       */
+      def stc(
+        packageJsonDir: File,
+        useScalaJsDomTypes: Boolean = false,
+        scalaJsVersion: String = "1.17.0",
+        scalaVersion: String = "3.4.3",
+        outputPackage: String = "org.ossum.sauce",
+        stdlib: String = "",
+        ignoredLibs: String = "",
+        libsToTranslate: Seq[String] = Seq.empty[String]
+      )(project: Project): Project = {
+        helpers.STC.run_stc(
+          packageJsonDir, useScalaJsDomTypes, scalaJsVersion, scalaVersion, outputPackage, stdlib,
+          ignoredLibs, libsToTranslate
+        )(project)
+      }
+
       /** Configure ScalablyTyped/Converter to generate Scala.js facades for a set of Typescript dependencies
        * that are loaded using `scalajs-bundler`. If you don't want to use `scalajs-bundler`, use
        *
