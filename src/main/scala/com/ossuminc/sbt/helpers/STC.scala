@@ -1,7 +1,7 @@
 package com.ossuminc.sbt.helpers
 
 import sbt.*
-import sbt.Keys.organization
+import sbt.Keys.{organization, streams}
 
 import scala.sys.process.Process
 
@@ -10,7 +10,7 @@ object STC extends AutoPluginHelper {
 
   override def configure(project: Project): Project = run_stc(file("."))(project)
 
-  val runSTC = taskKey[File]("Runs ScalablyTyped Converter (stc)")
+  lazy val runSTC = taskKey[File]("Runs ScalablyTyped Converter (stc)")
 
   def run_stc(
     packageJsonDir: File,
@@ -37,8 +37,11 @@ object STC extends AutoPluginHelper {
         runSTC := {
           val command = command_prefix + s"--organization ${organization.value} --ignoredLibs $ignoredLibs " +
             libsToTranslate.mkString(" ")
-          Process(command, package_json_dir).!
-          package_json_dir
+          val log = streams.value.log
+          log.info(s"Converting Typescript packages to Scala.js facades in ${packageJsonDir.toString}")
+          val rc = Process(command, package_json_dir).!
+          log.info(s"Conversion completed: rc == $rc")
+          packageJsonDir
         }
       )
   }
