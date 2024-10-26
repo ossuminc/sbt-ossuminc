@@ -32,7 +32,8 @@ object Root {
     orgPage: URL = url("https://ossuminc.com/"),
     maintainerEmail: String = "reid@ossuminc.com",
     startYr: Int = 2023,
-    devs: List[Developer] = List.empty
+    devs: List[Developer] = List.empty,
+    spdx: String = "Apache-2.0"
   ): Project = {
     Project
       .apply("root", file(System.getProperty("user.dir")))
@@ -46,7 +47,8 @@ object Root {
           orgName,
           orgPage,
           maintainerEmail,
-          devs
+          devs,
+          spdx
         ),
         helpers.Resolvers.configure
       )

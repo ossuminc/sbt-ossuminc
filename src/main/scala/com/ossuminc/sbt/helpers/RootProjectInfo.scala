@@ -19,9 +19,10 @@ package com.ossuminc.sbt.helpers
 import com.ossuminc.sbt.helpers.Miscellaneous.buildShellPrompt
 import com.typesafe.sbt.SbtNativePackager
 import com.typesafe.sbt.packager.Keys.maintainer
-import sbt._
-import sbt.Keys._
+import sbt.*
+import sbt.Keys.*
 import sbt.plugins.MiniDependencyTreePlugin
+import java.util.Calendar
 
 object RootProjectInfo {
 
@@ -59,12 +60,13 @@ object RootProjectInfo {
   def initialize(
     ghRepoName: String,
     ghOrgName: String = "ossuminc",
-    startYr: Int = 2023,
+    startYr: Int = Calendar.getInstance().get(Calendar.YEAR),
     orgPackage: String = "com.ossuminc",
     orgName: String = "Ossum, Inc.",
     orgPage: URL = url("https://ossuminc.com/"),
     maintainerEmail: String = "reid@ossuminc.com",
-    devs: List[Developer] = defaultDevs
+    devs: List[Developer] = defaultDevs,
+    spdxLicense: String = "Apache-2.0"
   )(project: Project): Project = {
     project
       .enablePlugins(MiniDependencyTreePlugin)
@@ -81,7 +83,25 @@ object RootProjectInfo {
         ThisBuild / organization := orgPackage,
         ThisBuild / organizationName := orgName,
         ThisBuild / organizationHomepage := Some(orgPage),
-        ThisBuild / licenses := Seq("Apache-2.0" -> url("https://www.apache.org/licenses/LICENSE-2.0.txt")),
+        ThisBuild / licenses := {
+          spdxLicense match {
+            case l@"Apache-2.0" => Seq(l -> url("https://opensource.org/license/apache-2-0"))
+            case l@"CDDL-1.0" => Seq(l -> url("https://opensource.org/license/cddl-1-0"))
+            case l@"EPL-2.0" => Seq(l -> url("https://opensource.org/license/epl-2-0"))
+            case l@"GPL-2.0" => Seq(l -> url("https://opensource.org/license/gpl-2-0"))
+            case l@"GPL-3.0" => Seq(l -> url("https://opensource.org/license/gpl-3-0"))
+            case l@"GPL-3.0-only" => Seq(l -> url("https://opensource.org/license/gpl-3-0"))
+            case l@"AGPL-3.0-only" => Seq(l -> url("https://opensource.org/license/agpl-v3"))
+            case l@"LGPL-2.1" => Seq(l -> url("https://opensource.org/license/lgpl-2-1"))
+            case l@"LGPL-3.0-only" => Seq(l -> url("https://opensource.org/license/lgpl-3-0"))
+            case l@"LGPL-2.0-only" => Seq(l -> url("https://opensource.org/license/lgpl-2-0"))
+            case l@"MPL-2.0" => Seq(l -> url("https://opensource.org/license/mpl-2-0"))
+            case l@"BSD-2-Clause" => Seq(l -> url("https://opensource.org/license/bsd-2-clause"))
+            case l@"BSD-3-Clause" => Seq(l -> url("https://opensource.org/license/bsd-3-clause"))
+            case l@"MIT" => Seq(l -> url("https://opensource.org/license/mit"))
+            case s: String => Seq(s -> url("https://opensource.org/license/unlicense"))
+          }
+        },
         ThisBuild / homepage := Some(Keys.projectHomePage.value),
         ThisBuild / maintainer := { if (maintainerEmail.isEmpty) "reid@ossuminc.com" else maintainerEmail },
         ThisBuild / developers := { if (devs.isEmpty) defaultDevs else devs },
@@ -94,3 +114,16 @@ object RootProjectInfo {
       )
   }
 }
+
+// Apache License, Version 2.0	Apache-2.0	Popular / Strong Community
+//Common Development and Distribution License 1.0	CDDL-1.0	Popular / Strong Community
+//Eclipse Public License version 2.0	EPL-2.0	Popular / Strong Community
+//GNU General Public License version 2	GPL-2.0	Popular / Strong Community
+//GNU General Public License version 3	GPL-3.0-only	Popular / Strong Community
+//GNU Lesser General Public License version 2.1	LGPL-2.1	Popular / Strong Community
+//GNU Lesser General Public License version 3	LGPL-3.0-only	Popular / Strong Community
+//GNU Library General Public License version 2	LGPL-2.0-only	Popular / Strong Community
+//Mozilla Public License 2.0	MPL-2.0	Popular / Strong Community
+//The 2-Clause BSD License	BSD-2-Clause	Popular / Strong Community
+//The 3-Clause BSD License	BSD-3-Clause	Popular / Strong Community
+//The MIT License	MIT

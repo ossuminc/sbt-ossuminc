@@ -65,6 +65,10 @@ object OssumIncPlugin extends AutoPlugin {
         these(java, misc, build_info, release)(project)
       }
 
+      def headerLicense(spdx: String)(project: Project): Project = {
+        helpers.Header.specificLicense(spdx)(project)
+      }
+
       def unidoc(
         apiOutput: File = file("target/unidoc"),
         baseURL: Option[String] = None,
