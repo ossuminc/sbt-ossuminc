@@ -29,8 +29,10 @@ object STC extends AutoPluginHelper {
       s"--scalajs $scalaJsVersion " +
       s"--scala $scalaVersion " +
       s"--outputPackage $outputPackage " +
-      s"--stdlib $stdlib " +
-      s"--ignoredLibs $ignoredLibs "
+      s"--stdlib $stdlib " + {
+      if (ignoredLibs.isEmpty) "" else s"--ignoredLibs $ignoredLibs "
+    }
+
 
     project
       .settings(
