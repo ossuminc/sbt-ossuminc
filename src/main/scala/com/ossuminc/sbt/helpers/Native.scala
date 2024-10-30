@@ -29,7 +29,7 @@ object Native extends AutoPluginHelper {
     debugLog: Boolean = false,
     verbose: Boolean = false,
     targetTriple: String = "",
-    ld64Path: String = "/opt/homebrew/opt/llvm/bin/ld64.lld"
+    ld64Path: String = "ld64.lld"
   )(project: Project): Project = {
     project
       .enablePlugins(ScalaNativePlugin)

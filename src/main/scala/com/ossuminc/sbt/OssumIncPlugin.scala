@@ -25,63 +25,102 @@ object OssumIncPlugin extends AutoPlugin {
 
     // Clauses to customize the major declarations
     object With {
-      val akka: ConfigFunc = helpers.Akka.configure
-      val aliases: ConfigFunc = helpers.HandyAliases.configure
-      val build_info: ConfigFunc = helpers.BuildInfo.configure
-      val dynver: ConfigFunc = helpers.DynamicVersioning.configure
-      val git: ConfigFunc = helpers.Git.configure
-      val header: ConfigFunc = helpers.Header.configure
-      val java: ConfigFunc = helpers.Java.configure
-      val javascript: ConfigFunc = helpers.Javascript.configure
-      val misc: ConfigFunc = helpers.Miscellaneous.configure
-      val native: ConfigFunc = helpers.Native.configure
-      val noMiMa: ConfigFunc = helpers.MiMa.configure
-      val publishing: ConfigFunc = helpers.SonatypePublishing.configure
-      val release: ConfigFunc = helpers.Release.configure
-      val resolvers: ConfigFunc = helpers.Resolvers.configure
-      val scala2: ConfigFunc = helpers.Scala2.configure
-      val scala3: ConfigFunc = helpers.Scala3.configure
-      val scalaTest: ConfigFunc = helpers.ScalaTest.configure
-      val scalafmt: ConfigFunc = helpers.Scalafmt.configure
-      val scoverage: ConfigFunc = helpers.ScalaCoverage.configure
 
-      def these(cfuncs: ConfigFunc*)(project: Project): Project = {
+      private def these(cfuncs: ConfigFunc*)(project: Project): Project = {
         cfuncs.foldLeft(project) { (p, func) =>
           p.configure(func)
         }
       }
 
-      def basic(project: Project): Project = {
-        these(aliases, dynver, git, header, resolvers)(project)
+
+      /** Use this to provide dependencies on most recent Akka libraries */
+      val akka: ConfigFunc = helpers.Akka.configure
+
+      /** Use this to provide handy sbt command line aliases */
+      val aliases: ConfigFunc = helpers.HandyAliases.configure
+
+      /** Use this to have the build generate build information. "I know this because sbt knows this" */
+      val build_info: ConfigFunc = helpers.BuildInfo.configure
+
+      /** Configure the project to require a certain percentage of coverage in test cases */
+      def coverage(percent: Double = 50.0d)(project: Project): Project = {
+        project
+          .configure(helpers.ScalaCoverage.configure)
+          .settings(
+            helpers.ScalaCoverage.Keys.coveragePercent := percent
+          )
       }
 
-      def typical(project: Project): Project = {
-        project.configure(basic)
-        these(scala3, scalaTest, publishing)(project)
-      }
+      /** Use dynamic versioning based on the most recent tag, and the commit hash and data/time stamp if necessary */
+      val dynver: ConfigFunc = helpers.DynamicVersioning.configure
 
-      def everything(project: Project): Project = {
-        project.configure(typical)
-        these(java, misc, build_info, release)(project)
-      }
+      /** Use this to get git command line support at the sbt prompt */
+      val git: ConfigFunc = helpers.Git.configure
 
+      /** Use this to get the `headerCheck` and `headerCreate` sbt commands to generate source file headers automatically */
+      val header: ConfigFunc = helpers.Header.configure
+
+      /** Use this to provide th spdx license code for header license */
       def headerLicense(spdx: String)(project: Project): Project = {
         helpers.Header.specificLicense(spdx)(project)
       }
 
-      def unidoc(
-        apiOutput: File = file("target/unidoc"),
-        baseURL: Option[String] = None,
-        inclusions: Seq[ProjectReference] = Seq.empty,
-        exclusions: Seq[ProjectReference] = Seq.empty,
-        logoPath: Option[String] = None,
-        externalMappings: Seq[Seq[String]] = Seq.empty
+      /** Use this to enable compilation of Java code too */
+      val java: ConfigFunc = helpers.Java.configure
+
+      /** Use this to configure your project to compile Scala to Javascript via scala.js */
+      def js(
+        header: String = "no header",
+        hasMain: Boolean = false,
+        forProd: Boolean = true,
+        withCommonJSModule: Boolean = false
       )(project: Project): Project = {
-        project
-          .configure(helpers.Unidoc.configure(apiOutput, baseURL, inclusions,exclusions, logoPath, externalMappings))
+        helpers.Javascript.configure(header, hasMain, forProd, withCommonJSModule)(project)
       }
 
+      /** Use this to configure your project to include typical laminar dependencies  */
+      def laminar(version: String = "17.1.0", domVersion: String = "2.8.0")(project: Project): Project =
+        helpers.Laminar.configure(version, domVersion)(project)
 
+      /** Use this to configure your project to compile to native code */
+      def native(
+        mode: String = "debug",
+        lto: String = "full",
+        gc: String = "none",
+        buildTarget : String = "static",
+        debugLog: Boolean = false,
+        verbose: Boolean = false,
+        targetTriple: String = "arm64-apple-macosx11.0.0",
+        ld64Path: String = "ld64.lld"
+      )(project: Project): Project = {
+        helpers.Native.configure(mode, lto, gc, buildTarget, debugLog, verbose, targetTriple, ld64Path)(project)
+      }
+
+      /** Configure Lightbend's Migration Manager for compatibility checking  */
+      def MiMa(
+        previousVersion: String,
+        excludedClasses: Seq[String] = Seq.empty,
+        reportSignatureIssues: Boolean = false
+      )(project:Project): Project =
+        helpers.MiMa.configure(previousVersion, excludedClasses, reportSignatureIssues)(project)
+
+      /** Do not configure this project for Lightbend's Migration Manager  */
+      val noMiMa: ConfigFunc = helpers.MiMa.configure
+
+      /** Configure your project to generate an sbt plugin */
+      def plugin(project: Project): Project = {
+        project
+          .configure(scala2)
+          .settings(
+            scalaVersion := "2.12.19",
+            sbtPlugin := true
+          )
+      }
+
+      /** Configure this project to be published as open source */
+      val publishing: ConfigFunc = helpers.SonatypePublishing.configure
+
+      /** Configure this project to produce no artifact and not be published */
       def noPublishing(project: Project): Project = {
         project.settings(
           publishArtifact := false, // no artifact to publish for the virtual root project
@@ -92,60 +131,37 @@ object OssumIncPlugin extends AutoPlugin {
         )
       }
 
-      def coverage(percent: Double = 50.0d)(project: Project): Project = {
-        project
-          .configure(helpers.ScalaCoverage.configure)
-          .settings(
-            helpers.ScalaCoverage.Keys.coveragePercent := percent
-          )
+      /** Configure this project to support releasing with a systematic release procedure  */
+      val release: ConfigFunc = helpers.Release.configure
+
+      /** Add extra resolvers to the build for this project  */
+      val resolvers: ConfigFunc = helpers.Resolvers.configure
+
+      /** Configure dependency on a version of the RIDDL library  */
+      def riddl(version: String, nonJVM: Boolean = true)(project:Project):Project = {
+        project.configure(helpers.Riddl.configure(version, nonJVM))
       }
 
-      def js(
-        header: String = "no header",
-        hasMain: Boolean = false,
-        forProd: Boolean = true,
-        withCommonJSModule: Boolean = false
+      /** Compile scala code as Scala 2.13.latest  */
+      val scala2: ConfigFunc = helpers.Scala2.configure
+
+      /** Compile scala code as Scala 3's latest LTS release */
+      val scala3: ConfigFunc = helpers.Scala3.configure
+
+      /** Configure this project to use standard Scalafmt formatting rules. */
+      val scalafmt: ConfigFunc = helpers.Scalafmt.configure
+
+      /** Add scalaTest libraries to the libraryDependencies  */
+      def scalaTest(
+        version: String = "3.2.19",
+        scalaCheckVersion: Option[String] = None,
+        nonJVM: Boolean = false
       )(project: Project): Project = {
-        helpers.Javascript.configure(header, hasMain, forProd, withCommonJSModule)(project)
+        helpers.ScalaTest.configure(version, scalaCheckVersion, nonJVM)(project)
       }
 
-      def laminar(version: String = "17.1.0", domVersion: String = "2.8.0")(project: Project): Project =
-        helpers.Laminar.configure(version, domVersion)(project)
-
-      def MiMa(
-        previousVersion: String,
-        excludedClasses: Seq[String] = Seq.empty,
-        reportSignatureIssues: Boolean = false
-      )(project:Project): Project =
-        helpers.MiMa.configure(previousVersion, excludedClasses, reportSignatureIssues)(project)
-
-      def native(
-        mode: String = "debug",
-        lto: String = "full",
-        gc: String = "none",
-        buildTarget : String = "static",
-        debugLog: Boolean = false,
-        verbose: Boolean = false,
-        targetTriple: String = "arm64-apple-macosx11.0.0",
-        ld64Path: String = "/opt/homebrew/opt/llvm/bin/ld64.lld"
-      )(project: Project): Project = {
-        helpers.Native.configure(
-          mode, lto, gc, buildTarget, debugLog, verbose, targetTriple, ld64Path
-        )(project)
-      }
-
-      def riddl(version: String)(project:Project):Project = {
-        project.configure(helpers.Riddl.configure(version))
-      }
-
-      def plugin(project: Project): Project = {
-        project
-          .configure(scala2)
-          .settings(
-            scalaVersion := "2.12.19",
-            sbtPlugin := true
-          )
-      }
+      /** Configure this project to enable coverage testing */
+      val scoverage: ConfigFunc = helpers.ScalaCoverage.configure
 
       /** Configure ScalablyTyped/Converter to generate Scala.js facades for a set of Typescript dependencies
        * that are loaded using `scalajs-bundler`. If you don't want to use `scalajs-bundler`, use
@@ -248,6 +264,48 @@ object OssumIncPlugin extends AutoPlugin {
         helpers.ScalablyTyped.withoutScalajsBundler(
           packageJsonDir, useScalaJsDom, minimizeAllTransitives, exceptions, ignore, outputPackage, withDebugOutput
         )(project)
+      }
+
+      /** Use this to enable and configure the sbt-unidoc plugin in your project */
+      def unidoc(
+        apiOutput: File = file("target/unidoc"),
+        baseURL: Option[String] = None,
+        inclusions: Seq[ProjectReference] = Seq.empty,
+        exclusions: Seq[ProjectReference] = Seq.empty,
+        logoPath: Option[String] = None,
+        externalMappings: Seq[Seq[String]] = Seq.empty
+      )(project: Project): Project = {
+        project
+          .configure(helpers.Unidoc.configure(apiOutput, baseURL, inclusions,exclusions, logoPath, externalMappings))
+      }
+
+      /** Use this to more easily configure:
+       * - [[com.ossuminc.sbt.OssumIncPlugin.autoImport.With.aliases]],
+       * - [[com.ossuminc.sbt.OssumIncPlugin.autoImport.With.dynver]]
+       * - [[com.ossuminc.sbt.OssumIncPlugin.autoImport.With.git]]
+       * - [[com.ossuminc.sbt.OssumIncPlugin.autoImport.With.header]]
+       * - [[com.ossuminc.sbt.OssumIncPlugin.autoImport.With.resolvers]] more easily
+       */
+      def basic(project: Project): Project = {
+        these(aliases, dynver, git, header, resolvers)(project)
+      }
+
+
+      /** Configure support for all the simple things:
+       * - [[com.ossuminc.sbt.OssumIncPlugin.autoImport.With.typical]]
+       * - [[com.ossuminc.sbt.OssumIncPlugin.autoImport.With.java]]
+       * - [[com.ossuminc.sbt.OssumIncPlugin.autoImport.With.build_info]]
+       * - [[com.ossuminc.sbt.OssumIncPlugin.autoImport.With.release]]
+       */
+      def everything(project: Project): Project = {
+        project.configure(typical)
+        these(java, build_info, release)(project)
+      }
+
+      /** Use this to enable the [[basic]] features as well as [[scala3]] and [[publishing]] */
+      def typical(project: Project): Project = {
+        project.configure(basic)
+        these(scala3, publishing)(project)
       }
     }
   }

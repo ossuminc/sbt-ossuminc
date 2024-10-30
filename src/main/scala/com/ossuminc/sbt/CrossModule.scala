@@ -6,6 +6,7 @@ import sbtcrossproject.CrossPlugin.autoImport.{JVMCrossProjectOps, JVMPlatform}
 import sbtcrossproject.{CrossProject, CrossType, Platform}
 import scalajscrossproject.ScalaJSCrossPlugin.autoImport.*
 import scalanativecrossproject.ScalaNativeCrossPlugin.autoImport.*
+
 import scala.scalanative.sbtplugin.ScalaNativePlugin
 import org.portablescala.sbtplatformdeps.PlatformDepsPlugin.autoImport.*
 
@@ -17,6 +18,7 @@ object CrossModule {
   sealed trait Target { def platform: Platform }
   case object JVMTarget extends Target { def platform: Platform = JVMPlatform }
   case object JSTarget extends Target { def platform: Platform = JSPlatform }
+  case object NodeTarget extends Target { def platform: Platform = NodePlatform }
   case object NativeTarget extends Target { def platform: Platform = NativePlatform }
 
   /** Define a subproject or module of the root project. Make sure to use the [[Root]] function before this Module is
@@ -69,4 +71,10 @@ object CrossModule {
       else cp
     } else cp4
   }
+}
+
+case object NodePlatform extends Platform {
+  def identifier: String                = "node"
+  def sbtSuffix: String                 = "NODE"
+  def enable(project: Project): Project = project
 }
