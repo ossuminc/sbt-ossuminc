@@ -1,22 +1,45 @@
 package com.ossuminc.sbt.helpers
 
-import sbt.Keys.libraryDependencies
-import sbt.*
 import org.portablescala.sbtplatformdeps.PlatformDepsPlugin.autoImport.*
+import sbt.*
+import sbt.Keys.libraryDependencies
 
 object Riddl extends AutoPluginHelper {
 
   override def configure(project: Project): Project =
     configure()(project)
 
-  def configure(version: String = "0.52.1", nonJVMDependency: Boolean = true)(project: Project): Project =
+  def configure(version: String = "0.54.0", nonJVMDependency: Boolean = true)(project: Project): Project =
     project.settings(
-      libraryDependencies += {
+      libraryDependencies ++= {
         if (nonJVMDependency) {
-          "com.ossuminc" %%% "riddl-diagrams" % version
+          Seq(
+            "com.ossuminc" %%% "riddl-lib" % version,
+            "com.ossuminc" %%% "riddl-commands" % version
+          )
         } else {
-          "com.ossuminc" %% "riddl-commands" % version
+          Seq(
+            "com.ossuminc" %% "riddl-lib" % version,
+            "com.ossuminc" %% "riddl-commands" % version
+          )
         }
       }
     )
+
+  def testKit(version: String = "0.54.0", nonJVMDependency: Boolean = true)(project: Project): Project = {
+    ScalaTest.configure(project)
+    project.settings(
+      libraryDependencies ++= {
+        if (nonJVMDependency) {
+          Seq(
+            "com.ossuminc" %%% "riddl-testkit" % version
+          )
+        } else {
+          Seq(
+            "com.ossuminc" %% "riddl-testkit" % version
+          )
+        }
+      }
+    )
+  }
 }
