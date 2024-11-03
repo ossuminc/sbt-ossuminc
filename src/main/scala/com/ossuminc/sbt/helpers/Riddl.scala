@@ -14,13 +14,11 @@ object Riddl extends AutoPluginHelper {
       libraryDependencies ++= {
         if (nonJVMDependency) {
           Seq(
-            "com.ossuminc" %%% "riddl-lib" % version,
-            "com.ossuminc" %%% "riddl-commands" % version
+            "com.ossuminc" %%% "riddl-lib" % version
           )
         } else {
           Seq(
-            "com.ossuminc" %% "riddl-lib" % version,
-            "com.ossuminc" %% "riddl-commands" % version
+            "com.ossuminc" %% "riddl-lib" % version
           )
         }
       }
@@ -32,11 +30,11 @@ object Riddl extends AutoPluginHelper {
       libraryDependencies ++= {
         if (nonJVMDependency) {
           Seq(
-            "com.ossuminc" %%% "riddl-testkit" % version
+            "com.ossuminc" %%% "riddl-testkit" % version % Test
           )
         } else {
           Seq(
-            "com.ossuminc" %% "riddl-testkit" % version
+            "com.ossuminc" %% "riddl-testkit" % version % Test
           )
         }
       }
