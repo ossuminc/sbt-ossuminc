@@ -5,12 +5,12 @@ import sbt.{Developer, Project, URL, file, url}
 /** A configuration object for a root project of a monorepo composed of subordinate sbt projects */
 object Root {
 
-  /** Define a Root level project whether it is for a single-project repo or a unirepo with many sub-projects. This
+  /** Define a Root level project whether it is for a single-project repo or an unirepo with many subprojects. This
     * project is configured with a shell prompt, and the standard project information at ThisBuild scope
     * @param ghRepoName
-    *   The name of the github repository we are building
+    *   The name of the GitHub repository we are building
     * @param ghOrgName
-    *   THe name of the github organization/user that contains the `ghRepoName`
+    *   THe name of the GitHub organization/user that contains the `ghRepoName`
     * @param orgPackage
     *   The organization part of the JVM package this repo uses for its code
     * @param orgName
@@ -30,7 +30,6 @@ object Root {
     orgPackage: String = "com.ossuminc",
     orgName: String = "Ossum, Inc.",
     orgPage: URL = url("https://ossuminc.com/"),
-    maintainerEmail: String = "reid@ossuminc.com",
     startYr: Int = 2023,
     devs: List[Developer] = List.empty,
     spdx: String = "Apache-2.0"
@@ -46,7 +45,6 @@ object Root {
           orgPackage,
           orgName,
           orgPage,
-          maintainerEmail,
           devs,
           spdx
         ),

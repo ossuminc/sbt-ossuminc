@@ -17,12 +17,11 @@
 package com.ossuminc.sbt.helpers
 
 import com.ossuminc.sbt.helpers.Miscellaneous.buildShellPrompt
-import com.typesafe.sbt.SbtNativePackager
-import com.typesafe.sbt.packager.Keys.maintainer
 import sbt.*
 import sbt.Keys.*
 import sbt.plugins.MiniDependencyTreePlugin
 import java.util.Calendar
+
 
 object RootProjectInfo {
 
@@ -64,13 +63,11 @@ object RootProjectInfo {
     orgPackage: String = "com.ossuminc",
     orgName: String = "Ossum, Inc.",
     orgPage: URL = url("https://ossuminc.com/"),
-    maintainerEmail: String = "reid@ossuminc.com",
     devs: List[Developer] = defaultDevs,
     spdxLicense: String = "Apache-2.0"
   )(project: Project): Project = {
     project
       .enablePlugins(MiniDependencyTreePlugin)
-      .enablePlugins(SbtNativePackager)
       .settings(
         ThisBuild / Keys.copyrightHolder := orgName,
         ThisBuild / Keys.gitHubOrganization := ghOrgName,
@@ -103,27 +100,12 @@ object RootProjectInfo {
           }
         },
         ThisBuild / homepage := Some(Keys.projectHomePage.value),
-        ThisBuild / maintainer := { if (maintainerEmail.isEmpty) "reid@ossuminc.com" else maintainerEmail },
         ThisBuild / developers := { if (devs.isEmpty) defaultDevs else devs },
         ThisBuild / logLevel := Level.Info,
         ThisBuild / Test / fork := false,
         ThisBuild / Test / logBuffered := false,
         Global / shellPrompt := buildShellPrompt.value,
-        maintainer := maintainerEmail,
         name := ghRepoName
       )
   }
 }
-
-// Apache License, Version 2.0	Apache-2.0	Popular / Strong Community
-//Common Development and Distribution License 1.0	CDDL-1.0	Popular / Strong Community
-//Eclipse Public License version 2.0	EPL-2.0	Popular / Strong Community
-//GNU General Public License version 2	GPL-2.0	Popular / Strong Community
-//GNU General Public License version 3	GPL-3.0-only	Popular / Strong Community
-//GNU Lesser General Public License version 2.1	LGPL-2.1	Popular / Strong Community
-//GNU Lesser General Public License version 3	LGPL-3.0-only	Popular / Strong Community
-//GNU Library General Public License version 2	LGPL-2.0-only	Popular / Strong Community
-//Mozilla Public License 2.0	MPL-2.0	Popular / Strong Community
-//The 2-Clause BSD License	BSD-2-Clause	Popular / Strong Community
-//The 3-Clause BSD License	BSD-3-Clause	Popular / Strong Community
-//The MIT License	MIT

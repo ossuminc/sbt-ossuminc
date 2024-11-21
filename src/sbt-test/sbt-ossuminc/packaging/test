@@ -1,0 +1,2 @@
+# Can't use any real git commands here because it is run in not-a-git-directory
+> git --version
