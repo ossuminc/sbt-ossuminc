@@ -1,11 +1,11 @@
 package com.ossuminc.sbt.helpers
+import org.portablescala.sbtplatformdeps.PlatformDepsPlugin.autoImport.*
 import sbt.*
 import sbt.Keys.*
 
+import scala.scalanative.build.*
 import scala.scalanative.sbtplugin.ScalaNativePlugin
 import scala.scalanative.sbtplugin.ScalaNativePlugin.autoImport.*
-import scala.scalanative.build._
-import org.portablescala.sbtplatformdeps.PlatformDepsPlugin.autoImport.*
 
 object Native extends AutoPluginHelper {
 
@@ -25,7 +25,7 @@ object Native extends AutoPluginHelper {
     mode: String = "debug",
     lto: String = "full",
     gc: String = "none",
-    buildTarget : String = "static",
+    buildTarget: String = "static",
     debugLog: Boolean = false,
     verbose: Boolean = false,
     targetTriple: String = "",
@@ -39,35 +39,36 @@ object Native extends AutoPluginHelper {
           if (debugLog) { Level.Debug }
           else { Level.Info }
         },
-        scalaVersion := "3.4.3",
         // defaults set with common options shown
         Compile / nativeConfig ~= { c =>
           {
             val snMode: Mode =
               mode match {
-                case s: String if s == "debug" => Mode.debug
-                case s: String if s == "fast" => Mode.releaseFast
-                case s: String if s == "full" => Mode.releaseFull
-                case s: String if s == "size" => Mode.releaseSize
+                case s: String if s == "debug"   => Mode.debug
+                case s: String if s == "fast"    => Mode.releaseFast
+                case s: String if s == "full"    => Mode.releaseFull
+                case s: String if s == "size"    => Mode.releaseSize
                 case s: String if s == "release" => Mode.release
-                case _: String => Mode.default
+                case _: String                   => Mode.default
               }
             val snLTO =
               lto match {
                 case s: String if s == "full" => LTO.full
                 case s: String if s == "thin" => LTO.thin
                 case s: String if s == "none" => LTO.none
-                case _: String => LTO.default
+                case _: String                => LTO.default
               }
-            val compileOptions = if (verbose) { Seq("-v") } else {Seq.empty}
+            val compileOptions = if (verbose) { Seq("-v") }
+            else { Seq.empty }
             val linkOptions = Seq(s"-fuse-ld=$ld64Path")
             val bTarget = buildTarget match {
               case "application" => BuildTarget.application
-              case "dynamic" => BuildTarget.libraryDynamic
-              case "static" => BuildTarget.libraryStatic
-              case _ => BuildTarget.libraryStatic
+              case "dynamic"     => BuildTarget.libraryDynamic
+              case "static"      => BuildTarget.libraryStatic
+              case _             => BuildTarget.libraryStatic
             }
-            val d = c.withLTO(snLTO)
+            val d = c
+              .withLTO(snLTO)
               .withMode(snMode)
               .withGC(GC(gc))
               .withBuildTarget(bTarget)
@@ -78,9 +79,14 @@ object Native extends AutoPluginHelper {
               d.withTargetTriple(targetTriple)
             else
               d
+            if (snMode == Mode.debug)
+              d.withSourceLevelDebuggingConfig(_.enableAll) // enable generation of debug information
+                .withOptimize(false) // disable Scala Native optimizer
+            else
+              d.withOptimize(true) // enable Scala Native optimizer
           }
         },
-        Test/nativeConfig ~= { c => c.withBuildTarget(BuildTarget.application) },
+        Test / nativeConfig ~= { c => c.withBuildTarget(BuildTarget.application) },
         libraryDependencies ++= Seq(
           "org.scalactic" %%% "scalactic" % "3.2.19" % Test,
           "org.scalatest" %%% "scalatest" % "3.2.19" % Test
