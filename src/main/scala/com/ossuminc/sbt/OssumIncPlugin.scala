@@ -91,7 +91,7 @@ object OssumIncPlugin extends AutoPlugin {
         lto: String = "none",
         debugLog: Boolean = false,
         verbose: Boolean = false,
-        targetTriple: String = "arm64-apple-macosx11.0.0",
+        targetTriple: String = "arm64-apple-darwin23.6.0",
         ld64Path: String = "/opt/homebrew/bin/ld64.lld"
       )(project: Project): Project = {
         helpers.Native.configure(mode, buildTarget, lto, gc, debugLog, verbose, targetTriple, ld64Path)(project)
