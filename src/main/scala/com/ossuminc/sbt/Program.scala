@@ -1,15 +1,14 @@
 package com.ossuminc.sbt
 
 import com.typesafe.sbt.packager.archetypes.JavaAppPackaging
-import com.typesafe.sbt.packager.graalvmnativeimage.GraalVMNativeImagePlugin
 import com.typesafe.sbt.packager.universal.UniversalDeployPlugin
-import sbt.Keys.{mainClass, moduleName, name}
-import sbt.{Project, file}
+import sbt.*
+import sbt.Keys.{mainClass, moduleName, name, run}
 
 object Program {
 
-  /** Define a sub-project that produces an executable program. It is necessary to also have used the [[Root]]
-    * function because what that function sets up is necessary for publishing this module.
+  /** Define a sub-project that produces an executable program. It is necessary to also have used the [[Root]] function
+    * because what that function sets up is necessary for publishing this module.
     * @param dirName
     *   The name of the directory in which the plugin code and tests exist
     * @param appName
@@ -19,12 +18,13 @@ object Program {
     */
   def apply(dirName: String, appName: String, mainClazz: Option[String] = None): Project = {
     Project
-      .apply(dirName, file(dirName))
-      .enablePlugins(OssumIncPlugin, JavaAppPackaging, UniversalDeployPlugin, GraalVMNativeImagePlugin)
+      .apply(appName, file(dirName))
+      .enablePlugins(OssumIncPlugin, JavaAppPackaging, UniversalDeployPlugin)
       .settings(
-        name := dirName,
+        name := appName,
         moduleName := { if (appName.isEmpty) dirName else appName },
-        mainClass := mainClazz
+        Compile / mainClass := mainClazz,
+        run / mainClass := mainClazz
       )
   }
 }

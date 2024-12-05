@@ -85,16 +85,16 @@ object OssumIncPlugin extends AutoPlugin {
 
       /** Use this to configure your project to compile to native code */
       def native(
-        mode: String = "debug",
-        lto: String = "full",
-        gc: String = "none",
+        mode: String = "fast",
         buildTarget: String = "static",
+        gc: String = "boehm",
+        lto: String = "none",
         debugLog: Boolean = false,
         verbose: Boolean = false,
         targetTriple: String = "arm64-apple-macosx11.0.0",
-        ld64Path: String = "ld64.lld"
+        ld64Path: String = "/opt/homebrew/bin/ld64.lld"
       )(project: Project): Project = {
-        helpers.Native.configure(mode, lto, gc, buildTarget, debugLog, verbose, targetTriple, ld64Path)(project)
+        helpers.Native.configure(mode, buildTarget, lto, gc, debugLog, verbose, targetTriple, ld64Path)(project)
       }
 
       /** Configure Lightbend's Migration Manager for compatibility checking */

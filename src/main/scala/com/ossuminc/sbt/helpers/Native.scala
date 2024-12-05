@@ -22,14 +22,14 @@ object Native extends AutoPluginHelper {
   }
 
   def configure(
-    mode: String = "debug",
-    lto: String = "full",
-    gc: String = "none",
+    mode: String = "fast",
     buildTarget: String = "static",
+    gc: String = "boehm",
+    lto: String = "none",
     debugLog: Boolean = false,
     verbose: Boolean = false,
-    targetTriple: String = "",
-    ld64Path: String = "ld64.lld"
+    targetTriple: String = "arm64-apple-macosx11.0.0",
+    ld64Path: String = "/opt/homebrew/bin/ld64.lld"
   )(project: Project): Project = {
     project
       .enablePlugins(ScalaNativePlugin)
