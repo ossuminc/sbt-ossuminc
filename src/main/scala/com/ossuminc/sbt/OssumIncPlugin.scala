@@ -1,5 +1,6 @@
 package com.ossuminc.sbt
 
+import com.ossuminc.sbt.helpers.Packaging
 import sbt.*
 import sbt.Keys.*
 import sbt.librarymanagement.Resolver
@@ -108,7 +109,55 @@ object OssumIncPlugin extends AutoPlugin {
       /** Do not configure this project for Lightbend's Migration Manager */
       val noMiMa: ConfigFunc = helpers.MiMa.configure
 
-      /** Configure your project to generate an sbt plugin */
+      /** Configure your project to package using the sbt-native-packager Universal mode.
+        *
+        * @param maintainerEmail
+        *   Email address of the maintainer of the package
+        * @param pkgName
+        *   Name of the package
+        * @param pkgSummary
+        *   Brief summary of the package
+        * @param pkgDescription
+        *   Longer description of the package
+        * @param project
+        *   The project to configure
+        * @return
+        *   The configure project
+        */
+      def packagingUniversal(
+        maintainerEmail: String,
+        pkgName: String,
+        pkgSummary: String,
+        pkgDescription: String
+      )(project: Project): Project = {
+        Packaging.universal(maintainerEmail, pkgName, pkgSummary, pkgDescription)(project)
+      }
+
+      /** Configure your project to package using the sbt-native-packager Docker mode.
+        *
+        * @param maintainerEmail
+        *   Email address of the maintainer of the package
+        * @param pkgName
+        *   Name of the package
+        * @param pkgSummary
+        *   Brief summary of the package
+        * @param pkgDescription
+        *   Longer description of the package
+        * @param project
+        *   The project to configure
+        * @return
+        *   The configure project
+        */
+      def packagingDocker(
+        maintainerEmail: String,
+        pkgName: String,
+        pkgSummary: String,
+        pkgDescription: String
+      )(project: Project): Project = {
+        Packaging.docker(maintainerEmail, pkgName, pkgSummary, pkgDescription)(project)
+      }
+
+      /** Configure your project to generate a sbt plugin */
       def plugin(project: Project): Project = {
         project
           .configure(scala2)
