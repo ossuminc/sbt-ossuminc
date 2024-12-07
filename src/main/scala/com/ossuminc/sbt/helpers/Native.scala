@@ -28,8 +28,7 @@ object Native extends AutoPluginHelper {
     lto: String = "none",
     debugLog: Boolean = false,
     verbose: Boolean = false,
-    targetTriple: String = "arm64-apple-darwin23.6.0",
-    ld64Path: String = "/opt/homebrew/bin/ld64.lld"
+    linkOptions: Seq[String] = Seq.empty[String]
   )(project: Project): Project = {
     project
       .enablePlugins(ScalaNativePlugin)
@@ -60,7 +59,6 @@ object Native extends AutoPluginHelper {
               }
             val compileOptions = if (verbose) { Seq("-v") }
             else { Seq.empty }
-            val linkOptions = Seq(s"-fuse-ld=$ld64Path")
             val bTarget = buildTarget match {
               case "application" => BuildTarget.application
               case "dynamic"     => BuildTarget.libraryDynamic
@@ -75,10 +73,6 @@ object Native extends AutoPluginHelper {
               .withCompileOptions(c.compileOptions ++ compileOptions)
               .withLinkingOptions(c.linkingOptions ++ linkOptions)
               .withEmbedResources(true)
-            if (targetTriple.nonEmpty)
-              d.withTargetTriple(targetTriple)
-            else
-              d
             if (snMode == Mode.debug)
               d.withSourceLevelDebuggingConfig(_.enableAll) // enable generation of debug information
                 .withOptimize(false) // disable Scala Native optimizer
