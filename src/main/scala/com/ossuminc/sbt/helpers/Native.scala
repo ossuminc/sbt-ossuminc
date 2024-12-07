@@ -28,6 +28,7 @@ object Native extends AutoPluginHelper {
     lto: String = "none",
     debugLog: Boolean = false,
     verbose: Boolean = false,
+    targetTriple: Option[String] = None,
     linkOptions: Seq[String] = Seq.empty[String]
   )(project: Project): Project = {
     project
@@ -70,6 +71,7 @@ object Native extends AutoPluginHelper {
               .withMode(snMode)
               .withGC(GC(gc))
               .withBuildTarget(bTarget)
+              .withTargetTriple(targetTriple)
               .withCompileOptions(c.compileOptions ++ compileOptions)
               .withLinkingOptions(c.linkingOptions ++ linkOptions)
               .withEmbedResources(true)

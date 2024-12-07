@@ -109,9 +109,10 @@ object OssumIncPlugin extends AutoPlugin {
                   lto: String = "none",
                   debugLog: Boolean = false,
                   verbose: Boolean = false,
+                  targetTriple: Option[String] = None,
                   linkOptions: Seq[String] = Seq.empty
                 )(project: Project): Project =
-        helpers.Native.configure(mode, buildTarget, lto, gc, debugLog, verbose, linkOptions)(project)
+        helpers.Native.configure(mode, buildTarget, lto, gc, debugLog, verbose, targetTriple, linkOptions)(project)
 
       /** Configure Lightbend's Migration Manager for compatibility checking */
       def MiMa(
