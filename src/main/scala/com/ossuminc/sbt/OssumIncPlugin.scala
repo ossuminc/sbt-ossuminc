@@ -39,8 +39,12 @@ object OssumIncPlugin extends AutoPlugin {
       val aliases: ConfigFunc = helpers.HandyAliases.configure
 
       /** Use this to have the build generate build information. "I know this because sbt knows this" */
-      val build_info: ConfigFunc = helpers.BuildInfo.configure
-
+      def build_info: ConfigFunc = helpers.BuildInfo.configure
+      
+      /* The same as `build_info` but with additional key settings */
+      def build_info_plus_keys(addKeys: (String, Any)*)(project: Project): Project = 
+        helpers.BuildInfo.configurewithKeys(addKeys)(project)
+      
       /** Configure the project to require a certain percentage of coverage in test cases */
       def coverage(percent: Double = 50.0d)(project: Project): Project =
         project

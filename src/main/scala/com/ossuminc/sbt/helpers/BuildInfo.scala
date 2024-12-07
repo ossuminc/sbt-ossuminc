@@ -2,9 +2,9 @@ package com.ossuminc.sbt.helpers
 import sbt.*
 import sbt.Keys.*
 import sbtbuildinfo.BuildInfoKeys.buildInfoUsePackageAsPath
-import sbtbuildinfo.{BuildInfoKey, BuildInfoPlugin}
-import sbtbuildinfo.BuildInfoPlugin.autoImport.*
 import sbtbuildinfo.BuildInfoOption.{BuildTime, ConstantValue, ToJson, ToMap}
+import sbtbuildinfo.BuildInfoPlugin.autoImport.*
+import sbtbuildinfo.{BuildInfoKey, BuildInfoPlugin}
 
 import java.util.Calendar
 
@@ -63,5 +63,11 @@ object BuildInfo extends AutoPluginHelper {
           }
         )
       )
+  }
+
+  def configurewithKeys(addKeys: Seq[(String, Any)] = Seq.empty)(project: Project): Project = {
+    configure(project).settings(
+      buildInfoKeys ++= { addKeys.map { case (k, v) => BuildInfoKey.action(k) { v } } }
+    )
   }
 }
