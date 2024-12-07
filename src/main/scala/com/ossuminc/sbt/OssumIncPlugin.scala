@@ -108,7 +108,7 @@ object OssumIncPlugin extends AutoPlugin {
         */
       def native(
         mode: String = "fast",
-        buildTarget: String = "debug",
+        buildTarget: String = "static",
         gc: String = "boehm",
         lto: String = "none",
         debugLog: Boolean = false,
