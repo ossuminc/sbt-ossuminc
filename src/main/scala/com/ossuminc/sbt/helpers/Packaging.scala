@@ -11,7 +11,6 @@ import sbt.*
 
 import java.io.File
 
-
 object Packaging extends AutoPluginHelper {
 
   override def configure(project: Project): Project = project
@@ -21,16 +20,16 @@ object Packaging extends AutoPluginHelper {
     pkgName: String,
     pkgSummary: String,
     pkgDescription: String
-  )(project: Project): Project = 
+  )(project: Project): Project =
     project
       .enablePlugins(JavaAppPackaging)
       .settings(
         maintainer := maintainerEmail,
         ThisBuild / maintainer := maintainerEmail,
-        Universal / maintainer := maintainerEmail, 
+        Universal / maintainer := maintainerEmail,
         Universal / packageName := pkgName,
         Universal / packageSummary := pkgSummary,
-        Universal / packageDescription := pkgDescription,
+        Universal / packageDescription := pkgDescription
       )
 
   def docker(
@@ -38,7 +37,7 @@ object Packaging extends AutoPluginHelper {
     pkgName: String = "",
     pkgSummary: String = "",
     pkgDescription: String = "",
-    dockerFile: File = file(""),
+    dockerFile: File = file("")
   )(project: Project): Project = {
     project
       .enablePlugins(SbtNativePackager, DockerPlugin)
@@ -53,7 +52,8 @@ object Packaging extends AutoPluginHelper {
   }
 
   def graalVM(pkgName: String, pkgSummary: String, native_image_path: File)(project: Project): Project = {
-    project.enablePlugins(SbtNativePackager, GraalVMNativeImagePlugin)
+    project
+      .enablePlugins(SbtNativePackager, GraalVMNativeImagePlugin)
       .settings(
         packageName := pkgName,
         packageSummary := pkgSummary,

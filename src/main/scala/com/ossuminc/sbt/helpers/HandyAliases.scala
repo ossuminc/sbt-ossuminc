@@ -50,8 +50,7 @@ object HandyAliases extends AutoPluginHelper {
         Global / commands ++= Seq(shell_command),
         Global / Keys.printClasspath := { printClassPath.value },
         Global / Keys.printTestClasspath := { printTestClassPath.value },
-        Global / Keys.printRuntimeClasspath := { printRuntimeClassPath.value },
-
+        Global / Keys.printRuntimeClasspath := { printRuntimeClassPath.value }
       )
       .settings {
         Seq(

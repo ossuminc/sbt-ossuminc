@@ -12,7 +12,12 @@ object Javascript extends AutoPluginHelper {
     configure()(project)
   }
 
-  def configure(header: String = "no header", hasMain: Boolean = false, forProd: Boolean = true, withCommonJSModule: Boolean = false)(
+  def configure(
+    header: String = "no header",
+    hasMain: Boolean = false,
+    forProd: Boolean = true,
+    withCommonJSModule: Boolean = false
+  )(
     project: Project
   ): Project = {
     project

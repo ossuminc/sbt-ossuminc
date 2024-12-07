@@ -4,7 +4,7 @@ import com.typesafe.sbt.packager.archetypes.JavaAppPackaging
 import sbt.Keys.{moduleName, name}
 import sbt.*
 
-/** A regular software library module.  */
+/** A regular software library module. */
 object Module {
 
   /** Define a subproject or module of the root project. Make sure to use the [[Root]] function before this Module is

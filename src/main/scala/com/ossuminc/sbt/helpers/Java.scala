@@ -25,11 +25,14 @@ object Java extends AutoPluginHelper {
   val java_compile_options: Seq[String] = Seq[String](
     "-g",
     "-deprecation",
-    "-encoding", "UTF-8",
+    "-encoding",
+    "UTF-8",
     "-Xlint",
     "-Xdoclint:all",
-    "-Xmaxerrs", "50",
-    "-Xmaxwarns", "50",
+    "-Xmaxerrs",
+    "50",
+    "-Xmaxwarns",
+    "50",
     "-Xprefer:source",
     "-Werror"
   )
@@ -37,7 +40,7 @@ object Java extends AutoPluginHelper {
   def configure(project: Project): Project = {
     project
       .settings(
-        test / javaOptions  ++= Seq("-Xmx512m"),
+        test / javaOptions ++= Seq("-Xmx512m"),
         javacOptions ++= java_compile_options
       )
   }

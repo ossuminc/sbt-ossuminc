@@ -25,7 +25,6 @@ import sbtunidoc.ScalaUnidocPlugin.autoImport.*
 import sbtunidoc.ScalaUnidocPlugin
 import scoverage.ScoverageSbtPlugin
 
-
 /** Plugin Settings For UniDoc, since it is not an AutoPlugin */
 object Unidoc extends AutoPluginHelper {
 
@@ -45,15 +44,15 @@ object Unidoc extends AutoPluginHelper {
   }
 
   def configure(
-   apiOutput: File = file("target/unidoc"),
-   baseURL: Option[String] = None,
-   inclusions: Seq[ProjectReference] = Seq.empty,
-   exclusions: Seq[ProjectReference] = Seq.empty,
-   logoURL: Option[String] = None,
-   externalMappings: Seq[Seq[String]] = Seq.empty
+    apiOutput: File = file("target/unidoc"),
+    baseURL: Option[String] = None,
+    inclusions: Seq[ProjectReference] = Seq.empty,
+    exclusions: Seq[ProjectReference] = Seq.empty,
+    logoURL: Option[String] = None,
+    externalMappings: Seq[Seq[String]] = Seq.empty
   )(project: Project): Project = {
     project
-      .enablePlugins(OssumIncPlugin,ScalaUnidocPlugin)
+      .enablePlugins(OssumIncPlugin, ScalaUnidocPlugin)
       .disablePlugins(ScoverageSbtPlugin)
       .settings(
         Compile / doc / target := apiOutput,
@@ -62,7 +61,8 @@ object Unidoc extends AutoPluginHelper {
         ScalaUnidoc / scalaVersion := (Compile / scalaVersion).value,
         ScalaUnidoc / unidoc / target := apiOutput,
         Compile / doc / scalacOptions := {
-          val logo = logoURL.getOrElse(s"https://www.scala-lang.org/api/${(Compile / scalaVersion).value}/project-logo/logo_dark.svg")
+          val logo = logoURL
+            .getOrElse(s"https://www.scala-lang.org/api/${(Compile / scalaVersion).value}/project-logo/logo_dark.svg")
           Seq(
             "-project:RIDDL API Documentation",
             s"-project-version:${version.value}",
@@ -71,8 +71,7 @@ object Unidoc extends AutoPluginHelper {
             s"-revision:main",
             "-comment-syntax:wiki",
             s"-source-links:github://${gitHubOrganization.value}/${gitHubRepository.value}/main",
-            s"-siteroot:${apiOutput.toString}",
-            {
+            s"-siteroot:${apiOutput.toString}", {
               val mappings: Seq[Seq[String]] = Seq(
                 Seq(".*scala", "scaladoc3", s"https://scala-lang.org/api/${scalaVersion.value}/"),
                 Seq(".*java", "javadoc", "https://docs.oracle.com/javase/21/docs/api/")

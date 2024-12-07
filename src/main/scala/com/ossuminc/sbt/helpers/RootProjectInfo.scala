@@ -22,7 +22,6 @@ import sbt.Keys.*
 import sbt.plugins.MiniDependencyTreePlugin
 import java.util.Calendar
 
-
 object RootProjectInfo {
 
   object Keys {
@@ -82,21 +81,21 @@ object RootProjectInfo {
         ThisBuild / organizationHomepage := Some(orgPage),
         ThisBuild / licenses := {
           spdxLicense match {
-            case l@"Apache-2.0" => Seq(l -> url("https://opensource.org/license/apache-2-0"))
-            case l@"CDDL-1.0" => Seq(l -> url("https://opensource.org/license/cddl-1-0"))
-            case l@"EPL-2.0" => Seq(l -> url("https://opensource.org/license/epl-2-0"))
-            case l@"GPL-2.0" => Seq(l -> url("https://opensource.org/license/gpl-2-0"))
-            case l@"GPL-3.0" => Seq(l -> url("https://opensource.org/license/gpl-3-0"))
-            case l@"GPL-3.0-only" => Seq(l -> url("https://opensource.org/license/gpl-3-0"))
-            case l@"AGPL-3.0-only" => Seq(l -> url("https://opensource.org/license/agpl-v3"))
-            case l@"LGPL-2.1" => Seq(l -> url("https://opensource.org/license/lgpl-2-1"))
-            case l@"LGPL-3.0-only" => Seq(l -> url("https://opensource.org/license/lgpl-3-0"))
-            case l@"LGPL-2.0-only" => Seq(l -> url("https://opensource.org/license/lgpl-2-0"))
-            case l@"MPL-2.0" => Seq(l -> url("https://opensource.org/license/mpl-2-0"))
-            case l@"BSD-2-Clause" => Seq(l -> url("https://opensource.org/license/bsd-2-clause"))
-            case l@"BSD-3-Clause" => Seq(l -> url("https://opensource.org/license/bsd-3-clause"))
-            case l@"MIT" => Seq(l -> url("https://opensource.org/license/mit"))
-            case s: String => Seq(s -> url("https://opensource.org/license/unlicense"))
+            case l @ "Apache-2.0"    => Seq(l -> url("https://opensource.org/license/apache-2-0"))
+            case l @ "CDDL-1.0"      => Seq(l -> url("https://opensource.org/license/cddl-1-0"))
+            case l @ "EPL-2.0"       => Seq(l -> url("https://opensource.org/license/epl-2-0"))
+            case l @ "GPL-2.0"       => Seq(l -> url("https://opensource.org/license/gpl-2-0"))
+            case l @ "GPL-3.0"       => Seq(l -> url("https://opensource.org/license/gpl-3-0"))
+            case l @ "GPL-3.0-only"  => Seq(l -> url("https://opensource.org/license/gpl-3-0"))
+            case l @ "AGPL-3.0-only" => Seq(l -> url("https://opensource.org/license/agpl-v3"))
+            case l @ "LGPL-2.1"      => Seq(l -> url("https://opensource.org/license/lgpl-2-1"))
+            case l @ "LGPL-3.0-only" => Seq(l -> url("https://opensource.org/license/lgpl-3-0"))
+            case l @ "LGPL-2.0-only" => Seq(l -> url("https://opensource.org/license/lgpl-2-0"))
+            case l @ "MPL-2.0"       => Seq(l -> url("https://opensource.org/license/mpl-2-0"))
+            case l @ "BSD-2-Clause"  => Seq(l -> url("https://opensource.org/license/bsd-2-clause"))
+            case l @ "BSD-3-Clause"  => Seq(l -> url("https://opensource.org/license/bsd-3-clause"))
+            case l @ "MIT"           => Seq(l -> url("https://opensource.org/license/mit"))
+            case s: String           => Seq(s -> url("https://opensource.org/license/unlicense"))
           }
         },
         ThisBuild / homepage := Some(Keys.projectHomePage.value),

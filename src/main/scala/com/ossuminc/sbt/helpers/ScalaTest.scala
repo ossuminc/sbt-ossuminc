@@ -18,19 +18,22 @@ object ScalaTest extends AutoPluginHelper {
     project.settings(
       libraryDependencies ++= {
         def scalactic(version: String, nonJVM: Boolean): ModuleID = {
-          if (nonJVM) "org.scalactic" %%% "scalactic" % version % Test else "org.scalactic" %% "scalactic" % version % Test
+          if (nonJVM) "org.scalactic" %%% "scalactic" % version % Test
+          else "org.scalactic" %% "scalactic" % version % Test
         }
-        def scalatest(version: String, nonJVM: Boolean): ModuleID  = {
-          if (nonJVM) "org.scalatest" %%% "scalatest" % version % Test else "org.scalatest" %% "scalatest" % version % Test
+        def scalatest(version: String, nonJVM: Boolean): ModuleID = {
+          if (nonJVM) "org.scalatest" %%% "scalatest" % version % Test
+          else "org.scalatest" %% "scalatest" % version % Test
         }
         def scalacheck(version: String, nonJVM: Boolean): ModuleID = {
-          if (nonJVM) "org.scalacheck" %%% "scalacheck" % version % Test else "org.scalacheck" %% "scalacheck" % version % Test
+          if (nonJVM) "org.scalacheck" %%% "scalacheck" % version % Test
+          else "org.scalacheck" %% "scalacheck" % version % Test
         }
 
         val some = Seq[ModuleID](scalactic(version, nonJVM), scalatest(version, nonJVM))
         val maybe = scalacheckVersion match {
           case Some(version) => Seq[ModuleID](scalacheck(version, nonJVM))
-          case None => Seq.empty[ModuleID]
+          case None          => Seq.empty[ModuleID]
         }
         some ++ maybe
       }

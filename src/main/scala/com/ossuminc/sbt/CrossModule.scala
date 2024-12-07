@@ -10,8 +10,8 @@ import scalanativecrossproject.ScalaNativeCrossPlugin.autoImport.*
 import scala.scalanative.sbtplugin.ScalaNativePlugin
 import org.portablescala.sbtplatformdeps.PlatformDepsPlugin.autoImport.*
 
-/** A CrossModule is a module that can be built for JVM, Javascript or Native execution. As with all modules the
- * first set of paUse it like:
+/** A CrossModule is a module that can be built for JVM, Javascript or Native execution. As with all modules the first
+  * set of paUse it like:
   * {{{val my_project = CrossModule("dir_name", "module_name")(Javascript + JVM + Native).configure(...).settings(...)}}}
   */
 object CrossModule {
@@ -74,7 +74,7 @@ object CrossModule {
 }
 
 case object NodePlatform extends Platform {
-  def identifier: String                = "node"
-  def sbtSuffix: String                 = "NODE"
+  def identifier: String = "node"
+  def sbtSuffix: String = "NODE"
   def enable(project: Project): Project = project
 }
