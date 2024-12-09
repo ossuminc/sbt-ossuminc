@@ -81,8 +81,12 @@ object OssumIncPlugin extends AutoPlugin {
         helpers.Javascript.configure(header, hasMain, forProd, withCommonJSModule)(project)
 
       /** Use this to configure your project to include typical laminar dependencies */
-      def laminar(version: String = "17.1.0", domVersion: String = "2.8.0")(project: Project): Project =
-        helpers.Laminar.configure(version, domVersion)(project)
+      def laminar(
+        version: String = "17.1.0",
+        domVersion: String = "2.8.0",
+        waypointVersion: Option[String] = None
+      )(project: Project): Project =
+        helpers.Laminar.configure(version, domVersion, waypointVersion)(project)
 
       /** Use this to configure your project to compile to native code The defaults are usually sufficient but the
         * arguments to this function make it easy to specify the options that ScalaNative provides.
