@@ -83,6 +83,7 @@ object Native extends AutoPluginHelper {
           }
         },
         Test / nativeConfig ~= { c => c.withBuildTarget(BuildTarget.application) },
+        concurrentRestrictions += Tags.limit(NativeTags.Link, 1),
         libraryDependencies ++= Seq(
           "org.scalactic" %%% "scalactic" % "3.2.19" % Test,
           "org.scalatest" %%% "scalatest" % "3.2.19" % Test
