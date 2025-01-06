@@ -33,7 +33,14 @@ object OssumIncPlugin extends AutoPlugin {
         }
 
       /** Use this to provide dependencies on most recent Akka libraries */
-      val akka: ConfigFunc = helpers.Akka.configure
+      def akka(release: String)(project: Project): Project = {
+        val version = release match {
+          case "2024.10" | "24.10" => helpers.Akka.akka_2024_10
+          case "2024.05" | "24.05" => helpers.Akka.akka_2024_05
+          case other: String       => throw new IllegalArgumentException(s"Unknown akka release: $other")
+        }
+        project.configure(helpers.Akka.configure(version))
+      }
 
       /** Use this to provide handy sbt command line aliases */
       val aliases: ConfigFunc = helpers.HandyAliases.configure
