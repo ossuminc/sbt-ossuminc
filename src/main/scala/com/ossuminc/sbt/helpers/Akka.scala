@@ -1,4 +1,5 @@
 package com.ossuminc.sbt.helpers
+import com.ossuminc.sbt.helpers.Akka.akka_2024_05.V
 import sbt.*
 import sbt.Keys.*
 
@@ -45,9 +46,7 @@ object Akka extends AutoPluginHelper {
       "com.typesafe.akka" %% "akka-remote" % V.akka_core,
       "com.typesafe.akka" %% "akka-slf4j" % V.akka_core,
       "com.typesafe.akka" %% "akka-stream" % V.akka_core,
-      "com.typesafe.akka" %% "akka-stream-testkit" % V.akka_core,
       "com.typesafe.akka" %% "akka-stream-typed" % V.akka_core,
-      "com.typesafe.akka" %% "akka-testkit" % V.akka_core,
       "org.slf4j" % "slf4j-simple" % V.slf4j
     )
     def akka_test: Seq[ModuleID] = Seq(
@@ -66,7 +65,6 @@ object Akka extends AutoPluginHelper {
       val akka_http = "10.7.0"
       val akka_grpc = "2.5.0"
       val akka_persistence_r2dbc = "1.2.4"
-      val akka_persistence_cassandra = "1.2.1"
       val akka_management = "1.6.0"
       val akka_projections = "1.5.4"
       val akka_diagnostics = "2.1.1"
@@ -74,9 +72,7 @@ object Akka extends AutoPluginHelper {
       val slf4j = "2.0.13"
     }
     val akka_core: Seq[ModuleID] = Seq(
-      "com.typesafe.akka" %% "akka-slf4j" % V.akka_core,
-      "com.typesafe.akka" %% "akka-protobuf-v3" % V.akka_core,
-      "com.typesafe.akka" %% "akka-serialization-jackson" % V.akka_core,
+      "com.typesafe.akka" %% "akka-actor" % V.akka_core,
       "com.typesafe.akka" %% "akka-actor-typed" % V.akka_core,
       "com.typesafe.akka" %% "akka-cluster-typed" % V.akka_core,
       "com.typesafe.akka" %% "akka-cluster-sharding" % V.akka_core,
@@ -85,12 +81,15 @@ object Akka extends AutoPluginHelper {
       "com.typesafe.akka" %% "akka-cluster-tools" % V.akka_core,
       "com.typesafe.akka" %% "akka-persistence-typed" % V.akka_core,
       "com.typesafe.akka" %% "akka-persistence-query" % V.akka_core,
-      "com.typesafe.akka" %% "akka-persistence-cassandra" % V.akka_persistence_cassandra,
       "com.typesafe.akka" %% "akka-persistence" % V.akka_core,
       "com.typesafe.akka" %% "akka-persistence-query" % V.akka_core,
-      "com.typesafe.akka" %% "akka-cluster-tools" % V.akka_core,
-      "com.typesafe.akka" %% "akka-stream" % V.akka_core
+      "com.typesafe.akka" %% "akka-protobuf-v3" % V.akka_core,
+      "com.typesafe.akka" %% "akka-remote" % V.akka_core,
+      "com.typesafe.akka" %% "akka-slf4j" % V.akka_core,
+      "com.typesafe.akka" %% "akka-stream" % V.akka_core,
+      "com.typesafe.akka" %% "akka-serialization-jackson" % V.akka_core,
     )
+    
     def akka_modules: Seq[ModuleID] = akka_core ++ Seq(
       "com.lightbend.akka.grpc" %% "akka-grpc-runtime" % V.akka_grpc,
       "com.typesafe.akka" %% "akka-http" % V.akka_http,
