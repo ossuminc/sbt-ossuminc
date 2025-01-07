@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015, Reactific Software LLC. All Rights Reserved.
+ * Copyright (c) 2015, Ossum Inc. All Rights Reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not
  * use this file except in compliance with the License. You may obtain a copy
@@ -25,6 +25,7 @@ lazy val `sbt-ossuminc` = project
   .configure(Scala2.configure)
   .configure(SonatypePublishing.configure)
   .settings(
+    licenses += "Apache V2.0" -> url("https://www.apache.org/licenses/LICENSE-2.0"),
     name := "sbt-ossuminc",
     scalaVersion := "2.12.19",
     // Scripted == sbt plugin tests
