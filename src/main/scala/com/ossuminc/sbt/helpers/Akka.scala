@@ -1,4 +1,3 @@
-
 package com.ossuminc.sbt.helpers
 
 import sbt.*
@@ -72,7 +71,7 @@ object Akka extends AutoPluginHelper {
       val akka_kafka = "7.0.1"
       val slf4j = "2.0.13"
     }
-    val akka_core: Seq[ModuleID] = Seq(
+    def akka_core: Seq[ModuleID] = Seq(
       "com.typesafe.akka" %% "akka-actor" % V.akka_core,
       "com.typesafe.akka" %% "akka-actor-typed" % V.akka_core,
       "com.typesafe.akka" %% "akka-cluster-typed" % V.akka_core,
@@ -88,9 +87,9 @@ object Akka extends AutoPluginHelper {
       "com.typesafe.akka" %% "akka-remote" % V.akka_core,
       "com.typesafe.akka" %% "akka-slf4j" % V.akka_core,
       "com.typesafe.akka" %% "akka-stream" % V.akka_core,
-      "com.typesafe.akka" %% "akka-serialization-jackson" % V.akka_core,
+      "com.typesafe.akka" %% "akka-serialization-jackson" % V.akka_core
     )
-    
+
     def akka_modules: Seq[ModuleID] = akka_core ++ Seq(
       "com.lightbend.akka.grpc" %% "akka-grpc-runtime" % V.akka_grpc,
       "com.typesafe.akka" %% "akka-http" % V.akka_http,
