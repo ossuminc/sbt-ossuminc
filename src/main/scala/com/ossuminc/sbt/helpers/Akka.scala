@@ -8,7 +8,6 @@ object Akka extends AutoPluginHelper {
 
   sealed trait AkkaVersion {
     def akka_modules: Seq[ModuleID]
-    def akka_test: Seq[ModuleID]
   }
 
   /** An object to define the components of the Akka 2024.05 release of Akka Platform */
@@ -47,9 +46,7 @@ object Akka extends AutoPluginHelper {
       "com.typesafe.akka" %% "akka-slf4j" % V.akka_core,
       "com.typesafe.akka" %% "akka-stream" % V.akka_core,
       "com.typesafe.akka" %% "akka-stream-typed" % V.akka_core,
-      "org.slf4j" % "slf4j-simple" % V.slf4j
-    )
-    def akka_test: Seq[ModuleID] = Seq(
+      "org.slf4j" % "slf4j-simple" % V.slf4j,
       "com.typesafe.akka" %% "akka-testkit" % V.akka_core % Test,
       "com.typesafe.akka" %% "akka-actor-testkit-typed" % V.akka_core % Test,
       "com.typesafe.akka" %% "akka-persistence-testkit" % V.akka_core % Test,
@@ -69,7 +66,6 @@ object Akka extends AutoPluginHelper {
       val akka_projections = "1.5.4"
       val akka_diagnostics = "2.1.1"
       val akka_kafka = "7.0.1"
-      val slf4j = "2.0.13"
     }
     def akka_core: Seq[ModuleID] = Seq(
       "com.typesafe.akka" %% "akka-actor" % V.akka_core,
@@ -93,14 +89,12 @@ object Akka extends AutoPluginHelper {
     def akka_modules: Seq[ModuleID] = akka_core ++ Seq(
       "com.lightbend.akka.grpc" %% "akka-grpc-runtime" % V.akka_grpc,
       "com.typesafe.akka" %% "akka-http" % V.akka_http,
+      "com.typesafe.akka" %% "akka-http-jackson" % V.akka_http,
       "com.lightbend.akka" %% "akka-persistence-r2dbc" % V.akka_persistence_r2dbc,
       "com.lightbend.akka" %% "akka-projection-core" % V.akka_projections,
       "com.lightbend.akka.management" %% "akka-management" % V.akka_management,
       "com.lightbend.akka" %% "akka-diagnostics" % V.akka_diagnostics,
       "com.typesafe.akka" %% "akka-stream-kafka" % V.akka_kafka,
-      "org.slf4j" % "slf4j-simple" % V.slf4j
-    )
-    def akka_test: Seq[ModuleID] = Seq(
       "com.typesafe.akka" %% "akka-testkit" % V.akka_core % Test,
       "com.typesafe.akka" %% "akka-actor-testkit-typed" % V.akka_core % Test,
       "com.typesafe.akka" %% "akka-persistence-testkit" % V.akka_core % Test,
@@ -112,7 +106,7 @@ object Akka extends AutoPluginHelper {
   def configure(version: AkkaVersion = akka_2024_10)(project: Project): Project = {
     project.settings(
       resolvers += "Akka library repository".at("https://repo.akka.io/maven"),
-      libraryDependencies ++= version.akka_modules ++ version.akka_test
+      libraryDependencies ++= version.akka_modules
     )
   }
 
