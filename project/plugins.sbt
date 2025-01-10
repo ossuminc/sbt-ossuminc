@@ -16,31 +16,53 @@
 
 // Generic plugins from github.sbt project
 addSbtPlugin("com.github.sbt" % "sbt-dynver" % "5.0.1")
+
 addSbtPlugin("com.github.sbt" % "sbt-native-packager" % "1.10.4")
+
 addSbtPlugin("com.github.sbt" % "sbt-git" % "2.0.1")
+
 addSbtPlugin("com.github.sbt" % "sbt-pgp" % "2.2.1")
+
 addSbtPlugin("com.github.sbt" % "sbt-release" % "1.4.0")
+
 addSbtPlugin("com.github.sbt" % "sbt-unidoc" % "0.5.0")
+
 addDependencyTreePlugin
 
 // Helpers from other sources
 addSbtPlugin("com.eed3si9n" % "sbt-buildinfo" % "0.12.0")
+
 addSbtPlugin("de.heikoseeberger" % "sbt-header" % "5.10.0")
+
 addSbtPlugin("com.timushev.sbt" % "sbt-updates" % "0.6.4")
+
 addSbtPlugin("org.xerial.sbt" % "sbt-sonatype" % "3.11.1")
+
+addSbtPlugin("com.codecommit" % "sbt-github-packages" % "0.5.3")
 
 // Scala specific from various places
 addSbtPlugin("ch.epfl.scala" % "sbt-scalafix" % "0.12.1")
+
 addSbtPlugin("org.scalameta" % "sbt-scalafmt" % "2.5.2")
+
 addSbtPlugin("org.scoverage" % "sbt-scoverage" % "2.1.1")
+
 addSbtPlugin("org.scoverage" % "sbt-coveralls" % "1.3.14")
+
 addSbtPlugin("org.scala-native" % "sbt-scala-native" % "0.5.6")
+
 addSbtPlugin("org.scala-js" % "sbt-scalajs" % "1.17.0")
+
 addSbtPlugin("org.portable-scala" % "sbt-scalajs-crossproject" % "1.3.2")
+
 addSbtPlugin("org.portable-scala" % "sbt-scala-native-crossproject" % "1.3.2")
+
 addSbtPlugin("org.portable-scala" % "sbt-platform-deps" % "1.0.2")
+
 addSbtPlugin("com.typesafe" % "sbt-mima-plugin" % "1.1.4")
+
 addSbtPlugin("ch.epfl.scala" % "sbt-tasty-mima" % "1.2.0")
+
 addSbtPlugin("org.scalablytyped.converter" % "sbt-converter" % "1.0.0-beta44")
 
 libraryDependencies ++= Seq(
