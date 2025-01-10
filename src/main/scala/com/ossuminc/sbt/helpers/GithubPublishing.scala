@@ -4,7 +4,7 @@ import sbt.*
 import sbt.Keys.*
 import sbtghpackages.GitHubPackagesPlugin.autoImport.*
 
-object GithubPackages extends AutoPluginHelper {
+object GithubPublishing extends AutoPluginHelper {
 
   def configure(project: Project): Project = {
     project

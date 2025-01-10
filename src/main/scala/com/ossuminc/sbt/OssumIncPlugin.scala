@@ -27,11 +27,6 @@ object OssumIncPlugin extends AutoPlugin {
     // Clauses to customize the major declarations
     object With {
 
-      private def these(cfuncs: ConfigFunc*)(project: Project): Project =
-        cfuncs.foldLeft(project) { (p, func) =>
-          p.configure(func)
-        }
-
       /** Use this to provide dependencies on most recent Akka libraries */
       def akka(release: String = "")(project: Project): Project = {
         val version = release match {
@@ -196,8 +191,17 @@ object OssumIncPlugin extends AutoPlugin {
             sbtPlugin := true
           )
 
-      /** Configure this project to be published as open source */
-      val publishing: ConfigFunc = helpers.SonatypePublishing.configure
+      /** Configure this project to be published as open source
+        * @note
+        *   Do not combine this with SonatypePublishing
+        */
+      val SonatypePublishing: ConfigFunc = helpers.SonatypePublishing.configure
+
+      /** Configure this project to be published as a Maven GitHub Package in the organization specified by Root
+        * @note
+        *   Do not combine this with SonatypePublishing
+        */
+      val GithubPublishing: ConfigFunc = helpers.GithubPublishing.configure
 
       /** Configure this project to produce no artifact and not be published */
       def noPublishing(project: Project): Project =
@@ -376,6 +380,11 @@ object OssumIncPlugin extends AutoPlugin {
         project
           .configure(helpers.Unidoc.configure(apiOutput, baseURL, inclusions, exclusions, logoPath, externalMappings))
 
+      private def these(cfuncs: ConfigFunc*)(project: Project): Project =
+        cfuncs.foldLeft(project) { (p, func) =>
+          p.configure(func)
+        }
+
       /** Use this to more easily configure:
         *   - [[com.ossuminc.sbt.OssumIncPlugin.autoImport.With.aliases]],
         *   - [[com.ossuminc.sbt.OssumIncPlugin.autoImport.With.dynver]]
@@ -394,13 +403,13 @@ object OssumIncPlugin extends AutoPlugin {
         */
       def everything(project: Project): Project = {
         project.configure(typical)
-        these(java, build_info, release)(project)
+        these(java, release)(project)
       }
 
-      /** Use this to enable the [[basic]] features as well as [[scala3]] and [[publishing]] */
+      /** Use this to enable the [[basic]] features as well as [[scala3]] and [[build_info]] */
       def typical(project: Project): Project = {
         project.configure(basic)
-        these(scala3, publishing)(project)
+        these(scala3, scalafmt, build_info)(project)
       }
     }
   }

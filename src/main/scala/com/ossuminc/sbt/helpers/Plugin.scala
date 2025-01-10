@@ -14,7 +14,7 @@ object Plugin {
     project
       .enablePlugins(SbtPlugin, JavaAppPackaging)
       .disablePlugins(ScoverageSbtPlugin)
-      .configure(With.basic, With.scala2, With.scalafmt, With.publishing)
+      .configure(With.basic, With.scala2, With.scalafmt, With.SonatypePublishing)
       .settings(
         scalaVersion := "2.12.18",
         scriptedLaunchOpts := {

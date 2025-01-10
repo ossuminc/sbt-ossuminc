@@ -13,7 +13,7 @@
  * License for  the specific language governing permissions and limitations under the License.
  */
 
-import com.ossuminc.sbt.helpers.{DynamicVersioning, RootProjectInfo, Scala2, SonatypePublishing}
+import com.ossuminc.sbt.helpers.*
 
 Global / onChangedBuildSource := ReloadOnSourceChanges
 
@@ -24,6 +24,7 @@ lazy val `sbt-ossuminc` = project
   .configure(DynamicVersioning.configure)
   .configure(Scala2.configure)
   .configure(SonatypePublishing.configure)
+  .configure(GithubPublishing.configure)
   .settings(
     licenses += "Apache V2.0" -> url("https://www.apache.org/licenses/LICENSE-2.0"),
     name := "sbt-ossuminc",
