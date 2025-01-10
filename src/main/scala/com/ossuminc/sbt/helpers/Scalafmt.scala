@@ -21,14 +21,17 @@ object Scalafmt extends AutoPluginHelper {
   private val scalafmt_conf: File = file(System.getProperty("user.dir")) / ".scalafmt.conf"
   private val scalafmt_config_etag_path: File = file(System.getProperty("user.dir")) / ".scalafmt.conf.etag"
 
-  def configure(project: Project): Project = {
+  def configure(project: Project): Project = configureWithPath(scalafmt_path)(project)
+  
+  def configureWithPath(pathArg: String)(project: Project): Project = {
+    val path = if (pathArg.isEmpty) scalafmt_path else pathArg
     project
       .enablePlugins(ScalafmtPlugin)
       .settings(
         Keys.putScalafmtConfETagsIn := scalafmt_config_etag_path,
         update := {
           val log = streams.value.log
-          updateFromPublicRepository(scalafmt_conf, Keys.putScalafmtConfETagsIn.value, scalafmt_path, log)
+          updateFromPublicRepository(scalafmt_conf, Keys.putScalafmtConfETagsIn.value, path, log)
           update.value
         },
         cleanFiles += scalafmt_config_etag_path

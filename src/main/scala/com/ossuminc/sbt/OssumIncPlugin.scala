@@ -226,7 +226,11 @@ object OssumIncPlugin extends AutoPlugin {
       val scala3: ConfigFunc = helpers.Scala3.configure
 
       /** Configure this project to use standard Scalafmt formatting rules. */
-      val scalafmt: ConfigFunc = helpers.Scalafmt.configure
+      val  scalafmt: ConfigFunc = helpers.Scalafmt.configure
+      
+      /** Configure this project to use specific Scalafmt configuration specified by `path` */
+      def scalafmtWithPath(path: String = "")(project: Project): Project =
+        helpers.Scalafmt.configureWithPath(path)(project)
 
       /** Add scalaTest libraries to the libraryDependencies */
       def scalaTest(
