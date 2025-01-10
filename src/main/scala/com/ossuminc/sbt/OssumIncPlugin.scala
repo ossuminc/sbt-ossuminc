@@ -20,6 +20,8 @@ object OssumIncPlugin extends AutoPlugin {
     val Program: com.ossuminc.sbt.Program.type = com.ossuminc.sbt.Program
     val CrossModule: com.ossuminc.sbt.CrossModule.type = com.ossuminc.sbt.CrossModule
     val DocSite: com.ossuminc.sbt.DocSite.type = com.ossuminc.sbt.DocSite
+
+    // Kinds of cross-builds supported by CrossModule
     val JVM: CrossModule.Target = CrossModule.JVMTarget
     val JS: CrossModule.Target = CrossModule.JSTarget
     val Native: CrossModule.Target = CrossModule.NativeTarget
@@ -181,15 +183,6 @@ object OssumIncPlugin extends AutoPlugin {
         pkgDescription: String
       )(project: Project): Project =
         Packaging.docker(maintainerEmail, pkgName, pkgSummary, pkgDescription)(project)
-
-      /** Configure your project to generate a sbt plugin */
-      def plugin(project: Project): Project =
-        project
-          .configure(scala2)
-          .settings(
-            scalaVersion := "2.12.19",
-            sbtPlugin := true
-          )
 
       /** Configure this project to be published as open source
         * @note

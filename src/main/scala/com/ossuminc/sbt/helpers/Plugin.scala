@@ -16,7 +16,8 @@ object Plugin {
       .disablePlugins(ScoverageSbtPlugin)
       .configure(With.basic, With.scala2, With.scalafmt, With.SonatypePublishing)
       .settings(
-        scalaVersion := "2.12.18",
+        scalaVersion := "2.12.19",
+        sbtPlugin := true,
         scriptedLaunchOpts := {
           scriptedLaunchOpts.value ++ Seq("-Xmx1024M", "-Dplugin.version=" + version.value)
         },

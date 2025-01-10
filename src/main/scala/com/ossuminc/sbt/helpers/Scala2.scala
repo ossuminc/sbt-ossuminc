@@ -96,7 +96,7 @@ object Scala2 extends AutoPluginHelper {
   def configure(project: Project): Project = {
     project
       .settings(
-        scalaVersion := "2.12.18",
+        scalaVersion := "2.12.19",
         Keys.titleForDocs := name.value,
         scalacOptions ++= {
           val version = "(\\d)\\.(\\d{2})".r
