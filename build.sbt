@@ -24,7 +24,6 @@ lazy val `sbt-ossuminc` = project
   .configure(DynamicVersioning.configure)
   .configure(Scala2.configure)
   .configure(SonatypePublishing.configure)
-  .configure(GithubPublishing.configure)
   .settings(
     licenses += "Apache V2.0" -> url("https://www.apache.org/licenses/LICENSE-2.0"),
     name := "sbt-ossuminc",
