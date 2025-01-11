@@ -226,8 +226,8 @@ object OssumIncPlugin extends AutoPlugin {
       val scala3: ConfigFunc = helpers.Scala3.configure
 
       /** Configure this project to use standard Scalafmt formatting rules. */
-      val  scalafmt: ConfigFunc = helpers.Scalafmt.configure
-      
+      val scalafmt: ConfigFunc = helpers.Scalafmt.configure
+
       /** Configure this project to use specific Scalafmt configuration specified by `path` */
       def scalafmtWithPath(path: String = "")(project: Project): Project =
         helpers.Scalafmt.configureWithPath(path)(project)
@@ -406,7 +406,7 @@ object OssumIncPlugin extends AutoPlugin {
       /** Use this to enable the [[basic]] features as well as [[scala3]] and [[build_info]] */
       def typical(project: Project): Project = {
         project.configure(basic)
-        these(scala3, scalafmt, build_info)(project)
+        these(scala3, scalafmt)(project)
       }
     }
   }
