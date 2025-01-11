@@ -9,20 +9,27 @@ import java.io.{File, InputStream}
 import java.net.{HttpURLConnection, URI}
 import scala.io.Source
 
+/** Support sbt-scalafmt with option for standard formatting */
 object Scalafmt extends AutoPluginHelper {
 
   object Keys {
     val putScalafmtConfETagsIn: SettingKey[File] =
-      settingKey[File]("File path in local repo to store .scalafmt.conf.etag value")
-
+      settingKey[File](
+        "File path in local repo to store .scalafmt.conf.etag value"
+      )
   }
 
-  private val scalafmt_path: String = "/ossuminc/sbt-ossuminc/main/.scalafmt.conf"
-  private val scalafmt_conf: File = file(System.getProperty("user.dir")) / ".scalafmt.conf"
-  private val scalafmt_config_etag_path: File = file(System.getProperty("user.dir")) / ".scalafmt.conf.etag"
+  private val scalafmt_path: String =
+    "/ossuminc/sbt-ossuminc/main/.scalafmt.conf"
+  private val scalafmt_conf: File =
+    file(System.getProperty("user.dir")) / ".scalafmt.conf"
+  private val scalafmt_config_etag_path: File =
+    file(System.getProperty("user.dir")) / ".scalafmt.conf.etag"
 
-  def configure(project: Project): Project = configureWithPath(scalafmt_path)(project)
-  
+  def configure(project: Project): Project = {
+    configureWithPath(scalafmt_path)(project)
+  }
+
   def configureWithPath(pathArg: String)(project: Project): Project = {
     val path = if (pathArg.isEmpty) scalafmt_path else pathArg
     project
@@ -31,21 +38,27 @@ object Scalafmt extends AutoPluginHelper {
         Keys.putScalafmtConfETagsIn := scalafmt_config_etag_path,
         update := {
           val log = streams.value.log
-          updateFromPublicRepository(scalafmt_conf, Keys.putScalafmtConfETagsIn.value, path, log)
+          updateFromPublicRepository(
+            scalafmt_conf,
+            Keys.putScalafmtConfETagsIn.value,
+            path,
+            log
+          )
           update.value
         },
         cleanFiles += scalafmt_config_etag_path
       )
   }
 
-  def updateFromPublicRepository(
+  private def updateFromPublicRepository(
     local: File,
     etagFile: File,
     remote: String, // start with github organization or user
     log: ManagedLogger
   ): Unit = {
     val url = URI.create(s"https://raw.githubusercontent.com/$remote").toURL
-    val conn: HttpURLConnection = url.openConnection().asInstanceOf[HttpURLConnection]
+    val conn: HttpURLConnection =
+      url.openConnection().asInstanceOf[HttpURLConnection]
     val timeout = 30000
     conn.setConnectTimeout(timeout)
     conn.setReadTimeout(timeout)
@@ -62,7 +75,7 @@ object Scalafmt extends AutoPluginHelper {
     }
     if (etag != last_etag) {
       import java.nio.charset.StandardCharsets
-      import java.nio.file.Files
+        import java.nio.file.Files
       Files.write(etagFile.toPath, etag.getBytes(StandardCharsets.UTF_8))
       status match {
         case java.net.HttpURLConnection.HTTP_OK =>
@@ -88,7 +101,9 @@ object Scalafmt extends AutoPluginHelper {
               )
           }
         case java.net.HttpURLConnection.HTTP_NOT_MODIFIED =>
-          log.info(s"Remote (${url.toExternalForm}) is not modified: HTTP $status: $message")
+          log.info(
+            s"Remote (${url.toExternalForm}) is not modified: HTTP $status: $message"
+          )
         case x: Int =>
           log.warn(
             s"Failed to get ${url.toExternalForm}: HTTP $status: $message"
