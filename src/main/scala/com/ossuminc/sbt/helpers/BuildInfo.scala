@@ -19,6 +19,10 @@ object BuildInfo extends AutoPluginHelper {
     *   The same project passed as an argument, post configuration
     */
   def configure(project: Project): Project = {
+    val utcDate: String = java.time.Instant
+      .now()
+      .atZone(java.time.ZoneOffset.UTC)
+      .format(java.time.format.DateTimeFormatter.ISO_INSTANT);
     project
       .enablePlugins(BuildInfoPlugin)
       .settings(
@@ -39,7 +43,9 @@ object BuildInfo extends AutoPluginHelper {
             k -> v.get.toString
           },
           BuildInfoKey.map(homepage) { case (_, v) =>
-            "projectHomepage" -> v.map(_.toString).getOrElse(RootProjectInfo.Keys.projectHomePage.value)
+            "projectHomepage" -> v
+              .map(_.toString)
+              .getOrElse(RootProjectInfo.Keys.projectHomePage.value)
           },
           BuildInfoKey.map(licenses) { case (k, v) =>
             k -> v.map(_._1).mkString(", ")
@@ -60,7 +66,8 @@ object BuildInfo extends AutoPluginHelper {
               v.substring(0, v.lastIndexOf('.'))
             } else v
             "scalaCompatVersion" -> version
-          }
+          },
+          BuildInfoKey("buildInstant" -> utcDate)
         )
       )
   }
