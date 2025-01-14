@@ -89,9 +89,10 @@ object OssumIncPlugin extends AutoPlugin {
       def laminar(
         version: String = "17.2.0",
         domVersion: String = "2.8.0",
-        waypointVersion: Option[String] = Some("9.0.0")
+        waypointVersion: Option[String] = Some("9.0.0"),
+        laminextVersion: Option[Seq[(String, String)]] = None
       )(project: Project): Project =
-        helpers.Laminar.configure(version, domVersion, waypointVersion)(project)
+        helpers.Laminar.configure(version, domVersion, waypointVersion, laminextVersion)(project)
 
       /** Use this to configure your project to compile to native code The defaults are usually
         * sufficient but the arguments to this function make it easy to specify the options that
