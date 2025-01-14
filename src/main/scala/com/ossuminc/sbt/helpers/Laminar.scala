@@ -9,9 +9,9 @@ object Laminar extends AutoPluginHelper {
   override def configure(project: Project): Project = configure()(project)
 
   def configure(
-    version: String = "17.1.0",
+    version: String = "17.2.0",
     dom_version: String = "2.8.0",
-    waypoint_version: Option[String] = None
+    waypoint_version: Option[String] = Some("9.0.0")
   )(project: Project): Project =
     project.settings(
       libraryDependencies ++= Seq(

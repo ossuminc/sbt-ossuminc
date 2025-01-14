@@ -87,9 +87,9 @@ object OssumIncPlugin extends AutoPlugin {
 
       /** Use this to configure your project to include typical laminar dependencies */
       def laminar(
-        version: String = "17.1.0",
+        version: String = "17.2.0",
         domVersion: String = "2.8.0",
-        waypointVersion: Option[String] = None
+        waypointVersion: Option[String] = Some("9.0.0")
       )(project: Project): Project =
         helpers.Laminar.configure(version, domVersion, waypointVersion)(project)
 
