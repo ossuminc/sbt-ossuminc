@@ -83,7 +83,7 @@ object RootProjectInfo {
         ThisBuild / organization := orgPackage,
         ThisBuild / organizationName := orgName,
         ThisBuild / organizationHomepage := Some(orgPage),
-        RootProjectInfo.Keys.spdxLicense := spdxLicenseName,
+        ThisBuild / RootProjectInfo.Keys.spdxLicense := spdxLicenseName,
         ThisBuild / licenses := {
           spdxLicenseName match {
             case l @ "Apache-2.0"    => Seq(l -> url("https://opensource.org/license/apache-2-0"))
