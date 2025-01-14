@@ -36,7 +36,7 @@ object Header extends AutoPluginHelper {
       copyrightOwner: String
     ): License =
       Custom(
-        s"""Copyright $yyyy $copyrightOwner
+        s"""Copyright $yyyy $copyrightOwner All Rights Reserved.
            |
            |SPDX-License-Identifier: NONE
            |
