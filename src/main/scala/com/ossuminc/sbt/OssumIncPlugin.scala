@@ -35,7 +35,7 @@ object OssumIncPlugin extends AutoPlugin {
           case "2024.10" | "24.10" => helpers.Akka.akka_2024_10
           case "2024.05" | "24.05" => helpers.Akka.akka_2024_05
           case ""                  => helpers.Akka.akka_2024_10
-          case other: String       => throw new IllegalArgumentException(s"Unknown akka release: $other")
+          case other: String => throw new IllegalArgumentException(s"Unknown akka release: $other")
         }
         project.configure(helpers.Akka.configure(version))
       }
@@ -43,7 +43,9 @@ object OssumIncPlugin extends AutoPlugin {
       /** Use this to provide handy sbt command line aliases */
       val aliases: ConfigFunc = helpers.HandyAliases.configure
 
-      /** Use this to have the build generate build information. "I know this because sbt knows this" */
+      /** Use this to have the build generate build information. "I know this because sbt knows
+        * this"
+        */
       def build_info: ConfigFunc = helpers.BuildInfo.configure
 
       /* The same as `build_info` but with additional key settings */
@@ -58,20 +60,18 @@ object OssumIncPlugin extends AutoPlugin {
             helpers.ScalaCoverage.Keys.coveragePercent := percent
           )
 
-      /** Use dynamic versioning based on the most recent tag, and the commit hash and data/time stamp if necessary */
+      /** Use dynamic versioning based on the most recent tag, and the commit hash and data/time
+        * stamp if necessary
+        */
       val dynver: ConfigFunc = helpers.DynamicVersioning.configure
 
       /** Use this to get git command line support at the sbt prompt */
       val git: ConfigFunc = helpers.Git.configure
 
-      /** Use this to get the `headerCheck` and `headerCreate` sbt commands to generate source file headers
-        * automatically
+      /** Use this to get the `headerCheck` and `headerCreate` sbt commands to generate source file
+        * headers automatically
         */
       val header: ConfigFunc = helpers.Header.configure
-
-      /** Use this to provide th spdx license code for header license */
-      def headerLicense(spdx: String)(project: Project): Project =
-        helpers.Header.specificLicense(spdx)(project)
 
       /** Use this to enable compilation of Java code too */
       val java: ConfigFunc = helpers.Java.configure
@@ -93,8 +93,9 @@ object OssumIncPlugin extends AutoPlugin {
       )(project: Project): Project =
         helpers.Laminar.configure(version, domVersion, waypointVersion)(project)
 
-      /** Use this to configure your project to compile to native code The defaults are usually sufficient but the
-        * arguments to this function make it easy to specify the options that ScalaNative provides.
+      /** Use this to configure your project to compile to native code The defaults are usually
+        * sufficient but the arguments to this function make it easy to specify the options that
+        * ScalaNative provides.
         *
         * @param mode
         *   Choose from "debug", "fast", "full", "size". Default is "debug"
@@ -125,7 +126,16 @@ object OssumIncPlugin extends AutoPlugin {
         targetTriple: Option[String] = None,
         linkOptions: Seq[String] = Seq.empty
       )(project: Project): Project =
-        helpers.Native.configure(mode, buildTarget, lto, gc, debugLog, verbose, targetTriple, linkOptions)(project)
+        helpers.Native.configure(
+          mode,
+          buildTarget,
+          lto,
+          gc,
+          debugLog,
+          verbose,
+          targetTriple,
+          linkOptions
+        )(project)
 
       /** Configure Lightbend's Migration Manager for compatibility checking */
       def MiMa(
@@ -190,7 +200,8 @@ object OssumIncPlugin extends AutoPlugin {
         */
       val SonatypePublishing: ConfigFunc = helpers.SonatypePublishing.configure
 
-      /** Configure this project to be published as a Maven GitHub Package in the organization specified by Root
+      /** Configure this project to be published as a Maven GitHub Package in the organization
+        * specified by Root
         * @note
         *   Do not combine this with SonatypePublishing
         */
@@ -243,48 +254,51 @@ object OssumIncPlugin extends AutoPlugin {
       /** Configure this project to enable coverage testing */
       val scoverage: ConfigFunc = helpers.ScalaCoverage.configure
 
-      /** Configure ScalablyTyped/Converter to generate Scala.js facades for a set of Typescript dependencies that are
-        * loaded using `scalajs-bundler`. If you don't want to use `scalajs-bundler`, use
+      /** Configure ScalablyTyped/Converter to generate Scala.js facades for a set of Typescript
+        * dependencies that are loaded using `scalajs-bundler`. If you don't want to use
+        * `scalajs-bundler`, use
         *
         * @see
         *   https://scalablytyped.org/docs/plugin#how-it-works
         * @see
         *   https://scalablytyped.org/docs/usage
         * @param dependencies
-        *   The list of TypeScript dependencies from NPM that you want to convert. This should be a Map value similar to
-        *   the "dependencies" item from `package.json`:
+        *   The list of TypeScript dependencies from NPM that you want to convert. This should be a
+        *   Map value similar to the "dependencies" item from `package.json`:
         *   {{{
         *      Map(
         *        "react-router-dom" -> "5.1.2",
         *        "@types/react-router-dom" -> "5.1.2"
         *      )
         *   }}}
-        *   Note that some packages contain first-party typescript type definitions, while for others like
-        *   react-router-dom we need to get separate @types packages. These are originally from DefinitelyTyped. This
-        *   parameter is required.
+        *   Note that some packages contain first-party typescript type definitions, while for
+        *   others like react-router-dom we need to get separate @types packages. These are
+        *   originally from DefinitelyTyped. This parameter is required.
         * @param useNPM
-        *   Whether to use NPM or Yarn. This parameter is optional and defaults to `true`. This helper checks for
-        *   updated npm dependencies on each compile, and yarn responds much faster than npm. Yarn will need to be
-        *   present on your system for this to work. You should also check in yarn.lock.
+        *   Whether to use NPM or Yarn. This parameter is optional and defaults to `true`. This
+        *   helper checks for updated npm dependencies on each compile, and yarn responds much
+        *   faster than npm. Yarn will need to be present on your system for this to work. You
+        *   should also check in yarn.lock.
         * @param useScalaJsDom
         * @see
         *   https://scalablytyped.org/docs/conversion-options#stusescalajsdom
         * @param minimizeAllTransitives
-        *   When set to true, all transitive dependencies will be minimized. Otherwise, none will be. Exceptions to this
-        *   rule can be made with the `exceptions` parameter. Default: true (minimize all transitive dependencies)
+        *   When set to true, all transitive dependencies will be minimized. Otherwise, none will
+        *   be. Exceptions to this rule can be made with the `exceptions` parameter. Default: true
+        *   (minimize all transitive dependencies)
         * @param exceptions
-        *   A list of exceptions to the "All" or "None" approach for `allTransitives` parameter. Default value is
-        *   List.empty()
+        *   A list of exceptions to the "All" or "None" approach for `allTransitives` parameter.
+        *   Default value is List.empty()
         * @see
         *   https://scalablytyped.org/docs/library-developer#compiling-all-that-generated-code
         * @param ignore
-        *   A list of transitive dependencies to ignore (i.e. do not generate Scala.js facades for them) Default value
-        *   is List.empty()
+        *   A list of transitive dependencies to ignore (i.e. do not generate Scala.js facades for
+        *   them) Default value is List.empty()
         * @see
         *   https://scalablytyped.org/docs/conversion-options#stignore
         * @param outputPackage
-        *   The name of the scala package to which you want the Scala.js facades generated Default value:
-        *   "org.ossum.sauce"
+        *   The name of the scala package to which you want the Scala.js facades generated Default
+        *   value: "org.ossum.sauce"
         * @param withDebugOutput
         *   Turn on verbose debug output. Default is false
         * @return
@@ -311,36 +325,37 @@ object OssumIncPlugin extends AutoPlugin {
           withDebugOutput
         )(project)
 
-      /** Configure ScalablyTyped/Converter to generate Scala.js facades for a set of Typescript dependencies without
-        * using `scalajs-bundler`. If you want to use `scalajs-bundler`, use the `With.scalablyTypedWithScalaJsBundler`
-        * helper.
+      /** Configure ScalablyTyped/Converter to generate Scala.js facades for a set of Typescript
+        * dependencies without using `scalajs-bundler`. If you want to use `scalajs-bundler`, use
+        * the `With.scalablyTypedWithScalaJsBundler` helper.
         *
         * @see
         *   https://scalablytyped.org/docs/plugin#how-it-works
         * @see
         *   https://scalablytyped.org/docs/usage
         * @param packageJsonDir
-        *   The directory containing the `package.json` file from which dependencies will be processed by ScalablyTyped.
-        *   This parameter is required.
+        *   The directory containing the `package.json` file from which dependencies will be
+        *   processed by ScalablyTyped. This parameter is required.
         * @param useScalaJsDom
         * @see
         *   https://scalablytyped.org/docs/conversion-options#stusescalajsdom
         * @param minimizeAllTransitives
-        *   When set to true, all transitive dependencies will be minimized. Otherwise, none will be. Exceptions to this
-        *   rule can be made with the `exceptions` parameter. Default: true (minimize all transitive dependencies)
+        *   When set to true, all transitive dependencies will be minimized. Otherwise, none will
+        *   be. Exceptions to this rule can be made with the `exceptions` parameter. Default: true
+        *   (minimize all transitive dependencies)
         * @param exceptions
-        *   A list of exceptions to the "All" or "None" approach for `allTransitives` parameter. Default value is
-        *   List.empty()
+        *   A list of exceptions to the "All" or "None" approach for `allTransitives` parameter.
+        *   Default value is List.empty()
         * @see
         *   https://scalablytyped.org/docs/library-developer#compiling-all-that-generated-code
         * @param ignore
-        *   A list of transitive dependencies to ignore (i.e. do not generate Scala.js facades for them) Default value
-        *   is List.empty()
+        *   A list of transitive dependencies to ignore (i.e. do not generate Scala.js facades for
+        *   them) Default value is List.empty()
         * @see
         *   https://scalablytyped.org/docs/conversion-options#stignore
         * @param outputPackage
-        *   The name of the scala package to which you want the Scala.js facades generated Default value:
-        *   "org.ossum.sauce"
+        *   The name of the scala package to which you want the Scala.js facades generated Default
+        *   value: "org.ossum.sauce"
         * @param withDebugOutput
         *   Turn on verbose debug output. Default is false
         * @return
@@ -375,7 +390,10 @@ object OssumIncPlugin extends AutoPlugin {
         externalMappings: Seq[Seq[String]] = Seq.empty
       )(project: Project): Project =
         project
-          .configure(helpers.Unidoc.configure(apiOutput, baseURL, inclusions, exclusions, logoPath, externalMappings))
+          .configure(
+            helpers.Unidoc
+              .configure(apiOutput, baseURL, inclusions, exclusions, logoPath, externalMappings)
+          )
 
       private def these(cfuncs: ConfigFunc*)(project: Project): Project =
         cfuncs.foldLeft(project) { (p, func) =>

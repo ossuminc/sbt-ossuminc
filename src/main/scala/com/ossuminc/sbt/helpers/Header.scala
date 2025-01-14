@@ -16,7 +16,7 @@
 
 package com.ossuminc.sbt.helpers
 
-import com.ossuminc.sbt.helpers.RootProjectInfo.Keys.{copyrightHolder, projectStartYear}
+import com.ossuminc.sbt.helpers.RootProjectInfo.Keys.*
 import de.heikoseeberger.sbtheader
 import de.heikoseeberger.sbtheader.HeaderPlugin.autoImport.headerLicense
 import de.heikoseeberger.sbtheader.License.*
@@ -50,23 +50,13 @@ object Header extends AutoPluginHelper {
   def configure(project: Project): Project = {
     import HeaderPlugin.autoImport.*
     import sbtheader.{CommentStyle, FileType}
-    project
+    setLicense(project)
       .enablePlugins(AutomateHeaderPlugin)
       .settings(
         headerEmptyLine := true,
         startYear := Some(projectStartYear.value),
         headerLicenseStyle := SpdxSyntax,
         headerEndYear := Some(Calendar.getInstance().get(Calendar.YEAR)),
-        headerLicense := {
-          val years = startYear.value.get.toString + "-" + Year.now().toString
-          Some(
-            HeaderLicense.ALv2(
-              years,
-              copyrightHolder.value,
-              HeaderLicenseStyle.Detailed
-            )
-          )
-        },
         headerMappings ++= Map[FileType, CommentStyle](
           FileType.sh -> CommentStyle.hashLineComment,
           FileType(".sbt") -> CommentStyle.cStyleBlockComment,
@@ -76,30 +66,29 @@ object Header extends AutoPluginHelper {
         )
       )
   }
-  def specificLicense(spdx: String)(project: Project): Project = {
-    configure(project)
-      .settings(
-        headerLicense := {
-          val startYr = projectStartYear.value.toString
-          val orgName = organizationName.value
-          val lic = spdx match {
-            case "COMMERCIAL" | "Commercial" => CommercialLicense(startYr, orgName)
-            case "NONE" | "None"             => CommercialLicense(startYr, orgName)
-            case "Apache-2.0"                => ALv2(startYr, orgName, SpdxSyntax)
-            case "MIT"                       => MIT(startYr, orgName, SpdxSyntax)
-            case "MPLv2"                     => MPLv2(startYr, orgName, SpdxSyntax)
-            case "BSD-2-Clause"              => BSD2Clause(startYr, orgName, SpdxSyntax)
-            case "BSD-3-Clause"              => BSD3Clause(startYr, orgName, SpdxSyntax)
-            case "GPL-3.0"                   => GPLv3(startYr, orgName, SpdxSyntax)
-            case "GPL-3.0-or-later"          => GPLv3OrLater(startYr, orgName, SpdxSyntax)
-            case "GPL-3.0-only"              => GPLv3Only(startYr, orgName, SpdxSyntax)
-            case "LGPL-3.0-only"             => LGPLv3Only(startYr, orgName, SpdxSyntax)
-            case "LGPL-3.0-or-later"         => LGPLv3OrLater(startYr, orgName, SpdxSyntax)
-            case "LGPL-3.0"                  => LGPLv3(startYr, orgName, SpdxSyntax)
-            case "AGPL-3.0"                  => AGPLv3(startYr, orgName, SpdxSyntax)
-          }
-          Some(lic)
+  private def setLicense(project: Project): Project = {
+    project.settings(
+      headerLicense := {
+        val years = projectStartYear.value.toString + "-" + Year.now().toString
+        val orgName = organizationName.value
+        val lic = spdxLicense.value match {
+          case "COMMERCIAL" | "Commercial" => CommercialLicense(years, orgName)
+          case "NONE" | "None"             => CommercialLicense(years, orgName)
+          case "Apache-2.0"                => ALv2(years, orgName, SpdxSyntax)
+          case "MIT"                       => MIT(years, orgName, SpdxSyntax)
+          case "MPLv2"                     => MPLv2(years, orgName, SpdxSyntax)
+          case "BSD-2-Clause"              => BSD2Clause(years, orgName, SpdxSyntax)
+          case "BSD-3-Clause"              => BSD3Clause(years, orgName, SpdxSyntax)
+          case "GPL-3.0"                   => GPLv3(years, orgName, SpdxSyntax)
+          case "GPL-3.0-or-later"          => GPLv3OrLater(years, orgName, SpdxSyntax)
+          case "GPL-3.0-only"              => GPLv3Only(years, orgName, SpdxSyntax)
+          case "LGPL-3.0-only"             => LGPLv3Only(years, orgName, SpdxSyntax)
+          case "LGPL-3.0-or-later"         => LGPLv3OrLater(years, orgName, SpdxSyntax)
+          case "LGPL-3.0"                  => LGPLv3(years, orgName, SpdxSyntax)
+          case "AGPL-3.0"                  => AGPLv3(years, orgName, SpdxSyntax)
         }
-      )
+        Some(lic)
+      }
+    )
   }
 }

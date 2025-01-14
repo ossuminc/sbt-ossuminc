@@ -44,6 +44,10 @@ object RootProjectInfo {
     val copyrightHolder: SettingKey[String] = settingKey[String](
       "The name of the business entity or person that holds the copyright"
     )
+    
+    val spdxLicense: SettingKey[String] = settingKey[String](
+      "The spdx license to apply to the whole project"
+    )
   }
 
   private val defaultDevs = List(
@@ -63,7 +67,7 @@ object RootProjectInfo {
     orgName: String = "Ossum, Inc.",
     orgPage: URL = url("https://ossuminc.com/"),
     devs: List[Developer] = defaultDevs,
-    spdxLicense: String = "Apache-2.0"
+    spdxLicenseName: String = "Apache-2.0"
   )(project: Project): Project = {
     project
       .enablePlugins(MiniDependencyTreePlugin)
@@ -79,8 +83,9 @@ object RootProjectInfo {
         ThisBuild / organization := orgPackage,
         ThisBuild / organizationName := orgName,
         ThisBuild / organizationHomepage := Some(orgPage),
+        RootProjectInfo.Keys.spdxLicense := spdxLicenseName,
         ThisBuild / licenses := {
-          spdxLicense match {
+          spdxLicenseName match {
             case l @ "Apache-2.0"    => Seq(l -> url("https://opensource.org/license/apache-2-0"))
             case l @ "CDDL-1.0"      => Seq(l -> url("https://opensource.org/license/cddl-1-0"))
             case l @ "EPL-2.0"       => Seq(l -> url("https://opensource.org/license/epl-2-0"))
