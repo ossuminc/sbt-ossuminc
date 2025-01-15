@@ -1,6 +1,6 @@
 # sbt-ossuminc
 
-[![Scala.js](https://www.scala-js.org/assets/badges/scalajs-1.16.0.svg)](https://www.scala-js.org)
+[![Scala.js](https://www.scala-js.org/assets/badges/scalajs-1.17.2.svg)](https://www.scala-js.org)
 [![scala-native](https://www.scala-native.org/assets/badges/scala-native-0.5.5.svg)](https://www.scala-native.org)
 
 ## Purpose
