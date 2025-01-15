@@ -20,7 +20,7 @@ Global / onChangedBuildSource := ReloadOnSourceChanges
 lazy val `sbt-ossuminc` = project
   .in(file("."))
   .enablePlugins(SbtPlugin)
-  .configure(RootProjectInfo.initialize("sbt-ossuminc", startYr = 2015) _)
+  .configure(RootProjectInfo.initialize("sbt-ossuminc", startYr = 2015))
   .configure(DynamicVersioning.configure)
   .configure(Scala2.configure)
   .configure(SonatypePublishing.configure)
