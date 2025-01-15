@@ -1,3 +1,5 @@
+import com.ossuminc.sbt.helpers.{DynamicVersioning, RootProjectInfo, Scala2, SonatypePublishing}
+
 /*
  * Copyright 2015-2025, Ossum Inc. All Rights Reserved.
  *
@@ -13,14 +15,12 @@
  * License for  the specific language governing permissions and limitations under the License.
  */
 
-import com.ossuminc.sbt.helpers.*
-
 Global / onChangedBuildSource := ReloadOnSourceChanges
 
 lazy val `sbt-ossuminc` = project
   .in(file("."))
   .enablePlugins(SbtPlugin)
-  .configure(RootProjectInfo.initialize("sbt-ossuminc", startYr = 2015))
+  .configure(RootProjectInfo.initialize("sbt-ossuminc", startYr = 2015) _)
   .configure(DynamicVersioning.configure)
   .configure(Scala2.configure)
   .configure(SonatypePublishing.configure)
@@ -52,6 +52,7 @@ addSbtPlugin("de.heikoseeberger" % "sbt-header" % "5.10.0")
 addSbtPlugin("com.timushev.sbt" % "sbt-updates" % "0.6.4")
 addSbtPlugin("org.xerial.sbt" % "sbt-sonatype" % "3.11.1")
 addSbtPlugin("com.codecommit" % "sbt-github-packages" % "0.5.3")
+addSbtPlugin("com.lightbend.paradox" % "sbt-paradox" % "0.9.2")
 
 // Scala specific from various places
 addSbtPlugin("ch.epfl.scala" % "sbt-scalafix" % "0.12.1")

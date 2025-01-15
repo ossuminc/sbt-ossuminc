@@ -14,6 +14,8 @@
  * limitations under the License.
  */
 
+// resolvers += "Akka library Repository".at("https://repo.akka.io/maven")
+
 // Generic plugins from github.sbt project
 addSbtPlugin("com.github.sbt" % "sbt-dynver" % "5.0.1")
 
@@ -39,6 +41,8 @@ addSbtPlugin("com.timushev.sbt" % "sbt-updates" % "0.6.4")
 addSbtPlugin("org.xerial.sbt" % "sbt-sonatype" % "3.11.1")
 
 addSbtPlugin("com.codecommit" % "sbt-github-packages" % "0.5.3")
+
+addSbtPlugin("com.lightbend.paradox" % "sbt-paradox" % "0.9.2")
 
 // Scala specific from various places
 addSbtPlugin("ch.epfl.scala" % "sbt-scalafix" % "0.12.1")

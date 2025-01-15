@@ -105,7 +105,7 @@ object Akka extends AutoPluginHelper {
 
   def configure(version: AkkaVersion = akka_2024_10)(project: Project): Project = {
     project.settings(
-      resolvers += "Akka library repository".at("https://repo.akka.io/maven"),
+      resolvers += "Akka library Repository".at("https://repo.akka.io/maven"),
       libraryDependencies ++= version.akka_modules
     )
   }

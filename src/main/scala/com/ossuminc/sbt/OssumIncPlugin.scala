@@ -94,6 +94,10 @@ object OssumIncPlugin extends AutoPlugin {
       )(project: Project): Project =
         helpers.Laminar.configure(version, domVersion, waypointVersion, laminextVersion)(project)
 
+      /** Configure this project for generating mkdocs */
+      def mkdocs()(project: Project): Project =
+        project
+
       /** Use this to configure your project to compile to native code The defaults are usually
         * sufficient but the arguments to this function make it easy to specify the options that
         * ScalaNative provides.
@@ -217,6 +221,13 @@ object OssumIncPlugin extends AutoPlugin {
           publishTo := Some(Resolver.defaultLocal),
           publish / skip := true
         )
+
+      def paradox(
+        extrefs: Map[String, String] = Map.empty,
+        tocNavDepth: Int = 3
+      )(project: Project): Project = {
+        helpers.Paradox.configureParadox(extrefs, tocNavDepth)(project)
+      }
 
       /** Configure this project to support releasing with a systematic release procedure */
       val release: ConfigFunc = helpers.Release.configure
