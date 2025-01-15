@@ -11,15 +11,16 @@ by and for that company. However, it is likely quite useful for other
 companies because of its modularity and ability to override the Ossum Inc.
 defaults.
 
-`sbt-ossuminc` is likely most useful if you:
+`sbt-ossuminc` is likely most helpful if you:
 
+* Develop software in Scala (why else would you use `sbt` ? :) )
 * Believe in using mono-repos containing many subprojects
 * Need to support JVM, JS, and Native targets for your Scala code
 * Work at the sbt command line and want lots of utilities there
 
-`sbt-ossuminc` is designed to be opinionated and declarative, and consequently simpler.
-Because you just _declare_ what you want and the defaults are usually correct, it is less verbose
-as well.
+`sbt-ossuminc` is designed to be opinionated and declarative, thus consequently simpler.
+Because you _declare_ what you want and the defaults are usually correct. It is also 
+less verbose than doing the equivalent by hand.
 
 ## Easy Setup
 
@@ -28,14 +29,16 @@ as well.
 In your `project/plugins.sbt` file, place this line:
 
 ```scala
-resolvers += "GitHub Package Registry" at "https://maven.pkg.github.com/ossuminc/_"
-addSbtPlugin("com.ossuminc" % "sbt-ossuminc" % "0.20.0")
+addSbtPlugin("com.ossuminc" % "sbt-ossuminc" % "0.21.0")
 ```
 
 ### ~/sbt/1.0/github.sbt
 
-You will also need to set up your own credentials file as a global .sbt file. We
-recommend placing that in your private home directory at `~/.sbt/1.0/github.sbt`.
+You must also set up your credentials file as a global .sbt file. This file permits you
+to read public repositories from GitHub Package Repository (such as those published by
+Ossum Inc.) and managing private repositories in your organization(s). 
+
+We recommend placing the credentials in your private home directory at `~/.sbt/1.0/github.sbt`.
 It should have content like:
 
 ```text
@@ -46,26 +49,34 @@ credentials += Credentials(
   "your-github-token-here"
 )
 ```
-
-Make sure the token you use has the `read:packages` privilege set.
+where:
+* `your-github-user-name-here` is replaced with your Github user name
+* `your-github-token-here` is replaced with the GitHub Personal Access token (classic) that you have generated with the  `repo` and `read:packages` privilege enabled.
 
 ### build.sbt
 
-In your `build.sbt` place this line near the top:
+In your `build.sbt`, place this line near the top to enable everything `sbt-ossuminc` supports:
 
 ```scala
 enablePlugins(OssumIncPlugin)
 ```
 
-The above tjree things are required to activate the plugin for your build.
-There's more you can do, described below.
+The above three things are required to activate the plugin for your build.
+There's more you can do, as described below.
 
 ## Plugins included
 
 Using that single plugin causes several other plugins to be adopted.
 While you can use other `addSbtPlugin` declarations in `project/plugins.sbt`,
-chances are you don't need to. The one line above also brings in these
-common plugins:
+chances are you don't need to. The one line above also brings in all
+the plugins listed in the sections below. These dependencies of 
+`sbt-ossuminc` are regularly updated with help from
+[Scala Steward](https://github.com/scala-steward-org/scala-steward) so all you have
+to keep up to date is your version of `sbt-ossuminc` which Scala Steward
+can also help you within your project. 
+
+
+### Generic SBT Plugins
 
 ```scala
 // Generic plugins from github.sbt project
@@ -76,15 +87,31 @@ addSbtPlugin("com.github.sbt" % "sbt-pgp" % "2.2.1")
 addSbtPlugin("com.github.sbt" % "sbt-release" % "1.4.0")
 addSbtPlugin("com.github.sbt" % "sbt-unidoc" % "0.5.0")
 addDependencyTreePlugin
+```
+* [sbt-dynver](https://github.com/sbt/sbt-dynver) - dynamic versioning based on git tags, commits, and date stamp
+* [sbt-native-packager](https://github.com/sbt/sbt-native-packager) - packaging your compilation results into a package for various platforms
+* [sbt-git]() - git commands from the sbt prompt
+* [sbt-pgp]()- artifact signing for publishing to Sonatype
+* [sbt-release]() - full control of the release process for your project
+* [sbt-unidoc]() - unifying the documentation output from your programming language from several sub-projects
+* `addDependencyTreePlugin` - adds a plugin so you can use the dependency commands at sbt prompt
 
-// Helpers from other sources
+### Plugins from other sources
+```scala
 addSbtPlugin("com.eed3si9n" % "sbt-buildinfo" % "0.12.0")
 addSbtPlugin("de.heikoseeberger" % "sbt-header" % "5.10.0")
 addSbtPlugin("com.timushev.sbt" % "sbt-updates" % "0.6.4")
 addSbtPlugin("org.xerial.sbt" % "sbt-sonatype" % "3.11.1")
 addSbtPlugin("com.codecommit" % "sbt-github-packages" % "0.5.3")
+```
+* [sbt-buildinfo]() - Your program can know all kinds of things about your build
+* [sbt-header]() - Keep those file headers up to date with your project license
+* [sbt-updates]() - TBD
+* [sbt-sonatype]() - Publishing to Sonatype and Maven Central
+* [sbt-github-packages]() - Publishing to Github Package Repository
 
-// Scala specific from various places
+### Scala Specific Plugins
+```scala
 addSbtPlugin("ch.epfl.scala" % "sbt-scalafix" % "0.12.1")
 addSbtPlugin("org.scalameta" % "sbt-scalafmt" % "2.5.2")
 addSbtPlugin("org.scoverage" % "sbt-scoverage" % "2.1.0")
@@ -96,9 +123,6 @@ addSbtPlugin("org.portable-scala" % "sbt-scala-native-crossproject" % "1.3.2")
 addSbtPlugin("org.portable-scala" % "sbt-platform-deps" % "1.0.2")
 ```
 
-These dependencies of `sbt-ossuminc` are regularly updated with help from
-[Scala Steward](https://github.com/scala-steward-org/scala-steward) so all you have
-to keep up to date is your version of `sbt-ossuminc`
 
 ## Standard Features Provided
 
@@ -296,11 +320,11 @@ lazy val docsite = DocSite(
   .dependsOn(utils, language, passes, diagrams, commands)
 ```
 
-## With Options
+## Configuration Helpers
 
-Since the goal of `sbt-ossuminc` is to be declarative, we want to specify just what we want to
-include in the build. For this we have the `With` options. These are sbt configuration functions
-that transform a Project into another project with different settings. You can pass these names
+Since the goal of `sbt-ossuminc` is to be declarative, we want to specify what we want to
+include in the build. For this, we have the `With` options. These sbt configuration functions
+transform a Project into another project with different settings. You can pass these names
 directly into a `.configure` call chain invocation per usual `sbt` usage.
 
 Here are descriptions of all the parameterless configuration functions you can use:
@@ -348,6 +372,8 @@ Here are the descriptions of the configuration functions that take parameters:
     * version: String = "17.1.0"
     * domVersion: String = "2.8.0"
     * waypointVersion: Option[String] = None
+    * laminextVersion: Option[String] = None
+    * laminextModules: Seq[String] = Seq.empty
 
 * `With.MiMa` - turns on Migration manager, and you must specify at least the first option:
     * previousVersion: String // the previous version of the artifact/project to check against
@@ -377,7 +403,6 @@ Here are the descriptions of the configuration functions that take parameters:
         - pkgName: String,
         - pkgSummary: String,
         - pkgDescription: String
-
 
 * `With.riddl(version: String, nonJVM: Boolean = true)`
     - include a specific version of RIDDL libraries with the following options:
