@@ -12,16 +12,15 @@ object Laminar extends AutoPluginHelper {
     version: String = "17.2.0",
     dom_version: String = "2.8.0",
     waypoint_version: Option[String] = Some("9.0.0"),
-    laminext_version: Option[Seq[(String, String)]] = None
+    laminextVersion: Option[String] = None,
+    laminextModules: Seq[String] = Seq.empty
   )(project: Project): Project =
     project.settings(
       libraryDependencies ++= {
         val waypoint: Seq[ModuleID] =
           waypoint_version.map(v => "com.raquo" %%% "waypoint" % v).toSeq
         val laminext: Seq[ModuleID] = {
-          val modver: Seq[(String, String)] =
-            laminext_version.getOrElse(Seq.empty[(String, String)])
-          modver.map { case (module, version) =>
+          laminextModules.map { module =>
             module match {
               case "core"       => "dev.laminext" %%% "core" % version
               case "fetch"      => "dev.laminext" %%% "fetch" % version

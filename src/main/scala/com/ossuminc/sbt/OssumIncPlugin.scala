@@ -90,9 +90,11 @@ object OssumIncPlugin extends AutoPlugin {
         version: String = "17.2.0",
         domVersion: String = "2.8.0",
         waypointVersion: Option[String] = Some("9.0.0"),
-        laminextVersion: Option[Seq[(String, String)]] = None
+        laminextVersion: Option[String] = None,
+        laminextModules: Seq[String] = Seq.empty
       )(project: Project): Project =
-        helpers.Laminar.configure(version, domVersion, waypointVersion, laminextVersion)(project)
+        helpers.Laminar.configure(version, domVersion, waypointVersion, laminextVersion,
+          laminextModules)(project)
 
       /** Configure this project for generating mkdocs */
       def mkdocs()(project: Project): Project =
