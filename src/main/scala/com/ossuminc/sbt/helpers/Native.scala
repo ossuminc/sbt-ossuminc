@@ -22,7 +22,7 @@ object Native extends AutoPluginHelper {
   def apply(
     mode: String = "fast",
     buildTarget: String = "static",
-    gc: String = "boehm",
+    gc: String = "none",
     lto: String = "none",
     debugLog: Boolean = false,
     verbose: Boolean = false,
