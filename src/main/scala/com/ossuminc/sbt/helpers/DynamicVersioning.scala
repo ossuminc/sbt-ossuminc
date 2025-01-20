@@ -1,5 +1,6 @@
 package com.ossuminc.sbt.helpers
-import sbt.{Project, ThisBuild}
+
+import sbt.*
 import sbtdynver.DynVerPlugin
 import sbtdynver.DynVerPlugin.autoImport.{dynverSeparator, dynverVTagPrefix}
 

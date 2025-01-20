@@ -1,5 +1,8 @@
 package com.ossuminc.sbt.helpers
 
+import sbt.*
+import scalajsbundler.sbtplugin.ScalaJSBundlerPlugin.autoImport.{npmDependencies, useYarn}
+
 import org.scalablytyped.converter.Selection
 import org.scalablytyped.converter.plugin.STKeys.{externalNpm, stMinimize, stSourceGenMode}
 import org.scalablytyped.converter.plugin.ScalablyTypedPluginBase.autoImport.*
@@ -8,8 +11,6 @@ import org.scalablytyped.converter.plugin.{
   ScalablyTypedConverterGenSourcePlugin,
   SourceGenMode
 }
-import sbt.*
-import scalajsbundler.sbtplugin.ScalaJSBundlerPlugin.autoImport.{npmDependencies, useYarn}
 
 import scala.sys.process.Process
 
