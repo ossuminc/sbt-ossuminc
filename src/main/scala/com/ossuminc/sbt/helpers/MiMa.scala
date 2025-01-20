@@ -17,8 +17,10 @@ import sbttastymima.TastyMiMaPlugin.autoImport.*
   */
 object MiMa extends AutoPluginHelper {
 
+  override def configure(project: Project) = Without(project)
+  
   /** Mark a project as not processed by MiMa */
-  def configure(project: Project): Project = {
+  def Without(project: Project): Project = {
     project
       .disablePlugins(MimaPlugin, TastyMiMaPlugin)
       .settings(
@@ -40,7 +42,7 @@ object MiMa extends AutoPluginHelper {
     *   When set to `true`, this turns on the `mimaReportSignatureProblems` setting which compares the whole function
     *   signature, including generic type parameters.
     */
-  def configure(
+  def With(
     previousVersion: String,
     excludedClasses: Seq[String] = Seq.empty,
     reportSignatureIssues: Boolean = false

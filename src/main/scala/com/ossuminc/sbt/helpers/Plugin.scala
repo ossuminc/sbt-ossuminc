@@ -7,6 +7,7 @@ import sbt.Keys.*
 import sbt.ScriptedPlugin.autoImport.{scriptedBufferLog, scriptedLaunchOpts}
 import sbt.plugins.SbtPlugin
 import scoverage.ScoverageSbtPlugin
+import com.ossuminc.sbt.helpers
 
 object Plugin {
 
@@ -14,7 +15,7 @@ object Plugin {
     project
       .enablePlugins(SbtPlugin, JavaAppPackaging)
       .disablePlugins(ScoverageSbtPlugin)
-      .configure(With.basic, With.scala2, With.scalafmt, With.SonatypePublishing)
+      .configure(With.basic, With.scala2, helpers.Scalafmt.configure, With.SonatypePublishing)
       .settings(
         scalaVersion := "2.12.19",
         sbtPlugin := true,

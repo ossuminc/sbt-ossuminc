@@ -13,7 +13,9 @@ import java.io.File
 
 object Packaging extends AutoPluginHelper {
 
-  override def configure(project: Project): Project = project
+  override def configure(project: Project) = none(project)
+
+  def none(project: Project): Project = project
 
   def universal(
     maintainerEmail: String,
@@ -51,7 +53,9 @@ object Packaging extends AutoPluginHelper {
       )
   }
 
-  def graalVM(pkgName: String, pkgSummary: String, native_image_path: File)(project: Project): Project = {
+  def graalVM(pkgName: String, pkgSummary: String, native_image_path: File)(
+    project: Project
+  ): Project = {
     project
       .enablePlugins(SbtNativePackager, GraalVMNativeImagePlugin)
       .settings(

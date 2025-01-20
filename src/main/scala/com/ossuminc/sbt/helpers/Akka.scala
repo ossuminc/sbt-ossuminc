@@ -1,5 +1,9 @@
 package com.ossuminc.sbt.helpers
 
+import com.ossuminc.sbt.helpers
+import com.ossuminc.sbt.helpers
+import com.ossuminc.sbt.helpers
+import com.ossuminc.sbt.helpers
 import sbt.*
 import sbt.Keys.*
 
@@ -103,14 +107,21 @@ object Akka extends AutoPluginHelper {
     )
   }
 
-  def configure(version: AkkaVersion = akka_2024_10)(project: Project): Project = {
+  def forRelease(release: String = "")(project: Project): Project = {
+    val version = release match {
+      case "2024.10" | "24.10" => helpers.Akka.akka_2024_10
+      case "2024.05" | "24.05" => helpers.Akka.akka_2024_05
+      case ""                  => helpers.Akka.akka_2024_10
+      case other: String => throw new IllegalArgumentException(s"Unknown akka release: $other")
+    }
+    project.configure(this.forVersion(version))
+  }
+
+  def forVersion(version: AkkaVersion)(project: Project): Project =
     project.settings(
       resolvers += "Akka library Repository".at("https://repo.akka.io/maven"),
       libraryDependencies ++= version.akka_modules
     )
-  }
 
-  override def configure(project: Project): Project = {
-    configure(akka_2024_05)(project)
-  }
+  def configure(project: Project): Project = forVersion(akka_2024_10)(project)
 }

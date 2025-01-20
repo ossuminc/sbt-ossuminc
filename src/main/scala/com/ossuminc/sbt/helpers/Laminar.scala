@@ -6,34 +6,45 @@ import sbt.Keys.libraryDependencies
 
 object Laminar extends AutoPluginHelper {
 
-  override def configure(project: Project): Project = configure()(project)
+  override def configure(project: Project): Project = With()(project)
 
-  def configure(
-    version: String = "17.2.0",
+  def With(
+    laminar_version: String = "17.2.0",
     dom_version: String = "2.8.0",
     waypoint_version: Option[String] = Some("9.0.0"),
-    laminextModules: Seq[String] = Seq.empty,
     laminextVersion: Option[String] = None,
-  )(project: Project): Project =
+    laminextModules: Seq[String] = Seq.empty
+  )(project: Project): Project = {
     project.settings(
       libraryDependencies ++= {
         val waypoint: Seq[ModuleID] =
           waypoint_version.map(v => "com.raquo" %%% "waypoint" % v).toSeq
-        val v_laminex = laminextVersion.getOrElse("0.17.1")
+        val v_laminex = laminextVersion.getOrElse("0.17.0")
+        val org = v_laminex match {
+          case s: String if s.startsWith("0.") =>
+            val strs = s.split(".")
+            val min = strs(1).toInt
+            if (min < 17) "io.laminext"
+            else if (min > 18) "dev.laminext"
+            else if (strs(2).toInt >= 1) "dev.laminext"
+            else "io.laminext"
+          case _: String => "dev.laminext"
+        }
         val laminext: Seq[ModuleID] = {
           laminextModules.map {
-            case "core" => "dev.laminext" %%% "core" % v_laminex
-            case "fetch" => "dev.laminext" %%% "fetch" % v_laminex
-            case "websocket" => "dev.laminext" %%% "websocket" % v_laminex
-            case "ui" => "dev.laminext" %%% "ui" % v_laminex
-            case "validation" => "dev.laminext" %%% "validation" % v_laminex
-            case "util" => "dev.laminext" %%% "util" % v_laminex
+            case "core"       => org %%% "core" % v_laminex
+            case "fetch"      => org %%% "fetch" % v_laminex
+            case "websocket"  => org %%% "websocket" % v_laminex
+            case "ui"         => org %%% "ui" % v_laminex
+            case "validation" => org %%% "validation" % v_laminex
+            case "util"       => org %%% "util" % v_laminex
           }
         }
         Seq(
           "org.scala-js" %%% "scalajs-dom" % dom_version,
-          "com.raquo" %%% "laminar" % v_laminex
+          "com.raquo" %%% "laminar" % laminar_version
         ) ++ waypoint ++ laminext
       }
     )
+  }
 }

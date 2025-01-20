@@ -17,11 +17,9 @@ object Native extends AutoPluginHelper {
     * @return
     *   The same project passed as an argument, post configuration
     */
-  def configure(project: Project): Project = {
-    configure()(project)
-  }
+  def configure(project: Project): Project = With()(project)
 
-  def configure(
+  def With(
     mode: String = "fast",
     buildTarget: String = "static",
     gc: String = "boehm",

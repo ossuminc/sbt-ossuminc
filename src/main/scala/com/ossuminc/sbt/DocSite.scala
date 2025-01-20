@@ -3,12 +3,13 @@ package com.ossuminc.sbt
 import com.ossuminc.sbt.OssumIncPlugin.autoImport.With
 import sbt.{File, Project, ProjectReference, file}
 
-/** A [[DocSite]] is a sub-directory that aims at providing documentation with the ScalaDoc integrated into its contents
-  * via the unidoc plugin.
+/** A [[DocSite]] is a sub-directory that provides documentation with the ScalaDoc integrated into
+  * its contents via the unidoc plugin.
   * @param dirName
   *   The directory from repository root where the documentation will live
   * @param apiOutput
-  *   Where the unidoc plugin should be placed in the documentation. It should be a subdirectory name of dirName
+  *   Where the unidoc plugin should be placed in the documentation. It should be a subdirectory
+  *   name of dirName
   * @param baseURL
   *   The URL to use as the base of the documentation. Should be where your website shows up
   * @param inclusions
@@ -37,6 +38,15 @@ object DocSite {
       .apply(dirName, file(dirName))
       .enablePlugins(OssumIncPlugin)
       .configure(With.basic, With.scala3)
-      .configure(With.unidoc(outpath, baseURL, inclusions, exclusions, logoPath, externalMappings))
+      .configure(
+        helpers.Unidoc.configure(
+          outpath,
+          baseURL,
+          inclusions,
+          exclusions,
+          logoPath,
+          externalMappings
+        )
+      )
   }
 }
