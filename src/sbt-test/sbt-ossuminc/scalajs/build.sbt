@@ -7,9 +7,9 @@ enablePlugins(OssumIncPlugin)
 
 lazy val root = Root("scalajs", startYr = 2024)
   .enablePlugins(ScalaJSPlugin)
-  .configure(With.basic, With.js(hasMain = true))
+  .configure(With.basic, With.Javascript("test main", hasMain = true, withCommonJSModule = true))
   .settings(
-    scalaVersion:= "3.4.2",
+    scalaVersion := "3.4.2",
     maxErrors := 50,
     TaskKey[Unit]("check") := {
       println(s"Checking from within sbt:")

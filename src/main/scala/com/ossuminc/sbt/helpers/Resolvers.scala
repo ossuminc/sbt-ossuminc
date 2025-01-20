@@ -1,13 +1,14 @@
 package com.ossuminc.sbt.helpers
 
-import sbt.Keys.*
 import sbt.*
+import sbt.Keys.*
+import sbtghpackages.GitHubPackagesPlugin.autoImport.GHPackagesResolverSyntax
 
 object Resolvers extends AutoPluginHelper {
 
   private val standardResolvers: Seq[Resolver] = Seq[Resolver](
     Resolver.mavenLocal,
-    Resolver.jcenterRepo
+    Resolver.jcenterRepo,
   ) ++ Resolver.sonatypeOssRepos("releases") ++
     Resolver.sonatypeOssRepos("snapshots")
 
@@ -20,5 +21,8 @@ object Resolvers extends AutoPluginHelper {
   }
 
   def configure(project: Project): Project =
-    configure(scalaResolvers)(project)
+    project.settings(
+      resolvers += Resolver.githubPackages(RootProjectInfo.Keys.gitHubOrganization.value),
+      resolvers ++= scalaResolvers
+    )
 }

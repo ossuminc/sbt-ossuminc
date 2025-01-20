@@ -1,0 +1,4 @@
+> compile
+$ exists target/scala-3.4.3/src_managed/main/scalablytyped/org.ossum.sauce/chartJs
+
+

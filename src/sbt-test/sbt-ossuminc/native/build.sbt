@@ -1,18 +1,15 @@
-import sbt.Keys.startYear
-import sbt.url
-
 import java.nio.file.{Files, Path}
 
 enablePlugins(OssumIncPlugin)
 
-lazy val root = Root("native", startYr = 2024)
-  .configure(With.basic, With.build_info, With.native(noLTO = true))
+lazy val root = Root("hello", startYr = 2024)
+  .configure(With.noPublishing)
+  .aggregate(hello)
   .settings(
-    maxErrors := 50,
-    mainClass in (Compile, run) := Some("PrintHello"),
     TaskKey[Boolean]("checkBuildInfo", "Check existence of BuildInfo.scala") := {
       val dir = Path.of(System.getProperty("user.dir"))
-      val file = dir.resolve("target/scala-2.12/src_managed/main/com/ossuminc/BuildInfo.scala")
+      val file =
+        dir.resolve("hello/target/scala-3.4.3/src_managed/main/com/ossuminc/BuildInfo.scala")
       val isReadable = Files.isReadable(file)
       println(s"Readable: $isReadable: $dir")
       isReadable
@@ -22,3 +19,6 @@ lazy val root = Root("native", startYr = 2024)
       true
     }
   )
+
+lazy val hello = Program("hello", "hello", Some("test.hello"))
+  .configure(With.basic, With.build_info, With.scala3, With.Native(buildTarget = "application"))

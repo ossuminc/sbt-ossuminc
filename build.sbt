@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015, Reactific Software LLC. All Rights Reserved.
+ * Copyright 2015-2025, Ossum Inc. All Rights Reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not
  * use this file except in compliance with the License. You may obtain a copy
@@ -25,6 +25,7 @@ lazy val `sbt-ossuminc` = project
   .configure(Scala2.configure)
   .configure(SonatypePublishing.configure)
   .settings(
+    licenses += "Apache V2.0" -> url("https://www.apache.org/licenses/LICENSE-2.0"),
     name := "sbt-ossuminc",
     scalaVersion := "2.12.19",
     // Scripted == sbt plugin tests
@@ -50,14 +51,19 @@ addSbtPlugin("com.eed3si9n" % "sbt-buildinfo" % "0.12.0")
 addSbtPlugin("de.heikoseeberger" % "sbt-header" % "5.10.0")
 addSbtPlugin("com.timushev.sbt" % "sbt-updates" % "0.6.4")
 addSbtPlugin("org.xerial.sbt" % "sbt-sonatype" % "3.11.1")
+addSbtPlugin("com.codecommit" % "sbt-github-packages" % "0.5.3")
+addSbtPlugin("com.lightbend.paradox" % "sbt-paradox" % "0.9.2")
 
 // Scala specific from various places
 addSbtPlugin("ch.epfl.scala" % "sbt-scalafix" % "0.12.1")
 addSbtPlugin("org.scalameta" % "sbt-scalafmt" % "2.5.2")
-addSbtPlugin("org.scoverage" % "sbt-scoverage" % "2.1.0")
-addSbtPlugin("org.scoverage" % "sbt-coveralls" % "1.3.13")
-addSbtPlugin("org.scala-native" % "sbt-scala-native" % "0.5.4")
-addSbtPlugin("org.scala-js" % "sbt-scalajs" % "1.16.0")
-addSbtPlugin("org.portable-scala" % "sbt-scalajs-crossproject"      % "1.3.2")
+addSbtPlugin("org.scoverage" % "sbt-scoverage" % "2.1.1")
+addSbtPlugin("org.scoverage" % "sbt-coveralls" % "1.3.14")
+addSbtPlugin("org.scala-native" % "sbt-scala-native" % "0.5.6")
+addSbtPlugin("org.scala-js" % "sbt-scalajs" % "1.17.0")
+addSbtPlugin("org.portable-scala" % "sbt-scalajs-crossproject" % "1.3.2")
 addSbtPlugin("org.portable-scala" % "sbt-scala-native-crossproject" % "1.3.2")
+addSbtPlugin("com.typesafe" % "sbt-mima-plugin" % "1.1.4")
+addSbtPlugin("ch.epfl.scala" % "sbt-tasty-mima" % "1.2.0")
+addSbtPlugin("org.scalablytyped.converter" % "sbt-converter" % "1.0.0-beta44")
 addSbtPlugin("com.thesamet" % "sbt-protoc" % "1.0.6")

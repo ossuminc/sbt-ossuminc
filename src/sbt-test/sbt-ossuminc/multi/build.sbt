@@ -1,5 +1,7 @@
 import scala.sys.process.{Process, ProcessLogger}
 
+import com.ossuminc.sbt.OssumIncPlugin.autoImport.Plugin
+
 enablePlugins(OssumIncPlugin)
 
 lazy val root = Root("multi")
@@ -34,7 +36,6 @@ lazy val p2 = Module("project2", "p2")
   .dependsOn(p1)
 
 lazy val plugin = Plugin("plugin", "plugin")
-  .configure(With.basic)
   .settings(
     maxErrors := 50,
     TaskKey[Unit]("check") := {

@@ -1,10 +1,11 @@
 package com.ossuminc.sbt.helpers
+import org.portablescala.sbtplatformdeps.PlatformDepsPlugin.autoImport.*
 import sbt.*
 import sbt.Keys.*
 
+import scala.scalanative.build.*
 import scala.scalanative.sbtplugin.ScalaNativePlugin
 import scala.scalanative.sbtplugin.ScalaNativePlugin.autoImport.*
-import scala.scalanative.build._
 
 object Native extends AutoPluginHelper {
 
@@ -16,19 +17,17 @@ object Native extends AutoPluginHelper {
     * @return
     *   The same project passed as an argument, post configuration
     */
-  def configure(project: Project): Project = {
-    configure()(project)
-  }
+  def configure(project: Project): Project = apply()(project)
 
-  def configure(
-    buildTarget : String = "static",
-    targetTriple: String = "arm64-apple-macosx11.0.0",
-    gc: String = "commix",
-    debug: Boolean = true,
-    noLTO: Boolean = false,
+  def apply(
+    mode: String = "fast",
+    buildTarget: String = "static",
+    gc: String = "none",
+    lto: String = "none",
     debugLog: Boolean = false,
     verbose: Boolean = false,
-    ld64Path: String = "/opt/homebrew/opt/llvm/bin/ld64.lld"
+    targetTriple: Option[String] = None,
+    linkOptions: Seq[String] = Seq("-I/usr/include")
   )(project: Project): Project = {
     project
       .enablePlugins(ScalaNativePlugin)
@@ -38,43 +37,57 @@ object Native extends AutoPluginHelper {
           if (debugLog) { Level.Debug }
           else { Level.Info }
         },
-        scalaVersion := "3.3.3",
         // defaults set with common options shown
-        nativeConfig ~= { c =>
+        Compile / nativeConfig ~= { c =>
           {
-            val mode = if (debug) Mode.debug else Mode.releaseFast
-            val lto = if (noLTO) LTO.none else LTO.thin
-            val compileOptions = if (verbose) { Seq("-v") } else {Seq.empty}
-            val linkOptions = Seq(s"-fuse-ld=$ld64Path")
+            val snMode: Mode =
+              mode match {
+                case s: String if s == "debug"   => Mode.debug
+                case s: String if s == "fast"    => Mode.releaseFast
+                case s: String if s == "full"    => Mode.releaseFull
+                case s: String if s == "size"    => Mode.releaseSize
+                case s: String if s == "release" => Mode.release
+                case _: String                   => Mode.default
+              }
+            val snLTO =
+              lto match {
+                case s: String if s == "full" => LTO.full
+                case s: String if s == "thin" => LTO.thin
+                case s: String if s == "none" => LTO.none
+                case _: String                => LTO.default
+              }
+            val compileOptions = if (verbose) { Seq("-v") }
+            else { Seq.empty }
             val bTarget = buildTarget match {
               case "application" => BuildTarget.application
-              case "dynamic" => BuildTarget.libraryDynamic
-              case "static" => BuildTarget.libraryStatic
-              case _ => BuildTarget.libraryStatic
+              case "dynamic"     => BuildTarget.libraryDynamic
+              case "static"      => BuildTarget.libraryStatic
+              case _             => BuildTarget.libraryStatic
             }
-            c.withLTO(lto)
-              .withMode(mode)
+            val d = c
+              .withLTO(snLTO)
+              .withMode(snMode)
               .withGC(GC(gc))
-              .withTargetTriple(targetTriple)
               .withBuildTarget(bTarget)
+              .withTargetTriple(targetTriple)
               .withCompileOptions(c.compileOptions ++ compileOptions)
               .withLinkingOptions(c.linkingOptions ++ linkOptions)
+              .withEmbedResources(true)
+            if (snMode == Mode.debug)
+              d.withSourceLevelDebuggingConfig(
+                _.enableAll
+              ) // enable generation of debug information
+                .withOptimize(false) // disable Scala Native optimizer
+            else
+              d.withOptimize(true) // enable Scala Native optimizer
           }
-        }
+        },
+        Test / nativeConfig ~= { c => c.withBuildTarget(BuildTarget.application) },
+        concurrentRestrictions += Tags.limit(NativeTags.Link, 1),
+        libraryDependencies ++= Seq(
+          "org.scalactic" %%% "scalactic" % "3.2.19" % Test,
+          "org.scalatest" %%% "scalatest" % "3.2.19" % Test
+        )
       )
   }
 }
-
-
-// nativeConfig ~= { _.withBuildTarget(BuildTarget.libraryDynamic) }
-//application (default)
-//
-//Results in creating ready to use executable program.
-//
-//libraryDynamic
-//
-//Results in dynamic library being built based on entry point methods annotated with @exported, for details see Native code interoperability.
-//
-//libraryStatic
-//
-//Results in building static library using the same semantincs as in the libraryDynamic. Exported methods should handle exceptions, as they might not be able to be catched in the program that is using a produced static library.

@@ -7,7 +7,8 @@ import scoverage.ScoverageSbtPlugin
 object ScalaCoverage extends AutoPluginHelper {
 
   object Keys {
-    val coveragePercent: SettingKey[Double] = settingKey[Double]("The default percentage coverage to require for a project")
+    val coveragePercent: SettingKey[Double] =
+      settingKey[Double]("The default percentage coverage to require for a project")
   }
 
   /** The configuration function to call for this plugin helper
