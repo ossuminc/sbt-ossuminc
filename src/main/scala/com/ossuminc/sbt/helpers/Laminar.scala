@@ -6,9 +6,9 @@ import sbt.Keys.libraryDependencies
 
 object Laminar extends AutoPluginHelper {
 
-  override def configure(project: Project): Project = With()(project)
+  override def configure(project: Project): Project = apply()(project)
 
-  def With(
+  def apply(
     laminar_version: String = "17.2.0",
     dom_version: String = "2.8.0",
     waypoint_version: Option[String] = Some("9.0.0"),

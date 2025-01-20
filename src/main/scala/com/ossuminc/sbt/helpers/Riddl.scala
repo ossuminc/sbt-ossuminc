@@ -8,7 +8,7 @@ object Riddl extends AutoPluginHelper {
 
   val latest_version = "1.0.0-RC5"
 
-  override def configure(project: Project) = library()(project)
+  override def configure(project: Project) = testKit()(project)
 
   def library(
     version: String = latest_version,
@@ -32,7 +32,7 @@ object Riddl extends AutoPluginHelper {
     version: String = latest_version,
     nonJVMDependency: Boolean = true
   )(project: Project): Project = {
-    Scalatest.With()(project)
+    Scalatest.configure(project)
     project.settings(
       libraryDependencies ++= {
         if (nonJVMDependency) {

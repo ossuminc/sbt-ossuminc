@@ -28,6 +28,8 @@ object OssumIncPlugin extends AutoPlugin {
     // Clauses to customize the major declarations
     object With {
 
+      def akka: ConfigFunc = helpers.Akka.configure
+
       def Akka = helpers.Akka
 
       /** Use this to provide dependencies on most recent Akka libraries */
@@ -40,9 +42,7 @@ object OssumIncPlugin extends AutoPlugin {
         */
       def build_info: ConfigFunc = helpers.BuildInfo.configure
 
-      /* The same as `build_info` but with additional key settings */
-      def build_info_plus_keys(addKeys: (String, Any)*)(project: Project): Project =
-        helpers.BuildInfo.configurewithKeys(addKeys)(project)
+      val BuildInfo = helpers.BuildInfo
 
       /** Configure the project to require a certain percentage of coverage in test cases */
       def coverage(percent: Double = 50.0d)(project: Project): Project =
@@ -60,6 +60,13 @@ object OssumIncPlugin extends AutoPlugin {
       /** Use this to get git command line support at the sbt prompt */
       val git: ConfigFunc = helpers.Git.configure
 
+      /** Configure this project to be published as a Maven GitHub Package in the organization
+        * specified by Root
+        * @note
+        *   Do not combine this with SonatypePublishing
+        */
+      val GithubPublishing: ConfigFunc = helpers.GithubPublishing.configure
+
       /** Use this to get the `headerCheck` and `headerCreate` sbt commands to generate source file
         * headers automatically
         */
@@ -69,32 +76,19 @@ object OssumIncPlugin extends AutoPlugin {
       val java: ConfigFunc = helpers.Java.configure
 
       /** Use this to configure your project to compile Scala to Javascript via scala.js */
+      val js: ConfigFunc = helpers.Javascript.configure
+
       val Javascript = helpers.Javascript
 
       /** Use this to configure your project to include typical laminar dependencies */
       val Laminar = helpers.Laminar
 
-      val Native = helpers.Native
-
       val MiMa = helpers.MiMa
 
+      val Native = helpers.Native
+
       /** Do not configure this project for Lightbend's Migration Manager */
-      val noMiMa: ConfigFunc = helpers.MiMa.Without
-
-      val Packaging = helpers.Packaging
-
-      /** Configure this project to be published as open source
-        * @note
-        *   Do not combine this with SonatypePublishing
-        */
-      val SonatypePublishing: ConfigFunc = helpers.SonatypePublishing.configure
-
-      /** Configure this project to be published as a Maven GitHub Package in the organization
-        * specified by Root
-        * @note
-        *   Do not combine this with SonatypePublishing
-        */
-      val GithubPublishing: ConfigFunc = helpers.GithubPublishing.configure
+      val noMiMa: ConfigFunc = helpers.MiMa.without
 
       /** Configure this project to produce no artifact and not be published */
       def noPublishing(project: Project): Project =
@@ -106,6 +100,14 @@ object OssumIncPlugin extends AutoPlugin {
           publish / skip := true
         )
 
+      val Packaging = helpers.Packaging
+
+      /** Configure this project to be published as open source
+        * @note
+        *   Do not combine this with SonatypePublishing
+        */
+      val SonatypePublishing: ConfigFunc = helpers.SonatypePublishing.configure
+
       /** Configure this project to support releasing with a systematic release procedure */
       val release: ConfigFunc = helpers.Release.configure
 
@@ -113,6 +115,7 @@ object OssumIncPlugin extends AutoPlugin {
       val resolvers: ConfigFunc = helpers.Resolvers.configure
 
       /** Configure dependency on a version of the RIDDL library */
+      def riddl: ConfigFunc = helpers.Riddl.configure
       def Riddl = helpers.Riddl
 
       /** Compile scala code as Scala 2.13.latest */
@@ -165,7 +168,7 @@ object OssumIncPlugin extends AutoPlugin {
         project
           .configure(basic)
           .configure(scala3)
-          .configure(helpers.Scalatest.With("3.2.19"))
+          .configure(helpers.Scalatest("3.2.19"))
       }
     }
   }

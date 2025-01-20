@@ -1,4 +1,5 @@
 package com.ossuminc.sbt.helpers
+
 import sbt.*
 import sbt.Keys.*
 import sbtbuildinfo.BuildInfoKeys.buildInfoUsePackageAsPath
@@ -72,9 +73,14 @@ object BuildInfo extends AutoPluginHelper {
       )
   }
 
-  def configurewithKeys(addKeys: Seq[(String, Any)] = Seq.empty)(project: Project): Project = {
+  /** Configure with additional key/value pairs provided by first argument
+    *
+    * @param keyValues
+    *   The keys and value to add to the BuildInfo output
+    */
+  def withKeys(keyValues: (String, Any)*)(project: Project): Project = {
     configure(project).settings(
-      buildInfoKeys ++= { addKeys.map { case (k, v) => BuildInfoKey.action(k) { v } } }
+      buildInfoKeys ++= { keyValues.map { case (k, v) => BuildInfoKey.action(k) { v } } }
     )
   }
 }

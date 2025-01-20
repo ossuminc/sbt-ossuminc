@@ -8,9 +8,9 @@ import org.portablescala.sbtplatformdeps.PlatformDepsPlugin.autoImport.*
 
 object Javascript extends AutoPluginHelper {
 
-  override def configure(project: Project): Project = With()(project)
+  override def configure(project: Project): Project = apply()(project)
 
-  def With(
+  def apply(
     header: String = "no header",
     hasMain: Boolean = false,
     forProd: Boolean = true,
