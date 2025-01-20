@@ -6,10 +6,14 @@ import sbt.Keys.libraryDependencies
 
 object Riddl extends AutoPluginHelper {
 
-  override def configure(project: Project): Project =
-    configure()(project)
+  val latest_version = "1.0.0-RC5"
 
-  def configure(version: String = "0.54.0", nonJVMDependency: Boolean = true)(project: Project): Project =
+  override def configure(project: Project) = testKit()(project)
+
+  def library(
+    version: String = latest_version,
+    nonJVMDependency: Boolean = true
+  )(project: Project): Project =
     project.settings(
       libraryDependencies ++= {
         if (nonJVMDependency) {
@@ -24,8 +28,11 @@ object Riddl extends AutoPluginHelper {
       }
     )
 
-  def testKit(version: String = "0.54.0", nonJVMDependency: Boolean = true)(project: Project): Project = {
-    ScalaTest.configure(project)
+  def testKit(
+    version: String = latest_version,
+    nonJVMDependency: Boolean = true
+  )(project: Project): Project = {
+    Scalatest.configure(project)
     project.settings(
       libraryDependencies ++= {
         if (nonJVMDependency) {

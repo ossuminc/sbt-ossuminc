@@ -92,8 +92,7 @@ object Scala2 extends AutoPluginHelper {
     * @return
     *   The same project passed as an argument, post configuration
     */
-
-  def configure(project: Project): Project = {
+  def configure(project: Project): Project =
     project
       .settings(
         scalaVersion := "2.12.19",
@@ -127,5 +126,5 @@ object Scala2 extends AutoPluginHelper {
             )
         }
       )
-  }
+
 }

@@ -6,21 +6,15 @@ import sbt.Keys.*
 /** A helper that can be used to configure the complex dependencies in the Akka Platform */
 object Akka extends AutoPluginHelper {
 
-  sealed trait AkkaVersion {
+  private sealed trait AkkaVersion {
     def akka_modules: Seq[ModuleID]
   }
 
   /** An object to define the components of the Akka 2024.05 release of Akka Platform */
-  case object akka_2024_05 extends AkkaVersion {
-    object V {
+  private case object akka_2024_05 extends AkkaVersion {
+    private object V {
       val akka_core = "2.9.3"
-      val akka_grpc = "2.4.3"
       val akka_http = "10.6.3"
-      val akka_persistence_r2dbc = "1.2.4"
-      val akka_persistence_cassandra = "1.2.1"
-      val akka_management = "1.5.2"
-      val akka_projections = "1.5.4"
-      val akka_diagnostics = "2.1.1"
       val slf4j = "2.0.13"
     }
 
@@ -56,8 +50,8 @@ object Akka extends AutoPluginHelper {
     )
   }
 
-  case object akka_2024_10 extends AkkaVersion {
-    object V {
+  private case object akka_2024_10 extends AkkaVersion {
+    private object V {
       val akka_core = "2.10.0"
       val akka_http = "10.7.0"
       val akka_grpc = "2.5.0"
@@ -67,7 +61,7 @@ object Akka extends AutoPluginHelper {
       val akka_diagnostics = "2.1.1"
       val akka_kafka = "7.0.1"
     }
-    def akka_core: Seq[ModuleID] = Seq(
+    private def akka_core: Seq[ModuleID] = Seq(
       "com.typesafe.akka" %% "akka-actor" % V.akka_core,
       "com.typesafe.akka" %% "akka-actor-typed" % V.akka_core,
       "com.typesafe.akka" %% "akka-cluster-typed" % V.akka_core,
@@ -103,14 +97,18 @@ object Akka extends AutoPluginHelper {
     )
   }
 
-  def configure(version: AkkaVersion = akka_2024_10)(project: Project): Project = {
+  def forRelease(release: String = "")(project: Project): Project = {
+    val version = release match {
+      case "2024.10" | "24.10" => akka_2024_10
+      case "2024.05" | "24.05" => akka_2024_05
+      case ""                  => akka_2024_10
+      case other: String => throw new IllegalArgumentException(s"Unknown akka release: $other")
+    }
     project.settings(
       resolvers += "Akka library Repository".at("https://repo.akka.io/maven"),
       libraryDependencies ++= version.akka_modules
     )
   }
 
-  override def configure(project: Project): Project = {
-    configure(akka_2024_05)(project)
-  }
+  def configure(project: Project): Project = forRelease("")(project)
 }

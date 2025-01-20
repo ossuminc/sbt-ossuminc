@@ -24,29 +24,26 @@ import sbt.{IO, _}
 import java.io.File
 
 /** General settings for the project */
-object Miscellaneous extends AutoPluginHelper {
+object Miscellaneous {
 
-  def configure(project: Project): Project = { project }
-
-  private def currBranch: String = {
-    import com.github.sbt.git.JGit
-    val jgit = JGit(new File("."))
-    jgit.branch
-  }
-
-  def buildShellPrompt: Def.Initialize[State => String] = {
-    Def.setting { (state: State) =>
-      val id = Project.extract(state).currentProject.id
-      s"${name.value}($id) : $currBranch : ${version.value}>"
-    }
-  }
-
-  private def filter(ms: Seq[(File, String)]): Seq[(File, String)] = {
-    ms.filter { case (_, path) =>
-      path != "logback.xml" &&
-      !path.startsWith("toignore") &&
-      !path.startsWith("samples")
-    }
+  def useClassPathJar(project: Project): Project = {
+    project.settings(
+      Seq[Def.SettingsDefinition](
+        scriptClasspath := {
+          import com.typesafe.sbt.SbtNativePackager._
+          import com.typesafe.sbt.packager.Keys._
+          Miscellaneous.makeClasspathJar(
+            scriptClasspathOrdering
+              .map(Miscellaneous.makeRelativeClasspathNames)
+              .value,
+            (Universal / target).value
+          )
+        },
+        Universal / mappings += {
+          (Universal / target).value / "lib" / "classpath.jar" -> "lib/classpath.jar"
+        }
+      ): _*
+    )
   }
 
   def useUnmanagedJarLibs(project: Project): Project = {
@@ -71,6 +68,27 @@ object Miscellaneous extends AutoPluginHelper {
         Compile / packageSrc / mappings ~= filter,
         Compile / packageDoc / mappings ~= filter
       )
+  }
+
+  def buildShellPrompt: Def.Initialize[State => String] = {
+    Def.setting { (state: State) =>
+      val id = Project.extract(state).currentProject.id
+      s"${name.value}($id) : $currBranch : ${version.value}>"
+    }
+  }
+
+  private def currBranch: String = {
+    import com.github.sbt.git.JGit
+    val jgit = JGit(new File("."))
+    jgit.branch
+  }
+
+  private def filter(ms: Seq[(File, String)]): Seq[(File, String)] = {
+    ms.filter { case (_, path) =>
+      path != "logback.xml" &&
+      !path.startsWith("toignore") &&
+      !path.startsWith("samples")
+    }
   }
 
   private val classpath_jar = "classpath.jar"
@@ -99,23 +117,4 @@ object Miscellaneous extends AutoPluginHelper {
     Seq(classpath_jar)
   }
 
-  def useClassPathJar(project: Project): Project = {
-    project.settings(
-      Seq[Def.SettingsDefinition](
-        scriptClasspath := {
-          import com.typesafe.sbt.SbtNativePackager._
-          import com.typesafe.sbt.packager.Keys._
-          Miscellaneous.makeClasspathJar(
-            scriptClasspathOrdering
-              .map(Miscellaneous.makeRelativeClasspathNames)
-              .value,
-            (Universal / target).value
-          )
-        },
-        Universal / mappings += {
-          (Universal / target).value / "lib" / "classpath.jar" -> "lib/classpath.jar"
-        }
-      ): _*
-    )
-  }
 }

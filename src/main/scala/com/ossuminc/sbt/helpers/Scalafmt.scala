@@ -19,18 +19,14 @@ object Scalafmt extends AutoPluginHelper {
       )
   }
 
-  private val scalafmt_path: String =
-    "/ossuminc/sbt-ossuminc/main/.scalafmt.conf"
-  private val scalafmt_conf: File =
-    file(System.getProperty("user.dir")) / ".scalafmt.conf"
+  private val scalafmt_path: String = "/ossuminc/sbt-ossuminc/main/.scalafmt.conf"
+  private val scalafmt_conf: File = file(System.getProperty("user.dir")) / ".scalafmt.conf"
   private val scalafmt_config_etag_path: File =
     file(System.getProperty("user.dir")) / ".scalafmt.conf.etag"
 
-  def configure(project: Project): Project = {
-    configureWithPath(scalafmt_path)(project)
-  }
-
-  def configureWithPath(pathArg: String)(project: Project): Project = {
+  def configure(project: Project): Project = forFormatFile()(project)
+  
+  def forFormatFile(pathArg: String = scalafmt_path)(project: Project): Project = {
     val path = if (pathArg.isEmpty) scalafmt_path else pathArg
     project
       .enablePlugins(ScalafmtPlugin)
@@ -69,13 +65,15 @@ object Scalafmt extends AutoPluginHelper {
     val etag = conn.getHeaderField("ETag")
     val last_etag = {
       if (etagFile.exists()) {
-        Source.fromFile(etagFile).mkString
-
+        val src = Source.fromFile(etagFile)
+        try {
+          src.mkString
+        } finally { src.close() }
       } else { "" }
     }
     if (etag != last_etag) {
       import java.nio.charset.StandardCharsets
-        import java.nio.file.Files
+      import java.nio.file.Files
       Files.write(etagFile.toPath, etag.getBytes(StandardCharsets.UTF_8))
       status match {
         case java.net.HttpURLConnection.HTTP_OK =>

@@ -17,19 +17,17 @@ object Native extends AutoPluginHelper {
     * @return
     *   The same project passed as an argument, post configuration
     */
-  def configure(project: Project): Project = {
-    configure()(project)
-  }
+  def configure(project: Project): Project = apply()(project)
 
-  def configure(
+  def apply(
     mode: String = "fast",
     buildTarget: String = "static",
-    gc: String = "boehm",
+    gc: String = "none",
     lto: String = "none",
     debugLog: Boolean = false,
     verbose: Boolean = false,
     targetTriple: Option[String] = None,
-    linkOptions: Seq[String] = Seq.empty[String]
+    linkOptions: Seq[String] = Seq("-I/usr/include")
   )(project: Project): Project = {
     project
       .enablePlugins(ScalaNativePlugin)
@@ -76,7 +74,9 @@ object Native extends AutoPluginHelper {
               .withLinkingOptions(c.linkingOptions ++ linkOptions)
               .withEmbedResources(true)
             if (snMode == Mode.debug)
-              d.withSourceLevelDebuggingConfig(_.enableAll) // enable generation of debug information
+              d.withSourceLevelDebuggingConfig(
+                _.enableAll
+              ) // enable generation of debug information
                 .withOptimize(false) // disable Scala Native optimizer
             else
               d.withOptimize(true) // enable Scala Native optimizer

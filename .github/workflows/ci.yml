@@ -23,6 +23,9 @@ jobs:
           java-version: '21'
           distribution: 'adopt-hotspot'
 
+      - name: Set Up SBT
+        uses: sbt/setup-sbt@v1
+
       - name: Coursier UnCaching
         uses: coursier/cache-action@v6
 

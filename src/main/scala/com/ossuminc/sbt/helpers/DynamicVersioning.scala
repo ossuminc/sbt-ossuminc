@@ -1,5 +1,6 @@
 package com.ossuminc.sbt.helpers
-import sbt.{Project, ThisBuild}
+
+import sbt.*
 import sbtdynver.DynVerPlugin
 import sbtdynver.DynVerPlugin.autoImport.{dynverSeparator, dynverVTagPrefix}
 
@@ -13,7 +14,7 @@ object DynamicVersioning extends AutoPluginHelper {
     * @return
     *   The same project passed as an argument, post configuration
     */
-  def configure(project: Project): Project = {
+  def configure(project: Project): Project =
     project
       .enablePlugins(DynVerPlugin)
       .settings(
@@ -27,5 +28,4 @@ object DynamicVersioning extends AutoPluginHelper {
         // use the minus character to separate version fields
         ThisBuild / dynverSeparator := "-"
       )
-  }
 }

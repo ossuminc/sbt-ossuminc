@@ -5,16 +5,17 @@ import sbt.Project
 import sbt.librarymanagement.ModuleID
 import org.portablescala.sbtplatformdeps.PlatformDepsPlugin.autoImport.*
 
-object ScalaTest extends AutoPluginHelper {
+object Scalatest extends AutoPluginHelper {
 
-  override def configure(project: Project): Project = { configure()(project) }
+  val latest_version = "3.2.19"
 
-  def configure(
+  override def configure(project: Project) = apply()(project)
+
+  def apply(
     version: String = "3.2.19",
     scalacheckVersion: Option[String] = None,
     nonJVM: Boolean = true
   )(project: Project): Project = {
-
     project.settings(
       libraryDependencies ++= {
         def scalactic(version: String, nonJVM: Boolean): ModuleID = {

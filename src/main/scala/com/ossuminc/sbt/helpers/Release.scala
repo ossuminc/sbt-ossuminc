@@ -172,7 +172,7 @@ object Release extends AutoPluginHelper {
     } :+ pushChanges
   }
 
-  def configure(project: Project): Project = {
+  def configure(project: Project): Project =
     project
       .enablePlugins(ReleasePlugin)
       .settings(defaultSettings)
@@ -190,5 +190,4 @@ object Release extends AutoPluginHelper {
             finalSteps(Keys.privateNexusResolver.value.isEmpty)
         }
       )
-  }
 }
