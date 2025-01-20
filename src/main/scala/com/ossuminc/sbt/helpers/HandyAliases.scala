@@ -39,9 +39,6 @@ object HandyAliases extends AutoPluginHelper {
       "print-runtime-class-path",
       "Print the project's runtime class path."
     )
-
-    private[sbt] val compileOnly =
-      TaskKey[File]("compile-only", "Compile just the specified files")
   }
 
   def configure(project: Project): Project = {
