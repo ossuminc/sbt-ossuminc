@@ -128,7 +128,7 @@ object OssumIncPlugin extends AutoPlugin {
       val Scalafmt = helpers.Scalafmt
 
       /** Add scalaTest libraries to the libraryDependencies */
-      def ScalaTest = helpers.Scalatest
+      def Scalatest = helpers.Scalatest
 
       /** Configure this project to enable coverage testing */
       val scoverage: ConfigFunc = helpers.ScalaCoverage.configure
@@ -168,7 +168,7 @@ object OssumIncPlugin extends AutoPlugin {
         project
           .configure(basic)
           .configure(scala3)
-          .configure(helpers.Scalatest("3.2.19"))
+          .configure(Scalatest())
       }
     }
   }
