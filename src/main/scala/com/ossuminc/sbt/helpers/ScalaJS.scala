@@ -5,6 +5,7 @@ import sbt.Keys.libraryDependencies
 import org.scalajs.sbtplugin.ScalaJSPlugin
 import org.scalajs.sbtplugin.ScalaJSPlugin.autoImport.*
 import org.portablescala.sbtplatformdeps.PlatformDepsPlugin.autoImport.*
+import org.scalajs.linker.interface.ModuleSplitStyle
 
 object Javascript extends AutoPluginHelper {
 
@@ -33,6 +34,7 @@ object Javascript extends AutoPluginHelper {
                 ModuleKind.ESModule
               }
             })
+            .withModuleSplitStyle(ModuleSplitStyle.FewestModules)
             .withSourceMap(!forProd)
             .withJSHeader("// " + header + "\n")
         },
