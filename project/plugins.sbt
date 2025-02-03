@@ -69,6 +69,8 @@ addSbtPlugin("ch.epfl.scala" % "sbt-tasty-mima" % "1.2.0")
 
 addSbtPlugin("org.scalablytyped.converter" % "sbt-converter" % "1.0.0-beta44")
 
+addSbtPlugin("org.jetbrains" % "sbt-idea-plugin" % "3.26.2")
+
 libraryDependencies ++= Seq(
   "org.scala-sbt" %% "scripted-plugin" % sbtVersion.value
 )

@@ -72,6 +72,8 @@ object OssumIncPlugin extends AutoPlugin {
         */
       val header: ConfigFunc = helpers.Header.configure
 
+      val IdeaPlugin = helpers.IdeaPlugin
+
       /** Use this to enable compilation of Java code too */
       val java: ConfigFunc = helpers.Java.configure
 
