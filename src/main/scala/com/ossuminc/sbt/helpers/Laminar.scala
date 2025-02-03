@@ -19,25 +19,28 @@ object Laminar extends AutoPluginHelper {
       libraryDependencies ++= {
         val waypoint: Seq[ModuleID] =
           waypoint_version.map(v => "com.raquo" %%% "waypoint" % v).toSeq
-        val v_laminex = laminextVersion.getOrElse("0.17.0")
-        val org = v_laminex match {
+        val v_laminext = laminextVersion.getOrElse("0.17.1")
+        val org = v_laminext match {
           case s: String if s.startsWith("0.") =>
             val strs = s.split(".")
-            val min = strs(1).toInt
-            if (min < 17) "io.laminext"
-            else if (min > 18) "dev.laminext"
-            else if (strs(2).toInt >= 1) "dev.laminext"
-            else "io.laminext"
+            val minor = strs(1).toInt
+            if (minor < 17) "io.laminext"
+            else if (minor >= 18) "dev.laminext"
+            else {
+              val patch = strs(2).toInt
+              if (patch >= 1) "dev.laminext"
+              else "io.laminext"
+            }
           case _: String => "dev.laminext"
         }
         val laminext: Seq[ModuleID] = {
           laminextModules.map {
-            case "core"       => org %%% "core" % v_laminex
-            case "fetch"      => org %%% "fetch" % v_laminex
-            case "websocket"  => org %%% "websocket" % v_laminex
-            case "ui"         => org %%% "ui" % v_laminex
-            case "validation" => org %%% "validation" % v_laminex
-            case "util"       => org %%% "util" % v_laminex
+            case "core"       => org %%% "core" % v_laminext
+            case "fetch"      => org %%% "fetch" % v_laminext
+            case "websocket"  => org %%% "websocket" % v_laminext
+            case "ui"         => org %%% "ui" % v_laminext
+            case "validation" => org %%% "validation" % v_laminext
+            case "util"       => org %%% "util" % v_laminext
           }
         }
         Seq(
