@@ -1,19 +1,38 @@
 <idea-plugin>
     <id>com.ossuminc.plugins.idea.test</id>
-    <name>Test</name>
-    <version>1.0.0</version>
-    <vendor url="https://github.com/ossuminc">ossuminc</vendor>
-    <idea-version since-build="243.*"/>
+    <name>My Awesome Test Framework</name>
+    <version>0.0.1-SNAPSHOT</version>
+    <vendor>Ossum Inc.</vendor>
 
-    <description>
-        A test for the IdeaPlugin helper in sbt-ossuminc
+    <description>A new plugin for IntelliJ platform written in Scala and built with SBT
     </description>
+
+    <idea-version since-build="243.0"/>
 
     <depends>com.intellij.modules.platform</depends>
     <depends>com.intellij.properties</depends>
 
+    <resource-bundle>messages.SamplePluginBundle</resource-bundle>
+
+    <actions>
+        <action id="org.jetbrains.scala.samples.actions.PopupDialogAction"
+                class="org.jetbrains.scala.samples.actions.PopupDialogAction">
+            <add-to-group group-id="ToolsMenu" anchor="first"/>
+        </action>
+    </actions>
+
+    <applicationListeners>
+        <listener class="org.jetbrains.scala.samples.listeners.FileOpenedListener"
+                  topic="com.intellij.openapi.fileEditor.FileEditorManagerListener"/>
+    </applicationListeners>
+
     <extensions defaultExtensionNs="com.intellij">
-        <postStartupActivity implementation="com.ossuminc.riddl.plugins.idea.project.RiddlProject"/>
+        <notificationGroup displayType="BALLOON" id="My Plugin Notification"/>
+        <toolWindow factoryClass="org.jetbrains.scala.samples.ui.MyToolWindowFactory"
+                    id="MyToolWindow" anchor="bottom"/>
+        <completion.contributor
+                implementationClass="org.jetbrains.scala.samples.completion.SimpleCompletionContributor"
+                language="Properties"/>
     </extensions>
 
 </idea-plugin>

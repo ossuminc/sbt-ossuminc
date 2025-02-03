@@ -2,7 +2,9 @@ package com.ossuminc.sbt.helpers
 
 import org.jetbrains.sbtidea.SbtIdeaPlugin
 import sbt.*
+import sbt.Keys.*
 import org.jetbrains.sbtidea.SbtIdeaPlugin.autoImport.*
+import org.jetbrains.sbtidea.verifier.FailureLevel
 
 object IdeaPlugin extends AutoPluginHelper {
 
@@ -20,6 +22,13 @@ object IdeaPlugin extends AutoPluginHelper {
     project
       .enablePlugins(SbtIdeaPlugin)
       .settings(
+        Compile / javacOptions ++= Seq("--release", "17"),
+        Compile / scalacOptions ++= Seq("--release", "17"),
+        libraryDependencies ++= Seq(
+          "com.eclipsesource.minimal-json" % "minimal-json" % "0.9.5"
+        ),
+        Compile / unmanagedResourceDirectories += baseDirectory.value / "resources",
+        Test / unmanagedResourceDirectories += baseDirectory.value / "testResources",
         ThisBuild / intellijPluginName := name,
         ThisBuild / intellijBuild := build,
         ThisBuild / intellijPlatform := {
@@ -30,6 +39,7 @@ object IdeaPlugin extends AutoPluginHelper {
           }
         },
         // Add dependent plugins bundled with IDEA to the set required
+        intellijPlugins += "com.intellij.properties".toPlugin,
         intellijPlugins ++= dependsOnPlugins.map(x => s"com.intellij.$x").map(_.toPlugin),
         ThisBuild / patchPluginXml := pluginXmlOptions { xml =>
           xml.version = sbt.Keys.version.value
@@ -40,7 +50,13 @@ object IdeaPlugin extends AutoPluginHelper {
         },
         ThisBuild / intellijVMOptions := intellijVMOptions.value.copy(xmx = maxMem, xms = 256),
         ThisBuild / pluginVerifierOptions := pluginVerifierOptions.value.copy(
-          offline = true // forbid the verifier from reaching the internet
+          offline = true, // forbid the verifier from reaching the internet
+          failureLevels = Set(
+            FailureLevel.COMPATIBILITY_PROBLEMS,
+            FailureLevel.INVALID_PLUGIN,
+            FailureLevel.MISSING_DEPENDENCIES,
+            FailureLevel.PLUGIN_STRUCTURE_WARNINGS
+          )
         )
       )
   }
