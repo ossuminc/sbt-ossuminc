@@ -30,19 +30,19 @@ object OssumIncPlugin extends AutoPlugin {
 
       def akka: ConfigFunc = helpers.Akka.configure
 
-      def Akka = helpers.Akka
+      def Akka: helpers.Akka.type = helpers.Akka
 
       /** Use this to provide dependencies on most recent Akka libraries */
 
       /** Use this to provide handy sbt command line aliases */
-      val aliases: ConfigFunc = helpers.HandyAliases.configure
+      def aliases: ConfigFunc = helpers.HandyAliases.configure
 
       /** Use this to have the build generate build information. "I know this because sbt knows
         * this"
         */
       def build_info: ConfigFunc = helpers.BuildInfo.configure
 
-      val BuildInfo = helpers.BuildInfo
+      def BuildInfo: helpers.BuildInfo.type = helpers.BuildInfo
 
       /** Configure the project to require a certain percentage of coverage in test cases */
       def coverage(percent: Double = 50.0d)(project: Project): Project =
@@ -55,42 +55,42 @@ object OssumIncPlugin extends AutoPlugin {
       /** Use dynamic versioning based on the most recent tag, and the commit hash and data/time
         * stamp if necessary
         */
-      val dynver: ConfigFunc = helpers.DynamicVersioning.configure
+      def dynver: ConfigFunc = helpers.DynamicVersioning.configure
 
       /** Use this to get git command line support at the sbt prompt */
-      val git: ConfigFunc = helpers.Git.configure
+      def git: ConfigFunc = helpers.Git.configure
 
       /** Configure this project to be published as a Maven GitHub Package in the organization
         * specified by Root
         * @note
         *   Do not combine this with SonatypePublishing
         */
-      val GithubPublishing: ConfigFunc = helpers.GithubPublishing.configure
+      def GithubPublishing: ConfigFunc = helpers.GithubPublishing.configure
 
       /** Use this to get the `headerCheck` and `headerCreate` sbt commands to generate source file
         * headers automatically
         */
-      val header: ConfigFunc = helpers.Header.configure
+      def header: ConfigFunc = helpers.Header.configure
 
-      val IdeaPlugin = helpers.IdeaPlugin
+      def IdeaPlugin: helpers.IdeaPlugin.type = helpers.IdeaPlugin
 
       /** Use this to enable compilation of Java code too */
-      val java: ConfigFunc = helpers.Java.configure
+      def java: ConfigFunc = helpers.Java.configure
 
-      /** Use this to configure your project to compile Scala to Javascript via scala.js */
-      val js: ConfigFunc = helpers.Javascript.configure
-
-      val Javascript = helpers.Javascript
+      /** Use this to configure your project to compile Scala to ScalaJS via scala.js */
+      def Javascript: helpers.Javascript.type = helpers.Javascript
+      def js: ConfigFunc = helpers.Javascript.configure
 
       /** Use this to configure your project to include typical laminar dependencies */
-      val Laminar = helpers.Laminar
+      def Laminar: helpers.Laminar.type = helpers.Laminar
 
-      val MiMa = helpers.MiMa
+      def MiMa: helpers.MiMa.type = helpers.MiMa
 
-      val Native = helpers.Native
+      /** Use this to configure your project to build native code with Scala.Native */
+      def Native: helpers.Native.type = helpers.Native
 
       /** Do not configure this project for Lightbend's Migration Manager */
-      val noMiMa: ConfigFunc = helpers.MiMa.without
+      def noMiMa: ConfigFunc = helpers.MiMa.without
 
       /** Configure this project to produce no artifact and not be published */
       def noPublishing(project: Project): Project =
@@ -102,44 +102,44 @@ object OssumIncPlugin extends AutoPlugin {
           publish / skip := true
         )
 
-      val Packaging = helpers.Packaging
+      def Packaging: helpers.Packaging.type = helpers.Packaging
 
       /** Configure this project to be published as open source
         * @note
         *   Do not combine this with SonatypePublishing
         */
-      val SonatypePublishing: ConfigFunc = helpers.SonatypePublishing.configure
+      def SonatypePublishing: ConfigFunc = helpers.SonatypePublishing.configure
 
       /** Configure this project to support releasing with a systematic release procedure */
-      val release: ConfigFunc = helpers.Release.configure
+      def release: ConfigFunc = helpers.Release.configure
 
       /** Add extra resolvers to the build for this project */
-      val resolvers: ConfigFunc = helpers.Resolvers.configure
+      def resolvers: ConfigFunc = helpers.Resolvers.configure
 
       /** Configure dependency on a version of the RIDDL library */
       def riddl: ConfigFunc = helpers.Riddl.configure
-      def Riddl = helpers.Riddl
+      def Riddl: helpers.Riddl.type = helpers.Riddl
 
       /** Compile scala code as Scala 2.13.latest */
-      val scala2: ConfigFunc = helpers.Scala2.configure
+      def scala2: ConfigFunc = helpers.Scala2.configure
 
       /** Compile scala code as Scala 3's latest LTS release */
-      val scala3: ConfigFunc = helpers.Scala3.configure
+      def scala3: ConfigFunc = helpers.Scala3.configure
 
       /** Configure this project to use standard Scalafmt formatting rules. */
-      val Scalafmt = helpers.Scalafmt
+      def Scalafmt: helpers.Scalafmt.type = helpers.Scalafmt
 
       /** Add scalaTest libraries to the libraryDependencies */
-      def Scalatest = helpers.Scalatest
+      def Scalatest: helpers.Scalatest.type = helpers.Scalatest
 
       /** Configure this project to enable coverage testing */
-      val scoverage: ConfigFunc = helpers.ScalaCoverage.configure
+      def scoverage: ConfigFunc = helpers.ScalaCoverage.configure
 
-      val ScalablyTyped = helpers.ScalablyTyped
+      def ScalablyTyped: helpers.ScalablyTyped.type = helpers.ScalablyTyped
 
-      val Unidoc = helpers.Unidoc
+      def Unidoc: helpers.Unidoc.type = helpers.Unidoc
 
-      private def these(cfuncs: ConfigFunc*)(project: Project): Project =
+      def these(cfuncs: ConfigFunc*)(project: Project): Project =
         cfuncs.foldLeft(project) { (p, func) =>
           p.configure(func)
         }
