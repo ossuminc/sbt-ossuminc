@@ -10,9 +10,9 @@ import scalanativecrossproject.ScalaNativeCrossPlugin.autoImport.*
 import scala.scalanative.sbtplugin.ScalaNativePlugin
 import org.portablescala.sbtplatformdeps.PlatformDepsPlugin.autoImport.*
 
-/** A CrossModule is a module that can be built for JVM, Javascript or Native execution. As with all modules the first
-  * set of paUse it like:
-  * {{{val my_project = CrossModule("dir_name", "module_name")(Javascript + JVM + Native).configure(...).settings(...)}}}
+/** A CrossModule is a module that can be built for JVM, ScalaJS or Native execution. Use it like:
+  * {{{val my_project = CrossModule("dir_name", "module_name")(ScalaJS + JVM +
+  * Native).configure(...).settings(...) }}}
   */
 object CrossModule {
   sealed trait Target { def platform: Platform }
@@ -21,9 +21,9 @@ object CrossModule {
   case object NodeTarget extends Target { def platform: Platform = NodePlatform }
   case object NativeTarget extends Target { def platform: Platform = NativePlatform }
 
-  /** Define a subproject or module of the root project. Make sure to use the [[Root]] function before this Module is
-    * defined. No configuration is applied, but you can do that by using the various With.* functions in this plugin.
-    * `With.typical` is typical for Scala3 development
+  /** Define a subproject or module of the root project. Make sure to use the [[Root]] function
+    * before this Module is defined. No configuration is applied, but you can do that by using the
+    * various With.* functions in this plugin. `With.typical` is typical for Scala3 development
     * @param dirName
     *   The name of the subdirectory in which the module is located.
     * @param modName
@@ -46,7 +46,9 @@ object CrossModule {
     val cp3 =
       if (targets.contains(CrossModule.JVMTarget)) {
         if (targets.contains(CrossModule.JSTarget)) {
-          cp2.jvmSettings(libraryDependencies += "org.scala-js" %% "scalajs-stubs" % "1.1.0" % "provided")
+          cp2.jvmSettings(
+            libraryDependencies += "org.scala-js" %% "scalajs-stubs" % "1.1.0" % "provided"
+          )
         } else
           cp2
       } else
@@ -67,7 +69,9 @@ object CrossModule {
     if (targets.contains(CrossModule.NativeTarget)) {
       val cp = cp4.nativeEnablePlugins(ScalaNativePlugin)
       if (targets.contains(CrossModule.JSTarget))
-        cp.nativeSettings(libraryDependencies += "org.scala-js" %% "scalajs-stubs" % "1.1.0" % "provided")
+        cp.nativeSettings(
+          libraryDependencies += "org.scala-js" %% "scalajs-stubs" % "1.1.0" % "provided"
+        )
       else cp
     } else cp4
   }
