@@ -30,7 +30,7 @@ object OssumIncPlugin extends AutoPlugin {
 
       def akka: ConfigFunc = helpers.Akka.configure
 
-      def Akka: helpers.Akka.type = helpers.Akka
+      def Akka = helpers.Akka
 
       /** Use this to provide dependencies on most recent Akka libraries */
 
@@ -118,7 +118,7 @@ object OssumIncPlugin extends AutoPlugin {
 
       /** Configure dependency on a version of the RIDDL library */
       def riddl: ConfigFunc = helpers.Riddl.configure
-      def Riddl: helpers.Riddl.type = helpers.Riddl
+      def Riddl = helpers.Riddl
 
       /** Compile scala code as Scala 2.13.latest */
       def scala2: ConfigFunc = helpers.Scala2.configure

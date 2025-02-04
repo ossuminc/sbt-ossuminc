@@ -6,7 +6,7 @@ import sbt.Keys.libraryDependencies
 
 object Riddl extends AutoPluginHelper {
 
-  val latest_version = "1.0.0-RC5"
+  val latest_version = "1.0.0-RC6"
 
   override def configure(project: Project) = testKit()(project)
 
