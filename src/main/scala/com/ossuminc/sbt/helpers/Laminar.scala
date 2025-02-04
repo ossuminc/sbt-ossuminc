@@ -23,6 +23,7 @@ object Laminar extends AutoPluginHelper {
         val org = v_laminext match {
           case s: String if s.startsWith("0.") =>
             val strs = s.split(".")
+            require(strs.length > 2, "Invalid 3 part laminex version")
             val minor = strs(1).toInt
             if (minor < 17) "io.laminext"
             else if (minor >= 18) "dev.laminext"
@@ -41,6 +42,8 @@ object Laminar extends AutoPluginHelper {
             case "ui"         => org %%% "ui" % v_laminext
             case "validation" => org %%% "validation" % v_laminext
             case "util"       => org %%% "util" % v_laminext
+            case s: String =>
+              throw new IllegalArgumentException(s"Unsupported laminar module $s")
           }
         }
         Seq(
