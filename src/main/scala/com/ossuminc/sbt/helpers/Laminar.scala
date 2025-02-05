@@ -22,8 +22,8 @@ object Laminar extends AutoPluginHelper {
         val v_laminext = laminextVersion.getOrElse("0.17.1")
         val org = v_laminext match {
           case s: String if s.startsWith("0.") =>
-            val strs = s.split(".")
-            require(strs.length > 2, "Invalid 3 part laminex version")
+            val strs = s.split('.')
+            require(strs.length > 2, s"Invalid 3 part laminext version: $s")
             val minor = strs(1).toInt
             if (minor < 17) "io.laminext"
             else if (minor >= 18) "dev.laminext"
