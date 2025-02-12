@@ -78,8 +78,8 @@ object OssumIncPlugin extends AutoPlugin {
       def java: ConfigFunc = helpers.Java.configure
 
       /** Use this to configure your project to compile Scala to ScalaJS via scala.js */
-      def Javascript: helpers.Javascript.type = helpers.Javascript
-      def js: ConfigFunc = helpers.Javascript.configure
+      def ScalaJS: helpers.ScalaJS.type = helpers.ScalaJS
+      def scalajs: ConfigFunc = helpers.ScalaJS.configure
 
       /** Use this to configure your project to include typical laminar dependencies */
       def Laminar: helpers.Laminar.type = helpers.Laminar

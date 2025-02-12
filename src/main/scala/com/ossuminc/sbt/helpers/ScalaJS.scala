@@ -1,13 +1,14 @@
 package com.ossuminc.sbt.helpers
 
 import sbt.*
-import sbt.Keys.libraryDependencies
+import sbt.Keys.*
 import org.scalajs.sbtplugin.ScalaJSPlugin
 import org.scalajs.sbtplugin.ScalaJSPlugin.autoImport.*
 import org.portablescala.sbtplatformdeps.PlatformDepsPlugin.autoImport.*
 import org.scalajs.linker.interface.ModuleSplitStyle
+import com.github.sbt.git.GitPlugin.autoImport.git
 
-object Javascript extends AutoPluginHelper {
+object ScalaJS extends AutoPluginHelper {
 
   override def configure(project: Project): Project = apply()(project)
 
@@ -23,6 +24,23 @@ object Javascript extends AutoPluginHelper {
       .enablePlugins(ScalaJSPlugin)
       // .settings(ScalaJSPlugin.testConfigSettings) <-- generates undefined settings
       .settings(
+        // For source maps in Scala
+        scalacOptions ++= {
+          // Map the sourcemaps to github paths instead of local directories
+          val flag =
+            if (scalaVersion.value.startsWith("3")) "-scalajs-mapSourceURI"
+            else "-P:scalajs:mapSourceURI"
+          val localSourcesPath = baseDirectory.value.toURI
+          val headCommit = git.gitHeadCommit.value.get
+          scmInfo.value.map { info =>
+            val remoteSourcesPath =
+              s"${
+                info.browseUrl.toString
+                  .replace("github.com", "raw.githubusercontent.com")
+              }/$headCommit"
+            s"${flag}:$localSourcesPath->$remoteSourcesPath"
+          }
+        },    
         // for an application with a main method
         scalaJSUseMainModuleInitializer := hasMain,
         scalaJSLinkerConfig ~= {
