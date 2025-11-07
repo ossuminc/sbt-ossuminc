@@ -29,7 +29,7 @@ less verbose than doing the equivalent by hand.
 In your `project/plugins.sbt` file, place this line:
 
 ```scala
-addSbtPlugin("com.ossuminc" % "sbt-ossuminc" % "0.21.0")
+addSbtPlugin("com.ossuminc" % "sbt-ossuminc" % "0.22.0")
 ```
 
 ### ~/sbt/1.0/github.sbt
