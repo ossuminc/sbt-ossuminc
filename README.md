@@ -1,7 +1,7 @@
 # sbt-ossuminc
 
-[![Scala.js](https://www.scala-js.org/assets/badges/scalajs-1.16.0.svg)](https://www.scala-js.org)
-[![scala-native](https://www.scala-native.org/assets/badges/scala-native-0.5.5.svg)](https://www.scala-native.org)
+[![Scala.js](https://www.scala-js.org/assets/badges/scalajs-1.20.1.svg)](https://www.scala-js.org)
+[![scala-native](https://www.scala-native.org/assets/badges/scala-native-0.5.9.svg)](https://www.scala-native.org)
 
 ## Purpose
 
@@ -13,14 +13,64 @@ defaults.
 
 `sbt-ossuminc` is likely most helpful if you:
 
-* Develop software in Scala (why else would you use `sbt` ? :) )
+* Develop software in Scala (why else would you use `sbt`? :) )
 * Believe in using mono-repos containing many subprojects
 * Need to support JVM, JS, and Native targets for your Scala code
 * Work at the sbt command line and want lots of utilities there
 
-`sbt-ossuminc` is designed to be opinionated and declarative, thus consequently simpler.
-Because you _declare_ what you want and the defaults are usually correct. It is also 
-less verbose than doing the equivalent by hand.
+## Design Philosophy
+
+`sbt-ossuminc` embraces a **functional, minimalist, Don't-Repeat-Yourself (DRY)** approach to build configuration:
+
+### Declarative Over Imperative
+Instead of writing imperative sbt settings, you **declare what you want** using composable configuration helpers. The plugin handles the details.
+
+```scala
+// ❌ Imperative (verbose, repetitive)
+lazy val myModule = project
+  .settings(scalaVersion := "3.3.7")
+  .settings(scalacOptions ++= Seq("-deprecation", "-feature"))
+  .settings(libraryDependencies += "org.scalatest" %% "scalatest" % "3.2.19" % Test)
+  .enablePlugins(GitPlugin, DynVerPlugin)
+  // ... 20 more lines of boilerplate
+
+// ✅ Declarative (concise, clear intent)
+lazy val myModule = Module("my-module")
+  .configure(With.typical)
+```
+
+### Composable Helpers
+Configuration helpers are **pure functions** (`Project => Project`) that compose naturally:
+
+```scala
+Module("my-lib")
+  .configure(With.typical)         // Scala 3 + testing + versioning + git
+  .configure(With.coverage(80))    // Add code coverage with 80% threshold
+  .configure(With.GithubPublishing) // Publish to GitHub Packages
+  .dependsOn(otherModule)
+```
+
+### Sensible Defaults
+Defaults are chosen for **modern Scala development** but can always be overridden:
+
+- **Scala 3.3.7 LTS** by default (override with `With.Scala3(version = Some("3.4.0"))`)
+- **Cross-platform ready** (JVM, JS, Native with one declaration)
+- **Dynamic versioning** from git tags (no manual version management)
+- **Automatic header management** (keep license headers current)
+
+### DRY Principle
+Define once, use everywhere. No copy-paste configuration across subprojects:
+
+```scala
+// Define your standard configuration once
+val standardModule = (p: Project) => p
+  .configure(With.typical, With.coverage(70), With.GithubPublishing)
+
+// Apply it to multiple modules
+lazy val moduleA = Module("module-a").configure(standardModule)
+lazy val moduleB = Module("module-b").configure(standardModule)
+lazy val moduleC = Module("module-c").configure(standardModule)
+```
 
 ## Easy Setup
 
@@ -90,38 +140,57 @@ addDependencyTreePlugin
 ```
 * [sbt-dynver](https://github.com/sbt/sbt-dynver) - dynamic versioning based on git tags, commits, and date stamp
 * [sbt-native-packager](https://github.com/sbt/sbt-native-packager) - packaging your compilation results into a package for various platforms
-* [sbt-git]() - git commands from the sbt prompt
-* [sbt-pgp]()- artifact signing for publishing to Sonatype
-* [sbt-release]() - full control of the release process for your project
-* [sbt-unidoc]() - unifying the documentation output from your programming language from several sub-projects
+* [sbt-git](https://github.com/sbt/sbt-git) - git commands from the sbt prompt
+* [sbt-pgp](https://github.com/sbt/sbt-pgp) - artifact signing for publishing to Sonatype
+* [sbt-release](https://github.com/sbt/sbt-release) - full control of the release process for your project
+* [sbt-unidoc](https://github.com/sbt/sbt-unidoc) - unifying the documentation output from your programming language from several sub-projects
 * `addDependencyTreePlugin` - adds a plugin so you can use the dependency commands at sbt prompt
 
 ### Plugins from other sources
 ```scala
-addSbtPlugin("com.eed3si9n" % "sbt-buildinfo" % "0.12.0")
+addSbtPlugin("com.eed3si9n" % "sbt-buildinfo" % "0.13.1")
 addSbtPlugin("de.heikoseeberger" % "sbt-header" % "5.10.0")
 addSbtPlugin("com.timushev.sbt" % "sbt-updates" % "0.6.4")
 addSbtPlugin("org.xerial.sbt" % "sbt-sonatype" % "3.11.1")
 addSbtPlugin("com.codecommit" % "sbt-github-packages" % "0.5.3")
+addSbtPlugin("com.lightbend.paradox" % "sbt-paradox" % "0.9.2")
 ```
-* [sbt-buildinfo]() - Your program can know all kinds of things about your build
-* [sbt-header]() - Keep those file headers up to date with your project license
-* [sbt-updates]() - TBD
-* [sbt-sonatype]() - Publishing to Sonatype and Maven Central
-* [sbt-github-packages]() - Publishing to Github Package Repository
+* [sbt-buildinfo](https://github.com/sbt/sbt-buildinfo) - Your program can know all kinds of things about your build
+* [sbt-header](https://github.com/sbt/sbt-header) - Keep those file headers up to date with your project license
+* [sbt-updates](https://github.com/rtimush/sbt-updates) - Check for dependency updates
+* [sbt-sonatype](https://github.com/xerial/sbt-sonatype) - Publishing to Sonatype and Maven Central
+* [sbt-github-packages](https://github.com/djspiewak/sbt-github-packages) - Publishing to Github Package Repository
+* [sbt-paradox](https://github.com/lightbend/paradox) - Markdown documentation generator
 
 ### Scala Specific Plugins
 ```scala
-addSbtPlugin("ch.epfl.scala" % "sbt-scalafix" % "0.12.1")
-addSbtPlugin("org.scalameta" % "sbt-scalafmt" % "2.5.2")
-addSbtPlugin("org.scoverage" % "sbt-scoverage" % "2.1.0")
-addSbtPlugin("org.scoverage" % "sbt-coveralls" % "1.3.13")
-addSbtPlugin("org.scala-native" % "sbt-scala-native" % "0.5.4")
-addSbtPlugin("org.scala-js" % "sbt-scalajs" % "1.16.0")
+addSbtPlugin("ch.epfl.scala" % "sbt-scalafix" % "0.14.5")
+addSbtPlugin("org.scalameta" % "sbt-scalafmt" % "2.5.6")
+addSbtPlugin("org.scoverage" % "sbt-scoverage" % "2.4.1")
+addSbtPlugin("org.scoverage" % "sbt-coveralls" % "1.3.15")
+addSbtPlugin("org.scala-native" % "sbt-scala-native" % "0.5.9")
+addSbtPlugin("org.scala-js" % "sbt-scalajs" % "1.20.1")
 addSbtPlugin("org.portable-scala" % "sbt-scalajs-crossproject" % "1.3.2")
 addSbtPlugin("org.portable-scala" % "sbt-scala-native-crossproject" % "1.3.2")
 addSbtPlugin("org.portable-scala" % "sbt-platform-deps" % "1.0.2")
+addSbtPlugin("com.typesafe" % "sbt-mima-plugin" % "1.1.4")
+addSbtPlugin("ch.epfl.scala" % "sbt-tasty-mima" % "1.2.0")
+addSbtPlugin("org.scalablytyped.converter" % "sbt-converter" % "1.0.0-beta44")
+addSbtPlugin("org.jetbrains.scala" % "sbt-idea-plugin" % "5.0.4")
 ```
+* [sbt-scalafix](https://github.com/scalacenter/sbt-scalafix) - Code refactoring and linting
+* [sbt-scalafmt](https://github.com/scalameta/sbt-scalafmt) - Code formatting
+* [sbt-scoverage](https://github.com/scoverage/sbt-scoverage) - Code coverage measurement
+* [sbt-coveralls](https://github.com/scoverage/sbt-coveralls) - Upload coverage to Coveralls.io
+* [sbt-scala-native](https://github.com/scala-native/scala-native) - Compile Scala to native code
+* [sbt-scalajs](https://github.com/scala-js/scala-js) - Compile Scala to JavaScript
+* [sbt-scalajs-crossproject](https://github.com/portable-scala/sbt-crossproject) - Cross-platform builds (JVM/JS)
+* [sbt-scala-native-crossproject](https://github.com/portable-scala/sbt-crossproject) - Cross-platform builds (JVM/Native)
+* [sbt-platform-deps](https://github.com/portable-scala/sbt-platform-deps) - Platform-specific dependencies
+* [sbt-mima-plugin](https://github.com/lightbend-labs/mima) - Binary compatibility checking
+* [sbt-tasty-mima](https://github.com/scalacenter/tasty-mima) - TASTy compatibility checking
+* [sbt-converter](https://github.com/ScalablyTyped/Converter) - Generate Scala.js facades from TypeScript
+* [sbt-idea-plugin](https://github.com/JetBrains/sbt-idea-plugin) - IntelliJ IDEA plugin development
 
 
 ## Standard Features Provided
@@ -323,101 +392,279 @@ lazy val docsite = DocSite(
 ## Configuration Helpers
 
 Since the goal of `sbt-ossuminc` is to be declarative, we want to specify what we want to
-include in the build. For this, we have the `With` options. These sbt configuration functions
-transform a Project into another project with different settings. You can pass these names
-directly into a `.configure` call chain invocation per usual `sbt` usage.
+include in the build. For this, we have the `With.*` configuration helpers. These are
+pure functions (`Project => Project`) that transform projects by adding settings and plugins.
+You can pass these directly into a `.configure()` call chain.
 
-Here are descriptions of all the parameterless configuration functions you can use:
+### Basic Configuration Helpers
 
-* `With.aliases` - add a set of useful command line aliases to the sbt command line
-* `With.build_info` - enable the `sbt-buildinfo` plugin on the project to get an info object
-  that provides info about your project
-* `With.dynver` - enable the `sbt-dynver` plugin on the project for dynamic versioning based
-  on git tags
-* `With.git` - enable issuing any `git` command from the sbt prompt so you don't need to use
-  another terminal window.
-* `With.header` - enable the `sbt-header` plugin for replacing code header comments with copyright
-* `With.java` - enable javac compiler in your project to compile Java as well as Scala
-* `With.noMiMa` - turn Migration Manager off for this project (prevents build-stopping errors)
-* `With.publishing` - configure the project to publish signed artifacts to Sonatype/Maven
-* `With.release` - enable the `sbt-release` plugin
-* `With.resolvers` - enable a group of resolvers for resolving dependencies
-* `With.scala2` - configure the project to do the latest Scala 2 compilation
-* `With.scala3` - configure the Project to do the most recent LTS Scala 3 compilation
-* `With.scalaTest` - add ScalaTest dependencies to the probject
-* `With.scalaft` - add standardized ScalaFmt formatting help
-* `With.scoverage` - add `sbt-scoverage` and `sbt-coveralls` support to the project
-* `With.basic` - shorthand for adding these: aliases, dynver, git, header, resolvers
-* `With.typical` - shorthand for With.basic and scala3, scalaTest and publishing
-* `With.everything` - shorthand for With.typical and java, misc, build_info, release
-* `With.noPublishing` - turns publishing off making the project unpublishable, handy for Root project
-* `With.plugin` - makes the project produce an sbt autoplugin
+These helpers take no parameters (or use all defaults):
 
-Here are the descriptions of the configuration functions that take parameters:
+* **`With.aliases`** - Add useful command line aliases to the sbt shell
+* **`With.build_info`** - Enable `sbt-buildinfo` plugin (default configuration)
+* **`With.dynver`** - Enable `sbt-dynver` for git-based dynamic versioning
+* **`With.git`** - Enable `sbt-git` to issue git commands from sbt prompt
+* **`With.header`** - Enable `sbt-header` for automatic license header management
+* **`With.java`** - Enable javac compiler for Java/Scala projects
+* **`With.js`** - Enable Scala.js compilation (default configuration)
+* **`With.noMiMa`** - Disable binary compatibility checking
+* **`With.noPublishing`** - Disable artifact publishing (useful for root aggregator projects)
+* **`With.release`** - Enable `sbt-release` plugin
+* **`With.resolvers`** - Add standard resolvers (Maven Local, JCenter, Typesafe)
+* **`With.scala2`** - Configure for Scala 2.13 (latest)
+* **`With.scala3`** - Configure for Scala 3.3.7 LTS (default)
+* **`With.scoverage`** - Enable code coverage with sbt-scoverage and sbt-coveralls
 
-* `With.akka(release: String = """)`
-    - add the Akka dependencies to the project that correspond to `release`
-    - release should be `24.05` or `24.10` but it defaults to `24.10`
+### Publishing Helpers
 
-* `With.coverage(percent: Double= 50.0d)`
-    - enable code coverage plugins with the following options:
+* **`With.GithubPublishing`** - Configure publishing to GitHub Packages
+* **`With.SonatypePublishing`** - Configure publishing to Sonatype/Maven Central
 
-* `With.js` - enable Scala.js Javascript compilation with the following options:
-    * header: String = "no header"
-    * hasMain: Boolean = false,
-    * forProd: Boolean = true,
-    * withCommonJSModule: Boolean = false
+> **Note**: Do not combine GithubPublishing and SonatypePublishing in the same project.
 
-* `With.laminar` - for Scala.js modules, include laminar and DOM support with the following options:
-    * version: String = "17.1.0"
-    * domVersion: String = "2.8.0"
-    * waypointVersion: Option[String] = None
-    * laminextVersion: Option[String] = None
-    * laminextModules: Seq[String] = Seq.empty
+### Composite Helpers
 
-* `With.MiMa` - turns on Migration manager, and you must specify at least the first option:
-    * previousVersion: String // the previous version of the artifact/project to check against
-    * excludedClasses: Seq[String] = Seq.empty // classes to exclude from compatibility checks
-    * reportSignatureIssues: Boolean = false // full signature checks, including generic type parameters
+Shortcuts that combine multiple helpers:
 
-* `With.native` - enable native code generation with `scala-native` with the following options:
-    - mode: String = "fast",
-    - buildTarget: String = "static",
-    - gc: String = "boehm",
-    - lto: String = "none",
-    - debugLog: Boolean = false,
-    - verbose: Boolean = false,
-    - targetTriple: Option[String] = None,
-    - linkOptions: Seq[String] = Seq.empty
+* **`With.basic`** - Combines: `aliases`, `dynver`, `git`, `header`, `resolvers`
+* **`With.typical`** - Combines: `basic`, `scala3`, `Scalatest()`
+* **`With.everything`** - Combines: `typical`, `java`, `release`
 
-* `With.packagingUniversal(maintainerEmail, pkgName, pkgSummary, pgkDescription)`
-    - enable universal packaging via sbt-native-packager, with the following options:
-        - maintainerEmail: String,
-        - pkgName: String,
-        - pkgSummary: String,
-        - pkgDescription: String
+### Parameterized Configuration Helpers
 
-* `With.packagingDocker(maintainerEmail, pkgName, pkgSummary, pgkDescription)`
-    - enable packaging as a Docker image via sbt-native-packager, with the following options:
-        - maintainerEmail: String,
-        - pkgName: String,
-        - pkgSummary: String,
-        - pkgDescription: String
+These helpers accept parameters for customization:
 
-* `With.riddl(version: String, nonJVM: Boolean = true)`
-    - include a specific version of RIDDL libraries with the following options:
-        * `version` - the version of RIDDL to include
-        * `nonJVM` - the kind of module to include with %% (JVM) or %%% (JS, Native)
+#### **`With.Akka(release: String = "24.10")`**
+Add Akka dependencies to the project.
+- **`release`**: Akka version (`"24.05"` or `"24.10"`)
 
-* `With.unidoc(apiOutput, baseURL, inclusions, exclusions, logoPath, externalMappings)`
-    - enable the `sbt-unidoc` plugin with the following options:
-        * apiOutput: File = file("target/unidoc")
-            * where in the local build to generate the output
-        * baseURL: Option[String] = None
-        * inclusions: Seq[ProjectReference] = Seq.empty
-        * exclusions: Seq[ProjectReference] = Seq.empty
-        * logoPath: Option[String] = None
-        * externalMappings: Seq[Seq[String]] = Seq.empty
+```scala
+Module("my-actor-system")
+  .configure(With.Akka("24.10"))
+```
+
+#### **`With.AsciiDoc(...)`**
+Configure AsciiDoc document generation for static websites and PDFs.
+- **`sourceDir`**: Directory containing AsciiDoc source files (default: `"src/asciidoc"`)
+- **`enablePdf`**: Enable PDF generation (default: `true`)
+- **`enableDiagrams`**: Enable diagram support for PlantUML, Graphviz, etc. (default: `false`)
+- **`attributes`**: Custom AsciiDoc attributes for document processing
+
+Features:
+- HTML5 website generation with customizable attributes
+- PDF generation with asciidoctorj-pdf
+- Diagram support via asciidoctorj-diagram (PlantUML, Graphviz, etc.)
+- Customizable source directories and output locations
+
+```scala
+DocSite("docs", "project-docs")
+  .configure(With.AsciiDoc(
+    sourceDir = "src/docs/asciidoc",
+    enablePdf = true,
+    enableDiagrams = true,
+    attributes = Map("toc" -> "left", "icons" -> "font")
+  ))
+```
+
+> **Note**: For full HTML generation via sbt-site, add to `project/plugins.sbt`:
+> ```scala
+> addSbtPlugin("com.github.sbt" % "sbt-site-asciidoctor" % "1.7.0")
+> ```
+> Then enable in `build.sbt`: `enablePlugins(AsciidoctorPlugin)`
+
+#### **`With.BuildInfo(...)`**
+Customize BuildInfo generation.
+- **`buildInfoObject`**: Name of generated object
+- **`buildInfoPackage`**: Package for generated code
+- **`buildInfoUsePackageAsPath`**: Use package as directory structure
+
+```scala
+Module("my-app")
+  .configure(With.BuildInfo(
+    buildInfoObject = "AppBuildInfo",
+    buildInfoPackage = "com.myapp.build"
+  ))
+```
+
+#### **`With.coverage(percent: Double = 50.0)`**
+Enable code coverage with minimum threshold.
+
+```scala
+Module("my-lib")
+  .configure(With.coverage(80.0))  // Require 80% coverage
+```
+
+#### **`With.IdeaPlugin(...)`**
+Configure IntelliJ IDEA plugin development.
+- **`name`**: Plugin name
+- **`description`**: Plugin description
+- **`build`**: IntelliJ build version (e.g., `"243.x"`)
+- **`platform`**: `"Community"` or `"Ultimate"`
+
+```scala
+Plugin("my-idea-plugin")
+  .configure(With.IdeaPlugin(
+    name = "My Cool Plugin",
+    build = "243.x",
+    platform = "Community"
+  ))
+```
+
+#### **`With.Javascript(...)`**
+Configure Scala.js compilation.
+- **`header`**: JS file header comment
+- **`hasMain`**: Enable main module initializer
+- **`forProd`**: Enable optimizer (production mode)
+- **`withCommonJSModule`**: Use CommonJS modules instead of ES modules
+
+```scala
+CrossModule("my-ui", "ui")(JVM, JS)
+  .jsConfigure(With.Javascript(
+    header = "My App UI v1.0",
+    hasMain = true,
+    forProd = true
+  ))
+```
+
+#### **`With.Laminar(...)`**
+Add Laminar reactive UI dependencies (Scala.js).
+- **`version`**: Laminar version
+- **`domVersion`**: Scala.js DOM version
+- **`waypointVersion`**: Waypoint router version (optional)
+- **`laminextVersion`**: Laminext utilities version (optional)
+- **`laminextModules`**: Specific Laminext modules to include
+
+```scala
+CrossModule("frontend", "app-frontend")(JS)
+  .jsConfigure(With.Laminar(
+    version = "17.1.0",
+    domVersion = "2.8.0"
+  ))
+```
+
+#### **`With.MiMa(...)`**
+Enable binary compatibility checking.
+- **`previousVersion`**: Version to check compatibility against (required)
+- **`excludedClasses`**: Classes to exclude from checks
+- **`reportSignatureIssues`**: Include generic type parameter checks
+
+```scala
+Module("my-stable-api")
+  .configure(With.MiMa(
+    previousVersion = "1.0.0",
+    excludedClasses = Seq("com.myapp.internal.*")
+  ))
+```
+
+#### **`With.Native(...)`**
+Configure Scala Native compilation.
+- **`mode`**: Compilation mode (`"debug"`, `"fast"`, `"full"`, `"size"`, `"release"`)
+- **`buildTarget`**: Build type (`"application"`, `"dynamic"`, `"static"`)
+- **`gc`**: Garbage collector to use
+- **`lto`**: Link-time optimization (`"none"`, `"thin"`, `"full"`)
+- **`debugLog`**: Enable debug logging
+- **`verbose`**: Verbose compilation output
+- **`targetTriple`**: Target platform triple (optional)
+- **`linkOptions`**: Additional linker options
+
+```scala
+CrossModule("cli-tool", "tool")(JVM, Native)
+  .nativeConfigure(With.Native(
+    mode = "release",
+    buildTarget = "application"
+  ))
+```
+
+#### **`With.Packaging.universal(...)`**
+Create universal (zip/tgz) packages.
+- **`maintainerEmail`**: Package maintainer email
+- **`pkgName`**: Package name
+- **`pkgSummary`**: One-line summary
+- **`pkgDescription`**: Full description
+
+```scala
+Program("my-app", "app", Some("com.myapp.Main"))
+  .configure(With.Packaging.universal(
+    maintainerEmail = "dev@example.com",
+    pkgName = "my-app",
+    pkgSummary = "My Application",
+    pkgDescription = "A useful application"
+  ))
+```
+
+#### **`With.Packaging.docker(...)`**
+Create Docker images.
+- **`maintainerEmail`**: Package maintainer email
+- **`pkgName`**: Docker image name
+- **`pkgSummary`**: Image summary
+- **`pkgDescription`**: Image description
+
+```scala
+Program("my-service", "service", Some("com.myapp.Service"))
+  .configure(With.Packaging.docker(
+    maintainerEmail = "dev@example.com",
+    pkgName = "my-service"
+  ))
+```
+
+#### **`With.Packaging.graalVM(...)`**
+Create GraalVM native images.
+- **`pkgName`**: Executable name
+- **`pkgSummary`**: Summary
+- **`native_image_path`**: Path to native-image executable
+
+#### **`With.Riddl(...)`**
+Add RIDDL library dependencies.
+- **`version`**: RIDDL version to use
+- **`nonJVM`**: Use `%%%` (true) or `%%` (false) for dependency resolution
+
+```scala
+Module("my-riddl-app")
+  .configure(With.Riddl(version = "0.50.0"))
+```
+
+#### **`With.Scala3(...)`**
+Configure Scala 3 with custom version or compiler options.
+- **`version`**: Scala version (defaults to `"3.3.7"`)
+- **`scala3Options`**: Additional compiler options
+
+```scala
+Module("my-experimental")
+  .configure(With.Scala3(
+    version = Some("3.4.0"),
+    scala3Options = Seq("-experimental")
+  ))
+```
+
+#### **`With.ScalablyTyped(...)`**
+Generate Scala.js facades from TypeScript definitions.
+
+#### **`With.Scalatest(...)`**
+Add ScalaTest dependencies with custom version.
+- **`version`**: ScalaTest version
+
+```scala
+Module("my-tests")
+  .configure(With.Scalatest(version = "3.2.19"))
+```
+
+#### **`With.Unidoc(...)`**
+Generate unified API documentation.
+- **`apiOutput`**: Output directory
+- **`baseURL`**: Base URL for documentation
+- **`inclusions`**: Projects to include
+- **`exclusions`**: Projects to exclude
+- **`logoPath`**: Path to logo image
+- **`externalMappings`**: External API mappings
+
+```scala
+DocSite(
+  dirName = "docs",
+  apiOutput = file("docs/api"),
+  baseURL = Some("https://myproject.org/api"),
+  inclusions = Seq(moduleA, moduleB, moduleC)
+)
+```
 
   
 

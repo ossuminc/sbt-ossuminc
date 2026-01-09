@@ -1,0 +1,4 @@
+# Test Laminar helper configuration
+> compile
+# Verify Laminar compiled successfully
+$ exists target/scala-3.3.7/laminar-test-fastopt.js
