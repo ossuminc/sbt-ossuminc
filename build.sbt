@@ -33,8 +33,8 @@ lazy val `sbt-ossuminc` = project
       scriptedLaunchOpts.value ++ Seq("-Xmx1024M", "-Dplugin.version=" + version.value)
     },
     libraryDependencies ++= Seq(
-      "org.apache.commons" % "commons-lang3" % "3.15.0",
-      "org.slf4j" % "slf4j-simple" % "2.0.13"
+      "org.apache.commons" % "commons-lang3" % "3.20.0",
+      "org.slf4j" % "slf4j-simple" % "2.0.17"
     )
   )
 
@@ -47,7 +47,7 @@ addSbtPlugin("com.github.sbt" % "sbt-release" % "1.4.0")
 addSbtPlugin("com.github.sbt" % "sbt-unidoc" % "0.5.0")
 
 // Helpers from other sources
-addSbtPlugin("com.eed3si9n" % "sbt-buildinfo" % "0.12.0")
+addSbtPlugin("com.eed3si9n" % "sbt-buildinfo" % "0.13.1")
 addSbtPlugin("de.heikoseeberger" % "sbt-header" % "5.10.0")
 addSbtPlugin("com.timushev.sbt" % "sbt-updates" % "0.6.4")
 addSbtPlugin("org.xerial.sbt" % "sbt-sonatype" % "3.11.1")
@@ -55,15 +55,15 @@ addSbtPlugin("com.codecommit" % "sbt-github-packages" % "0.5.3")
 addSbtPlugin("com.lightbend.paradox" % "sbt-paradox" % "0.9.2")
 
 // Scala specific from various places
-addSbtPlugin("ch.epfl.scala" % "sbt-scalafix" % "0.12.1")
-addSbtPlugin("org.scalameta" % "sbt-scalafmt" % "2.5.2")
-addSbtPlugin("org.scoverage" % "sbt-scoverage" % "2.1.1")
-addSbtPlugin("org.scoverage" % "sbt-coveralls" % "1.3.14")
-addSbtPlugin("org.scala-native" % "sbt-scala-native" % "0.5.6")
-addSbtPlugin("org.scala-js" % "sbt-scalajs" % "1.17.0")
+addSbtPlugin("ch.epfl.scala" % "sbt-scalafix" % "0.14.5")
+addSbtPlugin("org.scalameta" % "sbt-scalafmt" % "2.5.6")
+addSbtPlugin("org.scoverage" % "sbt-scoverage" % "2.4.1")
+addSbtPlugin("org.scoverage" % "sbt-coveralls" % "1.3.15")
+addSbtPlugin("org.scala-native" % "sbt-scala-native" % "0.5.9")
+addSbtPlugin("org.scala-js" % "sbt-scalajs" % "1.20.1")
 addSbtPlugin("org.portable-scala" % "sbt-scalajs-crossproject" % "1.3.2")
 addSbtPlugin("org.portable-scala" % "sbt-scala-native-crossproject" % "1.3.2")
 addSbtPlugin("com.typesafe" % "sbt-mima-plugin" % "1.1.4")
 addSbtPlugin("ch.epfl.scala" % "sbt-tasty-mima" % "1.2.0")
 addSbtPlugin("org.scalablytyped.converter" % "sbt-converter" % "1.0.0-beta44")
-addSbtPlugin("org.jetbrains" % "sbt-idea-plugin" % "4.1.2")
+addSbtPlugin("org.jetbrains.scala" % "sbt-idea-plugin" % "5.0.4")

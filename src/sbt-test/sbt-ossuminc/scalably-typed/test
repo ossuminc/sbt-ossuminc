@@ -1,4 +1,5 @@
 > compile
-$ exists target/scala-3.4.3/src_managed/main/scalablytyped/org.ossum.sauce/chartJs
+# Test must match plugin's default Scala version (currently 3.3.7 LTS)
+$ exists target/scala-3.3.7/src_managed/main/scalablytyped/org.ossum.sauce/chartJs
 
 

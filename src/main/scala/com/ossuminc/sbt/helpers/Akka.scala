@@ -97,18 +97,49 @@ object Akka extends AutoPluginHelper {
     )
   }
 
-  def forRelease(release: String = "")(project: Project): Project = {
+  /** Configure Akka dependencies with optional repository token
+    *
+    * As of October 2024, Akka requires a repository token for access.
+    * Get your free token at: https://akka.io/key
+    *
+    * @param release The Akka release version ("24.05" or "24.10")
+    * @param repositoryToken Optional repository token. If not provided, will check AKKA_REPO_TOKEN environment variable
+    * @param project The project to configure
+    * @return The configured project
+    */
+  def forRelease(
+    release: String = "",
+    repositoryToken: Option[String] = None
+  )(project: Project): Project = {
     val version = release match {
       case "2024.10" | "24.10" => akka_2024_10
       case "2024.05" | "24.05" => akka_2024_05
       case ""                  => akka_2024_10
       case other: String => throw new IllegalArgumentException(s"Unknown akka release: $other")
     }
+
+    // Determine repository URL based on token availability
+    val akkaRepoUrl = repositoryToken match {
+      case Some(token) => s"https://repo.akka.io/$token/maven"
+      case None => sys.env.get("AKKA_REPO_TOKEN") match {
+        case Some(token) => s"https://repo.akka.io/$token/maven"
+        case None => {
+          System.err.println(
+            "WARNING: No Akka repository token provided. " +
+            "Akka 2024.05+ requires a token. " +
+            "Set AKKA_REPO_TOKEN environment variable or pass token explicitly. " +
+            "Get your free token at https://akka.io/key"
+          )
+          "https://repo.akka.io/maven" // Fallback (will fail without token)
+        }
+      }
+    }
+
     project.settings(
-      resolvers += "Akka library Repository".at("https://repo.akka.io/maven"),
+      resolvers += "Akka library Repository".at(akkaRepoUrl),
       libraryDependencies ++= version.akka_modules
     )
   }
 
-  def configure(project: Project): Project = forRelease("")(project)
+  def configure(project: Project): Project = forRelease("", None)(project)
 }

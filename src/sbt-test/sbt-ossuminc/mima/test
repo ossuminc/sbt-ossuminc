@@ -1,0 +1,4 @@
+# Test MiMa helper configuration
+> compile
+# MiMa should be configured - check that mimaReportBinaryIssues task exists
+> show mimaCurrentClassfiles

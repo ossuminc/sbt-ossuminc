@@ -37,6 +37,9 @@ object OssumIncPlugin extends AutoPlugin {
       /** Use this to provide handy sbt command line aliases */
       def aliases: ConfigFunc = helpers.HandyAliases.configure
 
+      /** Use this to configure AsciiDoc document generation for static websites and PDFs */
+      val AsciiDoc = helpers.AsciiDoc
+
       /** Use this to have the build generate build information. "I know this because sbt knows
         * this"
         */

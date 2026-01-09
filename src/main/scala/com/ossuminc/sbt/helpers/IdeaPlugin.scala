@@ -10,13 +10,24 @@ object IdeaPlugin extends AutoPluginHelper {
 
   def configure(project: Project): Project = apply()(project)
 
+  /** Configure IntelliJ IDEA plugin development
+    *
+    * @param name Plugin name
+    * @param description Plugin description
+    * @param changes Change notes
+    * @param build IntelliJ build number (e.g., "243.21565.193" for IntelliJ 2024.3)
+    * @param platform Platform type ("Community" or "Ultimate")
+    * @param dependsOnPlugins Plugin IDs that this plugin depends on
+    * @param maxMem Maximum memory for IDEA instance in MB
+    * @return Configured project
+    */
   def apply(
     name: String = "foo",
     description: String = "My cool IDEA plugin",
     changes: String = "",
-    build: String = "2024.3.2.2",
+    build: String = "243.21565.193",  // IntelliJ IDEA 2024.3 - stable public release
     platform: String = "Community",
-    dependsOnPlugins: Seq[String] = Seq("modules.platform"),
+    dependsOnPlugins: Seq[String] = Seq.empty,
     maxMem: Int = 2048
   )(project: Project): Project = {
     project
@@ -38,14 +49,14 @@ object IdeaPlugin extends AutoPluginHelper {
             case _ => throw new IllegalArgumentException(s"Unknown platform: $platform")
           }
         },
-        // Add dependent plugins bundled with IDEA to the set required
-        intellijPlugins += "com.intellij.properties".toPlugin,
-        intellijPlugins ++= dependsOnPlugins.map(x => s"com.intellij.$x").map(_.toPlugin),
+        // Add dependent plugins
+        intellijPlugins ++= dependsOnPlugins.map(_.toPlugin),
+        // Set up a default patch for plugin.xml
         ThisBuild / patchPluginXml := pluginXmlOptions { xml =>
           xml.version = sbt.Keys.version.value
           xml.pluginDescription = description
           xml.changeNotes = changes
-          xml.sinceBuild = intellijBuild.value
+          xml.sinceBuild = (ThisBuild / intellijBuild).value
           xml.untilBuild = "351.*"
         },
         ThisBuild / intellijVMOptions := intellijVMOptions.value.copy(xmx = maxMem, xms = 256),
