@@ -25,6 +25,7 @@ lazy val `sbt-ossuminc` = project
   .configure(Scala2.configure)
   .configure(GithubPublishing.configure)
   .settings(
+    sbtPlugin := true,
     licenses += "Apache V2.0" -> url("https://www.apache.org/licenses/LICENSE-2.0"),
     name := "sbt-ossuminc",
     scalaVersion := "2.12.19",

@@ -76,9 +76,12 @@ lazy val moduleC = Module("module-c").configure(standardModule)
 
 ### project/plugins.sbt
 
-In your `project/plugins.sbt` file, place this line:
+In your `project/plugins.sbt` file, add the GitHub Packages resolver and the plugin:
 
 ```scala
+// GitHub Packages resolver for sbt-ossuminc
+resolvers += "GitHub Packages" at "https://maven.pkg.github.com/ossuminc/sbt-ossuminc"
+
 addSbtPlugin("com.ossuminc" % "sbt-ossuminc" % "1.1.0")
 ```
 
