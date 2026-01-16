@@ -24,21 +24,24 @@ object ScalaJS extends AutoPluginHelper {
       .enablePlugins(ScalaJSPlugin)
       // .settings(ScalaJSPlugin.testConfigSettings) <-- generates undefined settings
       .settings(
-        // For source maps in Scala
+        // For source maps in Scala - only if git commit and scmInfo are available
         scalacOptions ++= {
-          // Map the sourcemaps to github paths instead of local directories
-          val flag =
-            if (scalaVersion.value.startsWith("3")) "-scalajs-mapSourceURI"
-            else "-P:scalajs:mapSourceURI"
-          val localSourcesPath = baseDirectory.value.toURI
-          val headCommit = git.gitHeadCommit.value.get
-          scmInfo.value.map { info =>
-            val remoteSourcesPath =
-              s"${
-                info.browseUrl.toString
-                  .replace("github.com", "raw.githubusercontent.com")
-              }/$headCommit"
-            s"${flag}:$localSourcesPath->$remoteSourcesPath"
+          (git.gitHeadCommit.value, scmInfo.value) match {
+            case (Some(headCommit), Some(info)) =>
+              // Map the sourcemaps to github paths instead of local directories
+              val flag =
+                if (scalaVersion.value.startsWith("3")) "-scalajs-mapSourceURI"
+                else "-P:scalajs:mapSourceURI"
+              val localSourcesPath = baseDirectory.value.toURI
+              val remoteSourcesPath =
+                s"${
+                  info.browseUrl.toString
+                    .replace("github.com", "raw.githubusercontent.com")
+                }/$headCommit"
+              Seq(s"${flag}:$localSourcesPath->$remoteSourcesPath")
+            case _ =>
+              // No git info or scmInfo available - skip source map configuration
+              Seq.empty
           }
         },    
         // for an application with a main method

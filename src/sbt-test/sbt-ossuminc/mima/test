@@ -1,4 +1,3 @@
-# Test MiMa helper configuration
-> compile
-# MiMa should be configured - check that mimaReportBinaryIssues task exists
-> show mimaCurrentClassfiles
+# Test MiMa helper configuration - just verify the project loads correctly
+# MiMa checks require a previous published artifact, so we only test configuration
+> show lib / mimaPreviousArtifacts

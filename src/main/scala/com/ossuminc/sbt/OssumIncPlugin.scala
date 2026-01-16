@@ -84,6 +84,10 @@ object OssumIncPlugin extends AutoPlugin {
       def ScalaJS: helpers.ScalaJS.type = helpers.ScalaJS
       def scalajs: ConfigFunc = helpers.ScalaJS.configure
 
+      /** @deprecated Use ScalaJS instead - this alias will be removed in 2.0 */
+      @deprecated("Use ScalaJS instead", "1.0.0")
+      def Javascript: helpers.ScalaJS.type = helpers.ScalaJS
+
       /** Use this to configure your project to include typical laminar dependencies */
       def Laminar: helpers.Laminar.type = helpers.Laminar
 

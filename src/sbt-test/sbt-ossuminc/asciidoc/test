@@ -1,0 +1,19 @@
+# Test AsciiDoc helper configuration
+
+# Verify sample.adoc file exists
+$ exists src/asciidoc/sample.adoc
+
+# Check that AsciiDoc dependencies were properly added
+> checkDependencies
+
+# Generate HTML site from AsciiDoc
+> generateSite
+
+# Verify HTML output was generated
+> checkSiteOutput
+
+# Generate PDF from AsciiDoc
+> generatePdf
+
+# Verify PDF output was generated
+> checkPdfOutput

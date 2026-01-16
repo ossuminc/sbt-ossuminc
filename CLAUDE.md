@@ -1,0 +1,151 @@
+# sbt-ossuminc Plugin Guide for Claude Code
+
+This file provides specific guidance for working with the sbt-ossuminc plugin. For general ossuminc organization patterns, see `../CLAUDE.md` (parent directory).
+
+## Project Overview
+
+SBT plugin providing build infrastructure and configuration helpers for Ossum Inc. projects. Defines declarative project types and configuration options used across all Scala projects in the organization.
+
+**Current version: 1.0.0** (updated Jan 2026)
+
+## Project Types Provided
+
+- `Root()` - Aggregator project
+- `Module()` - Standard module
+- `CrossModule()(JVM, JS, Native)` - Cross-platform module
+- `Plugin()` - SBT plugin
+- `Program()` - Executable program
+- `DocSite()` - Documentation site
+
+## Configuration Helpers (`With.*`)
+
+### Parameterless Options
+
+- `With.typical` - Standard Scala 3 setup with publishing
+- `With.scala2` / `With.scala3` - Scala version
+- `With.publishing` / `With.noPublishing` - Artifact publishing
+- `With.coverage(percent)` - Code coverage
+- `With.BuildInfo.configure` - BuildInfo plugin (default config)
+- `With.git` - Git commands in sbt
+- `With.dynver` - Dynamic versioning
+- `With.scalajs` - Scala.js with default configuration
+- `With.noMiMa` - Disable binary compatibility checking
+
+### Parameterized Options
+
+**`With.ScalaJS(...)`** - Scala.js configuration
+- Signature: `(header, hasMain, forProd, withCommonJSModule)(project)`
+- Example:
+  ```scala
+  .jsConfigure(With.ScalaJS(
+    header = "RIDDL: module-name",
+    hasMain = false,
+    forProd = true,
+    withCommonJSModule = true
+  ))
+  ```
+
+**`With.Native(...)`** - Scala Native configuration
+- Signature: `(mode, buildTarget, gc, lto, ...)(project)`
+- Modes: "debug", "fast", "full", "size", "release"
+- Example:
+  ```scala
+  .nativeConfigure(With.Native(
+    mode = "fast",
+    buildTarget = "static",
+    gc = "none",
+    lto = "none"
+  ))
+  ```
+
+**`With.BuildInfo.withKeys(...)`** - BuildInfo with custom keys
+- Signature: `withKeys(key -> value, ...)(project)` (curried)
+- Example:
+  ```scala
+  .jvmConfigure(With.BuildInfo.withKeys(
+    "key1" -> value1,
+    "key2" -> value2
+  ))
+  ```
+
+**Other parameterized options:**
+- `With.Laminar(...)` - Laminar + DOM dependencies
+- `With.MiMa(...)` - Binary compatibility checking
+- `With.Packaging.universal(...)` - Universal packaging
+- `With.GithubPublishing` - GitHub Packages publishing
+
+Refer to the comprehensive README.md in this directory for all options.
+
+## Migration from 0.x to 1.0.0
+
+**Breaking changes:**
+- `With.Javascript(...)` → `With.ScalaJS(...)`
+- `With.Native()` → `With.Native(...)` (now requires parameter list, not just `()`)
+- `With.BuildInfo.withKeys(...)` → `With.BuildInfo.withKeys(...)(project)` (curried function)
+
+## Build Commands
+
+```bash
+# Compile
+sbt compile
+
+# Test
+sbt test
+
+# Publish locally
+sbt publishLocal
+
+# Format code
+sbt scalafmt
+```
+
+## Usage in Other Projects
+
+All Scala projects in ossuminc use this plugin. Add to `project/plugins.sbt`:
+
+```scala
+addSbtPlugin("com.ossuminc" % "sbt-ossuminc" % "1.0.0")
+```
+
+### Example CrossModule Definition
+
+```scala
+lazy val mymodule_cp = CrossModule("mymodule", "riddl-mymodule")(JVM, JS, Native)
+  .dependsOn(cpDep(utils_cp), cpDep(language_cp))
+  .configure(With.typical, With.GithubPublishing)
+  .settings(
+    description := "Description here"
+  )
+  .jvmConfigure(With.coverage(50))
+  .jsConfigure(With.ScalaJS("RIDDL: mymodule", withCommonJSModule = true))
+  .nativeConfigure(With.Native(mode = "fast"))
+
+lazy val mymodule = mymodule_cp.jvm
+lazy val mymoduleJS = mymodule_cp.js
+lazy val mymoduleNative = mymodule_cp.native
+```
+
+Then add to root aggregation: `.aggregate(..., mymodule, mymoduleJS, mymoduleNative)`
+
+## Git Workflow
+
+### Version Management
+- Uses `sbt-dynver` for dynamic versioning based on git tags
+- Tag format: `v1.2.3` creates version `1.2.3`
+- Between tags: `1.2.3-N-hash-YYYYMMDD-HHMM` (N commits since tag)
+
+### Commit Messages
+```
+Short description (imperative mood)
+
+Detailed explanation of what changed and why.
+
+Co-Authored-By: Claude <model> <noreply@anthropic.com>
+```
+
+## Related Projects
+
+All ossuminc Scala projects depend on this plugin:
+- `../riddl/` - RIDDL compiler (primary user)
+- `../synapify/` - Desktop application
+- `../riddl-idea-plugin/` - IntelliJ plugin

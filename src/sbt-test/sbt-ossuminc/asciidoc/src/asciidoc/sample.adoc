@@ -1,0 +1,78 @@
+= Sample AsciiDoc Document
+:author: Test Author
+:revdate: 2024-01-01
+:toc: left
+:icons: font
+:source-highlighter: highlight.js
+
+== Introduction
+
+This is a sample AsciiDoc document used to test the AsciiDoc helper in sbt-ossuminc.
+It verifies that both PDF and HTML site generation work correctly.
+
+== Features
+
+The AsciiDoc helper provides:
+
+* HTML5 website generation with customizable attributes
+* PDF generation with asciidoctorj-pdf
+* Diagram support via asciidoctorj-diagram (PlantUML, Graphviz, etc.)
+* Customizable source directories and output locations
+
+== Code Example
+
+Here is an example of Scala code:
+
+[source,scala]
+----
+object HelloWorld {
+  def main(args: Array[String]): Unit = {
+    println("Hello, AsciiDoc!")
+  }
+}
+----
+
+== Lists and Formatting
+
+.Ordered List
+. First item
+. Second item
+. Third item
+
+.Unordered List
+* Item A
+* Item B
+* Item C
+
+== Table Example
+
+.Sample Table
+[cols="1,2,3"]
+|===
+|Header 1 |Header 2 |Header 3
+
+|Cell 1.1
+|Cell 1.2
+|Cell 1.3
+
+|Cell 2.1
+|Cell 2.2
+|Cell 2.3
+|===
+
+== Admonitions
+
+NOTE: This is a note admonition.
+
+TIP: This is a tip admonition.
+
+WARNING: This is a warning admonition.
+
+IMPORTANT: This is an important admonition.
+
+CAUTION: This is a caution admonition.
+
+== Conclusion
+
+This document serves as a test fixture for verifying AsciiDoc document generation
+in the sbt-ossuminc plugin.

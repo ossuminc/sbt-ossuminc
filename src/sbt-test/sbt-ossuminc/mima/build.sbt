@@ -1,6 +1,10 @@
 enablePlugins(OssumIncPlugin)
 
-lazy val root = Module("mima-test", "mima-test")
+lazy val root = Root("mima-test", startYr = 2024)
+  .configure(With.noPublishing)
+  .aggregate(lib)
+
+lazy val lib = Module("lib", "mima-lib")
   .configure(
     With.typical,
     With.MiMa("1.0.0")

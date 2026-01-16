@@ -79,7 +79,7 @@ lazy val moduleC = Module("module-c").configure(standardModule)
 In your `project/plugins.sbt` file, place this line:
 
 ```scala
-addSbtPlugin("com.ossuminc" % "sbt-ossuminc" % "0.21.0")
+addSbtPlugin("com.ossuminc" % "sbt-ossuminc" % "1.1.0")
 ```
 
 ### ~/sbt/1.0/github.sbt
@@ -292,7 +292,7 @@ lazy val foo_cp: CrossProject = CrossModule(dirName = "foo", modName = "foo")(JV
   .jvmSettings(
     coverageExcludedPackages := "<empty>;$anon",
   )
-  .jsConfigure(With.js("RIDDL: passes", withCommonJSModule = true))
+  .jsConfigure(With.ScalaJS("RIDDL: passes", withCommonJSModule = true))
   .jsSettings(
     libraryDependencies += "com.foo" %%% "fooness" % "0.1.0"
   )
@@ -406,7 +406,7 @@ These helpers take no parameters (or use all defaults):
 * **`With.git`** - Enable `sbt-git` to issue git commands from sbt prompt
 * **`With.header`** - Enable `sbt-header` for automatic license header management
 * **`With.java`** - Enable javac compiler for Java/Scala projects
-* **`With.js`** - Enable Scala.js compilation (default configuration)
+* **`With.scalajs`** - Enable Scala.js compilation (default configuration)
 * **`With.noMiMa`** - Disable binary compatibility checking
 * **`With.noPublishing`** - Disable artifact publishing (useful for root aggregator projects)
 * **`With.release`** - Enable `sbt-release` plugin
@@ -434,14 +434,16 @@ Shortcuts that combine multiple helpers:
 
 These helpers accept parameters for customization:
 
-#### **`With.Akka(release: String = "24.10")`**
-Add Akka dependencies to the project.
-- **`release`**: Akka version (`"24.05"` or `"24.10"`)
+#### **`With.Akka.forRelease(release: String)`**
+Add Akka dependencies to the project. Akka requires a commercial license and repository token since 2024.
+- **`release`**: Akka version (`"24.10"` or `"25.10"` (latest))
 
 ```scala
 Module("my-actor-system")
-  .configure(With.Akka("24.10"))
+  .configure(With.Akka.forRelease("25.10"))
 ```
+
+> **Note**: Akka repository access requires a token. Configure per Akka's instructions at https://akka.io/key
 
 #### **`With.AsciiDoc(...)`**
 Configure AsciiDoc document generation for static websites and PDFs.
@@ -510,7 +512,7 @@ Plugin("my-idea-plugin")
   ))
 ```
 
-#### **`With.Javascript(...)`**
+#### **`With.ScalaJS(...)`**
 Configure Scala.js compilation.
 - **`header`**: JS file header comment
 - **`hasMain`**: Enable main module initializer
@@ -519,12 +521,14 @@ Configure Scala.js compilation.
 
 ```scala
 CrossModule("my-ui", "ui")(JVM, JS)
-  .jsConfigure(With.Javascript(
+  .jsConfigure(With.ScalaJS(
     header = "My App UI v1.0",
     hasMain = true,
     forProd = true
   ))
 ```
+
+> **Note**: `With.Javascript` is deprecated and will be removed in 2.0. Use `With.ScalaJS` instead.
 
 #### **`With.Laminar(...)`**
 Add Laminar reactive UI dependencies (Scala.js).
