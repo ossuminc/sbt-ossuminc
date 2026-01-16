@@ -1,4 +1,4 @@
-import com.ossuminc.sbt.helpers.{DynamicVersioning, RootProjectInfo, Scala2, SonatypePublishing}
+import com.ossuminc.sbt.helpers.{DynamicVersioning, GithubPublishing, RootProjectInfo, Scala2}
 
 /*
  * Copyright 2015-2025, Ossum Inc. All Rights Reserved.
@@ -23,7 +23,7 @@ lazy val `sbt-ossuminc` = project
   .configure(RootProjectInfo.initialize("sbt-ossuminc", startYr = 2015))
   .configure(DynamicVersioning.configure)
   .configure(Scala2.configure)
-  .configure(SonatypePublishing.configure)
+  .configure(GithubPublishing.configure)
   .settings(
     licenses += "Apache V2.0" -> url("https://www.apache.org/licenses/LICENSE-2.0"),
     name := "sbt-ossuminc",
