@@ -14,38 +14,66 @@ object Scala3 extends AutoPluginHelper {
       "-pagewidth:120"
     )
 
-  def scala_3_doc_options(version: String): Seq[String] = {
+  def scala_3_doc_options(
+    scalaVer: String,
+    projectName: Option[String] = None,
+    docSiteRoot: Option[String] = None,
+    docBaseURL: Option[String] = None
+  ): Seq[String] = {
     Seq(
       "-deprecation",
       "-feature",
       "-groups",
-      "-project:RIDDL",
       "-comment-syntax:wiki",
-      s"-project-version:$version",
-      "-siteroot:doc/src/hugo/static/apidoc",
-      "-author",
-      "-doc-canonical-base-url:https://riddl.tech/apidoc"
-    )
+      s"-project-version:$scalaVer",
+      "-author"
+    ) ++
+      projectName.map(n => s"-project:$n").toSeq ++
+      docSiteRoot.map(r => s"-siteroot:$r").toSeq ++
+      docBaseURL.map(u => s"-doc-canonical-base-url:$u").toSeq
   }
 
-  def configure(project: Project): Project = Scala3.configure(
-    Option.empty[String],
-    Seq.empty[String]
-  )(project)
+  def configure(project: Project): Project = Scala3.configure()(project)
 
+  /** Configure Scala 3 compilation with optional documentation settings.
+    *
+    * @param version
+    *   Scala version (default: 3.3.7 LTS)
+    * @param scala3Options
+    *   Additional compiler options
+    * @param projectName
+    *   Project name for scaladoc (e.g., "MyProject")
+    * @param docSiteRoot
+    *   Root directory for documentation site
+    * @param docBaseURL
+    *   Base URL for API documentation
+    */
   def configure(
-    version: Option[String] = Option.empty[String],
-    scala3Options: Seq[String] = Seq.empty[String]
+    version: Option[String] = None,
+    scala3Options: Seq[String] = Seq.empty,
+    projectName: Option[String] = None,
+    docSiteRoot: Option[String] = None,
+    docBaseURL: Option[String] = None
   )(
     project: Project
   ): Project = {
+    val apiURLSetting = docBaseURL match {
+      case Some(url) => Seq(apiURL := Some(new URL(url)))
+      case None      => Seq.empty
+    }
+
     project
       .settings(
         scalaVersion := version.getOrElse("3.3.7"),
         scalacOptions ++= scala_3_options ++ scala3Options,
-        Compile / doc / scalacOptions := scala_3_doc_options((compile / scalaVersion).value),
-        apiURL := Some(url("https://riddl.tech/apidoc/")),
+        Compile / doc / scalacOptions := scala_3_doc_options(
+          (Compile / scalaVersion).value,
+          projectName,
+          docSiteRoot,
+          docBaseURL
+        ),
         autoAPIMappings := true
       )
+      .settings(apiURLSetting)
   }
 }

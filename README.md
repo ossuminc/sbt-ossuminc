@@ -631,15 +631,26 @@ Module("my-riddl-app")
 ```
 
 #### **`With.Scala3(...)`**
-Configure Scala 3 with custom version or compiler options.
+Configure Scala 3 with custom version, compiler options, and documentation.
 - **`version`**: Scala version (defaults to `"3.3.7"`)
 - **`scala3Options`**: Additional compiler options
+- **`projectName`**: Project name for scaladoc output (optional)
+- **`docSiteRoot`**: Root directory for documentation site (optional)
+- **`docBaseURL`**: Base URL for API documentation (optional)
 
 ```scala
 Module("my-experimental")
   .configure(With.Scala3(
     version = Some("3.4.0"),
     scala3Options = Seq("-experimental")
+  ))
+
+// With documentation settings
+Module("my-lib")
+  .configure(With.Scala3(
+    projectName = Some("MyLib"),
+    docSiteRoot = Some("docs/api"),
+    docBaseURL = Some("https://myproject.org/api")
   ))
 ```
 
