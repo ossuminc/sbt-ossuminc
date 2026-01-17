@@ -1,0 +1,5 @@
+# Test Publishing helper configuration
+# Verify GitHub publishing is configured (default)
+> show publishTo
+> show githubOwner
+> show githubRepository

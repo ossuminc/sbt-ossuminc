@@ -61,8 +61,17 @@ object SonatypePublishing extends AutoPluginHelper {
         },
         Test / publishArtifact := false,
         scmInfo := {
-          val gitUrl =
-            s"//github.com/${gitHubOrganization.value}/${gitHubRepository.value}"
+          val org = RootProjectInfo.requireConfigured(
+            gitHubOrganization.value,
+            "gitHubOrganization",
+            "SonatypePublishing"
+          )
+          val repo = RootProjectInfo.requireConfigured(
+            gitHubRepository.value,
+            "gitHubRepository",
+            "SonatypePublishing"
+          )
+          val gitUrl = s"//github.com/$org/$repo"
           Some(
             ScmInfo(
               url("https:" + gitUrl),

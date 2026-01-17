@@ -8,7 +8,6 @@ import scalajscrossproject.ScalaJSCrossPlugin.autoImport.*
 import scalanativecrossproject.ScalaNativeCrossPlugin.autoImport.*
 
 import scala.scalanative.sbtplugin.ScalaNativePlugin
-import org.portablescala.sbtplatformdeps.PlatformDepsPlugin.autoImport.*
 
 /** A CrossModule is a module that can be built for JVM, ScalaJS or Native execution. Use it like:
   * {{{val my_project = CrossModule("dir_name", "module_name")(ScalaJS + JVM +
@@ -53,18 +52,10 @@ object CrossModule {
           cp2
       } else
         cp2
+    // Enable ScalaJS plugin for JS targets (dependencies are opt-in via helpers)
     val cp4 =
       if (targets.contains(CrossModule.JSTarget)) {
-        cp3
-          .jsEnablePlugins(ScalaJSPlugin)
-          .jsSettings(
-            libraryDependencies ++= Seq(
-              "io.github.cquiroz" %%% "scala-java-time" % "2.6.0",
-              "org.scalactic" %%% "scalactic" % "3.2.19" % "test",
-              "org.scalatest" %%% "scalatest" % "3.2.19" % "test",
-              "org.scalatest" %%% "scalatest-funspec" % "3.2.19" % "test"
-            )
-          )
+        cp3.jsEnablePlugins(ScalaJSPlugin)
       } else cp3
     if (targets.contains(CrossModule.NativeTarget)) {
       val cp = cp4.nativeEnablePlugins(ScalaNativePlugin)

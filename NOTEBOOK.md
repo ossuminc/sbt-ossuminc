@@ -2,13 +2,27 @@
 
 ## Current Status
 
-Version 1.1.0 released and published to GitHub Packages. Comprehensive
-maintenance analysis completed (Jan 2026) identifying 15 UX issues with
-prioritized action plan. README completely rewritten with design philosophy
-and full helper documentation.
+Version 1.1.0 released. Significant maintenance work completed Jan 17, 2026
+addressing most of the 15 UX issues identified in the maintenance analysis.
+All 16 scripted tests now passing (100%). Key changes include:
+- CrossModule dependencies now opt-in (breaking change)
+- New helpers: `With.Publishing`, `With.ScalaJavaTime()`
+- Improved error messages when Root() not configured
+- Parameterized dependency versions in ScalaJS/Native helpers
 
 ## Work Completed (Recent)
 
+### Session Jan 17, 2026
+- [x] Refactored AutoPluginHelper to extend `(Project => Project)` for better UX
+- [x] Made CrossModule dependencies optional (breaking change)
+- [x] Created `With.ScalaJavaTime()` helper for opt-in java.time support
+- [x] Created `With.Publishing` helper (defaults to GitHub, `.sonatype` option)
+- [x] Improved Root requirement error messages for publishing helpers
+- [x] Parameterized dependency versions in ScalaJS and Native helpers
+- [x] Added scripted tests: `scalatest`, `publishing` (now 16/16 passing)
+- [x] Verified Akka and IntelliJ plugin tests pass (were already working)
+
+### Previous Sessions
 - [x] Fixed ScalaJS helper to handle missing git commit/scmInfo gracefully
 - [x] Added deprecated `With.Javascript` alias for backward compatibility
 - [x] Updated all scripted tests to pass (14/14)
@@ -24,6 +38,7 @@ and full helper documentation.
 - [x] Comprehensive README rewrite with philosophy section
 - [x] Documented all parameterized helpers in README
 - [x] Fixed scalably-typed test (updated to scala-3.3.7)
+- [x] Removed hardcoded RIDDL values from Scala3.scala
 
 ## Resolved Issues
 
@@ -47,145 +62,27 @@ Plus credentials in `~/.sbt/1.0/github.sbt`.
 
 ## Next Steps (Priority Order)
 
-### 🔴 CRITICAL
+### ✅ COMPLETED (Jan 17, 2026)
 
-#### 1. Remove hardcoded RIDDL values from Scala3.scala
-**File:** `src/main/scala/com/ossuminc/sbt/helpers/Scala3.scala`
+- ~~Remove hardcoded RIDDL values from Scala3.scala~~ ✓
+- ~~Refactor AutoPluginHelper to extend (Project => Project)~~ ✓
+- ~~Fix Akka test (already working)~~ ✓
+- ~~Fix IntelliJ plugin test (already working)~~ ✓
+- ~~Make CrossModule dependencies optional~~ ✓
+- ~~Add generic With.Publishing() helper~~ ✓
+- ~~Improve Root requirement error messages~~ ✓
+- ~~Parameterize dependency versions~~ ✓
+- ~~Add initial scripted tests for coverage~~ ✓
 
-The following lines contain RIDDL-specific values that break reusability:
-- Line 22: `-project:RIDDL`
-- Line 25: `-siteroot:doc/src/hugo/static/apidoc`
-- Line 27: `-doc-canonical-base-url:https://riddl.tech/apidoc`
-- Line 47: `apiURL := Some(url("https://riddl.tech/apidoc/"))`
+### 🟡 REMAINING WORK
 
-**Fix:** Make documentation options parameterizable:
-```scala
-def configure(
-  version: Option[String] = None,
-  scala3Options: Seq[String] = Seq.empty,
-  projectName: Option[String] = None,
-  docSiteRoot: Option[String] = None,
-  docBaseURL: Option[String] = None
-)(project: Project): Project
-```
-
-### ⚠️ HIGH PRIORITY
-
-#### 2. Standardize naming conventions
-Migrate lowercase helpers to PascalCase objects with `apply()` methods:
-- `With.build_info` → `With.BuildInfo()`
-- `With.dynver` → `With.DynVer()`
-- `With.git` → `With.Git()`
-- `With.header` → `With.Header()`
-- `With.java` → `With.Java()`
-
-Keep old names as deprecated aliases for one version.
-
-### 🟡 MEDIUM PRIORITY
-
-#### 3. Fix Akka test (license key required)
-**Root cause:** As of October 2024, Akka requires a license key and
-repository token.
-
-**Fix:** Update `Akka.scala` to accept optional repository token:
-```scala
-def forRelease(
-  release: String = "",
-  repositoryToken: Option[String] = None
-)(project: Project): Project = {
-  val akkaRepo = repositoryToken match {
-    case Some(token) => s"https://repo.akka.io/$token/maven"
-    case None => sys.env.get("AKKA_REPO_TOKEN") match {
-      case Some(token) => s"https://repo.akka.io/$token/maven"
-      case None => "https://repo.akka.io/maven" // Fallback
-    }
-  }
-  // ...
-}
-```
-
-**Resources:**
-- Get free token: https://akka.io/key
-- Akka License Docs: https://doc.akka.io/reference/release-notes/
-
-#### 4. Fix IntelliJ plugin test (sbt-idea-plugin 5.x)
-**Root cause:** Upgraded from `org.jetbrains % sbt-idea-plugin % 4.1.2` to
-`org.jetbrains.scala % sbt-idea-plugin % 5.0.4` - major version with
-breaking changes.
-
-**Investigation steps:**
-1. Run verbose test:
-   `sbt "scripted sbt-ossuminc/idea-plugin" -Dsbt.scripted.log=true`
-2. Check sbt-idea-plugin 5.0 changelog on GitHub
-3. Verify if `packageArtifactZip` task name changed
-4. Update `IdeaPlugin.scala` helper if needed
-
-#### 5. Make CrossModule dependencies optional
-**File:** `CrossModule.scala` (lines 59-64)
-
-Currently auto-adds to ALL cross-platform projects:
-- `scala-java-time % 2.6.0`
-- `scalatest % 3.2.19` (test)
-
-**Fix:** Remove automatic injection, make opt-in:
-```scala
-CrossModule("foo", "bar")(JVM, JS)
-  .configure(With.Scalatest())      // Opt-in for testing
-  .configure(With.ScalaJavaTime())  // Opt-in for java.time
-```
-
-**Breaking change:** Users must explicitly add dependencies.
-
-#### 6. Add generic `With.Publishing()` helper
-**New file:** `helpers/Publishing.scala`
-
-```scala
-object Publishing extends AutoPluginHelper {
-  def configure(project: Project): Project = {
-    val preferGitHub = RootProjectInfo.Keys
-      .preferGitHubPublishing.?.value.getOrElse(true)
-    if (preferGitHub) GithubPublishing.configure(project)
-    else SonatypePublishing.configure(project)
-  }
-}
-```
-
-#### 7. Improve Root requirement error messages
-**Files:** `GithubPublishing.scala`, `SonatypePublishing.scala`
-
-Add validation:
-```scala
-def configure(project: Project): Project = {
-  if (RootProjectInfo.Keys.gitHubOrganization.?.value.isEmpty) {
-    sys.error(
-      "You must define a Root(...) project before using GithubPublishing"
-    )
-  }
-  // ... rest of implementation
-}
-```
-
-#### 8. Parameterize dependency versions
-**Files:** `Javascript.scala`, `Native.scala`, `CrossModule.scala`
-
-Allow overriding hardcoded versions:
-```scala
-def apply(
-  // ... existing params ...
-  scalaJavaTimeVersion: String = "2.6.0",
-  scalatestVersion: String = "3.2.19"
-)(project: Project): Project
-```
-
-### 🟢 LOW PRIORITY
-
-#### 9. Remove or implement NodeTarget
+#### 1. Remove or implement NodeTarget
 **File:** `CrossModule.scala` (lines 21, 76-80)
 
 Dead code - `NodePlatform.enable` does nothing. Either remove entirely or
 implement properly.
 
-#### 10. Expose Miscellaneous helpers in With object
+#### 2. Expose Miscellaneous helpers in With object
 **File:** `OssumIncPlugin.scala`
 
 Add to `With` object:
@@ -195,11 +92,11 @@ val UnmanagedJars = Miscellaneous.useUnmanagedJarLibs _
 val ShellPrompt = Miscellaneous.buildShellPrompt
 ```
 
-#### 11. Clarify composite helpers
+#### 3. Clarify composite helpers
 Document what `basic`, `typical`, `everything` include. Consider if
 `typical` should include publishing by default.
 
-#### 12. Make Root project ID configurable
+#### 4. Make Root project ID configurable
 **File:** `Root.scala` (line 38)
 
 Currently hardcoded to `"root"`. Add parameter:
@@ -211,39 +108,44 @@ def apply(
 ): Project
 ```
 
-#### 13. Remove placeholder Packaging methods
+#### 5. Remove placeholder Packaging methods
 **File:** `Packaging.scala`
 
 `jdkPackager()`, `linuxDebian()`, `linuxRPM()` do nothing. Either implement
 or remove.
 
-#### 14. Remove `project/SonatypePublishing.scala`
+#### 6. Remove `project/SonatypePublishing.scala`
 No longer used after switching to GitHub Packages.
 
-#### 15. Add CI/CD workflow for GitHub Actions
+#### 7. Add CI/CD workflow for GitHub Actions
 Run scripted tests on every PR. Skip Akka test in CI (requires credentials).
 
 ---
 
 ## Test Coverage Status
 
-### Current Test Results (Jan 2026)
+### Current Test Results (Jan 17, 2026)
 
 | Test Scenario  | Purpose                       | Status                    |
 |----------------|-------------------------------|---------------------------|
+| akka           | Akka dependencies             | ✅ PASS                   |
+| asciidoc       | AsciiDoc document generation  | ✅ PASS                   |
 | basic          | Basic module configuration    | ✅ PASS                   |
-| multi          | Multi-module projects         | ✅ PASS                   |
 | cross          | Cross-platform (JVM/JS/Native)| ✅ PASS                   |
+| everything     | Full feature set              | ✅ PASS                   |
+| idea-plugin    | IntelliJ plugin development   | ✅ PASS                   |
+| laminar        | Laminar UI dependencies       | ✅ PASS                   |
+| mima           | Binary compatibility checking | ✅ PASS                   |
+| multi          | Multi-module projects         | ✅ PASS                   |
 | native         | Scala Native compilation      | ✅ PASS                   |
-| scalajs        | Scala.js compilation          | ✅ PASS                   |
 | packaging      | Universal packaging           | ✅ PASS                   |
 | program        | Executable programs           | ✅ PASS                   |
-| everything     | Full feature set              | ✅ PASS                   |
-| scalably-typed | TypeScript facades            | ✅ PASS (fixed)           |
-| akka           | Akka dependencies             | ⚠️ FAIL (needs license)   |
-| idea-plugin    | IntelliJ plugin development   | ⚠️ FAIL (5.x API change)  |
+| publishing     | Publishing helper (new)       | ✅ PASS                   |
+| scalably-typed | TypeScript facades            | ✅ PASS                   |
+| scalajs        | Scala.js compilation          | ✅ PASS                   |
+| scalatest      | Scalatest helper (new)        | ✅ PASS                   |
 
-**Pass rate:** 9/11 (82%)
+**Pass rate:** 16/16 (100%)
 
 ### Missing Test Coverage
 
@@ -331,6 +233,38 @@ Current symlinks in `project/`:
 
 ## Migration Notes (for Breaking Changes)
 
+### v1.2.0 Migration (from 1.1.0)
+
+**CrossModule dependency changes (BREAKING):**
+```scala
+// Old (1.1.0 - automatic dependencies)
+CrossModule("foo", "bar")(JVM, JS)
+
+// New (1.2.0 - explicit dependencies)
+CrossModule("foo", "bar")(JVM, JS)
+  .configure(With.Scalatest())      // If you want testing
+  .configure(With.ScalaJavaTime())  // If you need java.time
+```
+
+**New helpers available:**
+- `With.Publishing` - Generic publishing (defaults to GitHub)
+- `With.Publishing.github` - Explicit GitHub Packages
+- `With.Publishing.sonatype` - Explicit Sonatype/Maven Central
+- `With.ScalaJavaTime()` - Add scala-java-time dependency
+
+**Parameterized versions now supported:**
+```scala
+// ScalaJS and Native helpers now accept version parameters
+With.ScalaJS(
+  scalaJavaTimeVersion = "2.6.0",  // Override default
+  scalatestVersion = "3.2.19"      // Override default
+)
+
+With.Native(
+  scalatestVersion = "3.2.19"      // Override default
+)
+```
+
 ### Future v2.0.0 Migration
 
 **Naming convention changes (deprecated in 1.x, removed in 2.x):**
@@ -342,17 +276,6 @@ Current symlinks in `project/`:
 // New (required in 2.x)
 .configure(With.BuildInfo())
 .configure(With.GitHubPublishing)
-```
-
-**CrossModule dependency changes:**
-```scala
-// Old (automatic)
-CrossModule("foo", "bar")(JVM, JS)
-
-// New (explicit)
-CrossModule("foo", "bar")(JVM, JS)
-  .configure(With.Scalatest())      // If you want testing
-  .configure(With.ScalaJavaTime())  // If you need java.time
 ```
 
 ---

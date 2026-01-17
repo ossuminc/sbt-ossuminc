@@ -75,6 +75,14 @@ object OssumIncPlugin extends AutoPlugin {
       /** Configure sbt-native-packager */
       def Packaging: helpers.Packaging.type = helpers.Packaging
 
+      /** Configure artifact publishing (defaults to GitHub Packages)
+        *
+        * Use `With.Publishing` for default (GitHub), or explicitly:
+        * - `With.Publishing.github` for GitHub Packages
+        * - `With.Publishing.sonatype` for Sonatype/Maven Central
+        */
+      def Publishing: helpers.Publishing.type = helpers.Publishing
+
       /** Configure the release process */
       def Release: helpers.Release.type = helpers.Release
 
@@ -101,6 +109,9 @@ object OssumIncPlugin extends AutoPlugin {
 
       /** Configure Scala.js compilation */
       def ScalaJS: helpers.ScalaJS.type = helpers.ScalaJS
+
+      /** Add scala-java-time dependency for cross-platform java.time API */
+      def ScalaJavaTime: helpers.ScalaJavaTime.type = helpers.ScalaJavaTime
 
       /** Add ScalaTest libraries to the libraryDependencies */
       def Scalatest: helpers.Scalatest.type = helpers.Scalatest
@@ -213,4 +224,15 @@ object OssumIncPlugin extends AutoPlugin {
   }
 
   override def projectSettings: Seq[Setting[_]] = Nil
+
+  override def buildSettings: Seq[Setting[_]] = Seq(
+    // Provide default (sentinel) values for RootProjectInfo keys
+    // These will be overridden when Root() is called
+    helpers.RootProjectInfo.Keys.gitHubOrganization :=
+      helpers.RootProjectInfo.NOT_CONFIGURED,
+    helpers.RootProjectInfo.Keys.gitHubRepository :=
+      helpers.RootProjectInfo.NOT_CONFIGURED,
+    helpers.RootProjectInfo.Keys.copyrightHolder :=
+      helpers.RootProjectInfo.NOT_CONFIGURED
+  )
 }

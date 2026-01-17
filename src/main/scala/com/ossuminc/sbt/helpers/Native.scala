@@ -9,7 +9,11 @@ import scala.scalanative.sbtplugin.ScalaNativePlugin.autoImport.*
 
 object Native extends AutoPluginHelper {
 
-  /** The configuration function to call for this plugin helper to add support for Scala Native
+  /** Default version for scalatest dependencies */
+  val defaultScalatestVersion = "3.2.19"
+
+  /** The configuration function to call for this plugin helper to add support
+    * for Scala Native
     *
     * @param project
     *   The project to which the configuration should be applied
@@ -19,6 +23,18 @@ object Native extends AutoPluginHelper {
     */
   def apply(project: Project): Project = apply()(project)
 
+  /** Configure Scala Native compilation
+    *
+    * @param mode Build mode: "debug", "fast", "full", "size", "release"
+    * @param buildTarget Build target: "application", "dynamic", "static"
+    * @param gc Garbage collector: "none", "immix", "commix", "boehm"
+    * @param lto Link-time optimization: "none", "thin", "full"
+    * @param debugLog Enable debug logging
+    * @param verbose Enable verbose compilation output
+    * @param targetTriple Optional target triple for cross-compilation
+    * @param linkOptions Additional linker options
+    * @param scalatestVersion Version of scalatest to include for testing
+    */
   def apply(
     mode: String = "fast",
     buildTarget: String = "static",
@@ -27,7 +43,8 @@ object Native extends AutoPluginHelper {
     debugLog: Boolean = false,
     verbose: Boolean = false,
     targetTriple: Option[String] = None,
-    linkOptions: Seq[String] = Seq("-I/usr/include")
+    linkOptions: Seq[String] = Seq("-I/usr/include"),
+    scalatestVersion: String = defaultScalatestVersion
   )(project: Project): Project = {
     project
       .enablePlugins(ScalaNativePlugin)
@@ -85,8 +102,8 @@ object Native extends AutoPluginHelper {
         Test / nativeConfig ~= { c => c.withBuildTarget(BuildTarget.application) },
         concurrentRestrictions += Tags.limit(NativeTags.Link, 1),
         libraryDependencies ++= Seq(
-          "org.scalactic" %%% "scalactic" % "3.2.19" % Test,
-          "org.scalatest" %%% "scalatest" % "3.2.19" % Test
+          "org.scalactic" %%% "scalactic" % scalatestVersion % Test,
+          "org.scalatest" %%% "scalatest" % scalatestVersion % Test
         )
       )
   }

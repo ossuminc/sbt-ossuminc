@@ -1,0 +1,3 @@
+# Test Scalatest helper configuration
+> show libraryDependencies
+> compile

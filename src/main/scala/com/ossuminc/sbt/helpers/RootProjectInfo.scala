@@ -24,6 +24,37 @@ import java.util.Calendar
 
 object RootProjectInfo {
 
+  /** Sentinel value indicating Root() has not been configured */
+  private[sbt] val NOT_CONFIGURED = "__NOT_CONFIGURED__"
+
+  /** Check if a setting has been configured (not the sentinel value).
+    * Throws RuntimeException if the setting hasn't been configured.
+    *
+    * @param value The current setting value
+    * @param settingName Name of the setting for error messages
+    * @param helperName Name of the helper that requires this setting
+    * @return The value if configured
+    */
+  def requireConfigured(
+    value: String,
+    settingName: String,
+    helperName: String
+  ): String = {
+    if (value == NOT_CONFIGURED) {
+      throw new RuntimeException(
+        s"""$helperName requires Root() to be configured first.
+           |
+           |The setting '$settingName' is not set. Add a Root() definition
+           |to your build.sbt before using $helperName:
+           |
+           |  lazy val root = Root("my-repo-name", startYr = 2024)
+           |    .configure(With.$helperName)
+           |""".stripMargin
+      )
+    }
+    value
+  }
+
   object Keys {
     val projectHomePage: SettingKey[URL] = settingKey[URL](
       "The url of the project's home page"
@@ -34,17 +65,17 @@ object RootProjectInfo {
     )
 
     val gitHubOrganization: SettingKey[String] = settingKey[String](
-      "The github organization corresponding to the entity owning copyright to the code"
+      "The github organization corresponding to the entity owning copyright"
     )
 
     val gitHubRepository: SettingKey[String] = settingKey[String](
-      "The name of teh gitHub repository this project is stored in"
+      "The name of the GitHub repository this project is stored in"
     )
 
     val copyrightHolder: SettingKey[String] = settingKey[String](
       "The name of the business entity or person that holds the copyright"
     )
-    
+
     val spdxLicense: SettingKey[String] = settingKey[String](
       "The spdx license to apply to the whole project"
     )

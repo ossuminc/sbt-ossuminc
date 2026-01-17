@@ -10,13 +10,30 @@ import com.github.sbt.git.GitPlugin.autoImport.git
 
 object ScalaJS extends AutoPluginHelper {
 
+  /** Default version for scala-java-time dependency */
+  val defaultScalaJavaTimeVersion = "2.6.0"
+
+  /** Default version for scalatest dependencies */
+  val defaultScalatestVersion = "3.2.19"
+
   override def apply(project: Project): Project = apply()(project)
 
+  /** Configure Scala.js compilation
+    *
+    * @param header JS header comment for output files
+    * @param hasMain Whether the project has a main method
+    * @param forProd Whether to optimize for production
+    * @param withCommonJSModule Whether to use CommonJS modules (vs ES modules)
+    * @param scalaJavaTimeVersion Version of scala-java-time to include
+    * @param scalatestVersion Version of scalatest to include for testing
+    */
   def apply(
     header: String = "no header",
     hasMain: Boolean = false,
     forProd: Boolean = true,
-    withCommonJSModule: Boolean = false
+    withCommonJSModule: Boolean = false,
+    scalaJavaTimeVersion: String = defaultScalaJavaTimeVersion,
+    scalatestVersion: String = defaultScalatestVersion
   )(
     project: Project
   ): Project = {
@@ -43,7 +60,7 @@ object ScalaJS extends AutoPluginHelper {
               // No git info or scmInfo available - skip source map configuration
               Seq.empty
           }
-        },    
+        },
         // for an application with a main method
         scalaJSUseMainModuleInitializer := hasMain,
         scalaJSLinkerConfig ~= {
@@ -60,10 +77,10 @@ object ScalaJS extends AutoPluginHelper {
             .withJSHeader("// " + header + "\n")
         },
         libraryDependencies ++= Seq(
-          "io.github.cquiroz" %%% "scala-java-time" % "2.6.0",
-          "org.scalactic" %%% "scalactic" % "3.2.19" % "test",
-          "org.scalatest" %%% "scalatest" % "3.2.19" % "test",
-          "org.scalatest" %%% "scalatest-funspec" % "3.2.19" % "test"
+          "io.github.cquiroz" %%% "scala-java-time" % scalaJavaTimeVersion,
+          "org.scalactic" %%% "scalactic" % scalatestVersion % "test",
+          "org.scalatest" %%% "scalatest" % scalatestVersion % "test",
+          "org.scalatest" %%% "scalatest-funspec" % scalatestVersion % "test"
         )
       )
 
