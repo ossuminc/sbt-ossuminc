@@ -5,7 +5,7 @@ import sbt._
 
 object Git extends AutoPluginHelper {
 
-  def configure(project: Project): Project = {
+  def apply(project: Project): Project = {
     project.enablePlugins(GitPlugin)
   }
 }

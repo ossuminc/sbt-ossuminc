@@ -39,7 +39,7 @@ object Unidoc extends AutoPluginHelper {
 //    ("com.typesafe", "config") -> url("http://typesafehub.github.io/config/latest/api/")
 //  )
 
-  def configure(project: Project): Project = {
+  def apply(project: Project): Project = {
     project.configure(this.configure())
   }
 

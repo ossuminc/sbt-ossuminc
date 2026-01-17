@@ -19,7 +19,7 @@ object ScalaCoverage extends AutoPluginHelper {
     * @return
     *   The same project passed as an argument, post configuration
     */
-  def configure(project: Project): Project = {
+  def apply(project: Project): Project = {
     project
       .enablePlugins(ScoverageSbtPlugin)
       .settings(

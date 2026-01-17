@@ -8,7 +8,7 @@ import org.jetbrains.sbtidea.verifier.FailureLevel
 
 object IdeaPlugin extends AutoPluginHelper {
 
-  def configure(project: Project): Project = apply()(project)
+  def apply(project: Project): Project = apply()(project)
 
   /** Configure IntelliJ IDEA plugin development
     *

@@ -31,7 +31,7 @@ object Plugin {
       .apply(dirName, file(dirName))
       .enablePlugins(OssumIncPlugin, SbtPlugin, JavaAppPackaging)
       .disablePlugins(ScoverageSbtPlugin)
-      .configure(With.basic, With.scala2, helpers.Scalafmt.configure, With.SonatypePublishing)
+      .configure(With.basic, With.Scala2, helpers.Scalafmt, With.SonatypePublishing)
       .settings(
         name := dirName,
         moduleName := { if (modName.isEmpty) dirName else modName },

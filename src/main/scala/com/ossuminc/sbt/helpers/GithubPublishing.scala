@@ -6,7 +6,7 @@ import sbtghpackages.GitHubPackagesPlugin.autoImport.*
 
 object GithubPublishing extends AutoPluginHelper {
 
-  def configure(project: Project): Project = {
+  def apply(project: Project): Project = {
     project
       .enablePlugins(sbtghpackages.GitHubPackagesPlugin)
       .settings(

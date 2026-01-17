@@ -35,7 +35,7 @@ object SonatypePublishing extends AutoPluginHelper {
 
   private val defaultSonatypeServer = "s01.oss.sonatype.org"
 
-  def configure(project: Project): Project = {
+  def apply(project: Project): Project = {
     project
       .enablePlugins(SonatypePlugin)
       .settings(

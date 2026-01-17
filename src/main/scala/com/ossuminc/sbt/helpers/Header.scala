@@ -47,7 +47,7 @@ object Header extends AutoPluginHelper {
       )
   }
 
-  def configure(project: Project): Project = {
+  def apply(project: Project): Project = {
     import HeaderPlugin.autoImport.*
     import sbtheader.{CommentStyle, FileType}
     setLicense(project)

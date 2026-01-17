@@ -13,7 +13,7 @@ import java.io.File
 
 object Packaging extends AutoPluginHelper {
 
-  override def configure(project: Project) = none(project)
+  override def apply(project: Project) = none(project)
 
   def none(project: Project): Project = project
 

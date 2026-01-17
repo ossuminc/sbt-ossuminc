@@ -18,19 +18,17 @@ package com.ossuminc.sbt.helpers
 
 import sbt.Project
 
-/** A Little Help For AutoPlugins This trait just provides some definitions and makes it easier to
-  * set up the plugin requirements. Just list the helpers upon which your plugin is dependent in the
-  * autoPlugins method and the rest is taken care of.
+/** A Little Help For AutoPlugins. This trait extends `(Project => Project)`
+  * so helpers can be used directly as configuration functions:
+  * `.configure(With.Scala3)` instead of `.configure(With.Scala3.configure)`.
   */
-trait AutoPluginHelper extends {
+trait AutoPluginHelper extends (Project => Project) {
 
-  /** The typical configuration function type for this helper
+  /** Apply this helper's configuration to a project.
     * @param project
     *   The project to which the configuration should be applied
     * @return
-    *   The same project passed as an argument, but modified with the configuration this helper
-    *   provides.
+    *   The same project with this helper's configuration applied.
     */
-
-  def configure(project: Project): Project
+  def apply(project: Project): Project
 }

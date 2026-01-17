@@ -6,7 +6,7 @@ import sbt.Keys.libraryDependencies
 
 object Laminar extends AutoPluginHelper {
 
-  override def configure(project: Project): Project = apply()(project)
+  override def apply(project: Project): Project = apply()(project)
 
   def apply(
     laminar_version: String = "17.2.0",

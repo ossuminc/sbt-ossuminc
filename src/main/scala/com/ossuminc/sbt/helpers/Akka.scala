@@ -142,5 +142,5 @@ object Akka extends AutoPluginHelper {
   }
 
   /** Configure Akka with latest release */
-  def configure(project: Project): Project = forRelease("")(project)
+  def apply(project: Project): Project = forRelease("")(project)
 }

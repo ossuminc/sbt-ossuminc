@@ -19,7 +19,7 @@ object Resolvers extends AutoPluginHelper {
     project.settings(externalResolvers ++= resolvers)
   }
 
-  def configure(project: Project): Project =
+  def apply(project: Project): Project =
     project.settings(
       resolvers += Resolver.githubPackages(RootProjectInfo.Keys.gitHubOrganization.value),
       resolvers ++= scalaResolvers

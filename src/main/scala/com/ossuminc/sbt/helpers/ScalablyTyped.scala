@@ -17,7 +17,7 @@ import scala.sys.process.Process
 /** An AutoPluginHelper to make using ScalablyTyped easier */
 object ScalablyTyped extends AutoPluginHelper {
 
-  override def configure(project: Project) = withoutScalajsBundler()(project)
+  override def apply(project: Project) = withoutScalajsBundler()(project)
   
   def withoutScalajsBundler(
     packageJsonDir: File = file("."),

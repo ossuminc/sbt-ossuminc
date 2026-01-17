@@ -17,7 +17,7 @@ import sbttastymima.TastyMiMaPlugin.autoImport.*
   */
 object MiMa extends AutoPluginHelper {
 
-  override def configure(project: Project) = without(project)
+  override def apply(project: Project) = without(project)
   
   /** Mark a project as not processed by MiMa */
   def without(project: Project): Project = {

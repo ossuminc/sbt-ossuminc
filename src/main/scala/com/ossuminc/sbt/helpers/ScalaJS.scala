@@ -10,7 +10,7 @@ import com.github.sbt.git.GitPlugin.autoImport.git
 
 object ScalaJS extends AutoPluginHelper {
 
-  override def configure(project: Project): Project = apply()(project)
+  override def apply(project: Project): Project = apply()(project)
 
   def apply(
     header: String = "no header",

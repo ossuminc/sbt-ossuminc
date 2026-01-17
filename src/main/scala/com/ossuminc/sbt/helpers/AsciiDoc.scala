@@ -31,7 +31,7 @@ object AsciiDoc extends AutoPluginHelper {
     * Enables both HTML and PDF generation from AsciiDoc sources located in src/asciidoc.
     * Generated HTML will be placed in target/site/asciidoc, and PDFs in target/asciidoc-pdf.
     */
-  def configure(project: Project): Project = apply()(project)
+  def apply(project: Project): Project = apply()(project)
 
   /** Configure AsciiDoc support with custom options
     *

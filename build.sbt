@@ -21,9 +21,9 @@ lazy val `sbt-ossuminc` = project
   .in(file("."))
   .enablePlugins(SbtPlugin)
   .configure(RootProjectInfo.initialize("sbt-ossuminc", startYr = 2015))
-  .configure(DynamicVersioning.configure)
-  .configure(Scala2.configure)
-  .configure(GithubPublishing.configure)
+  .configure(DynamicVersioning)
+  .configure(Scala2)
+  .configure(GithubPublishing)
   .settings(
     sbtPlugin := true,
     licenses += "Apache V2.0" -> url("https://www.apache.org/licenses/LICENSE-2.0"),

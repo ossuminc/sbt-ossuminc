@@ -48,7 +48,7 @@ object Root {
           devs,
           spdx
         ),
-        helpers.Resolvers.configure
+        helpers.Resolvers
       )
   }
 }

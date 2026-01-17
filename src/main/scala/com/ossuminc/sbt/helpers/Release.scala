@@ -172,7 +172,7 @@ object Release extends AutoPluginHelper {
     } :+ pushChanges
   }
 
-  def configure(project: Project): Project =
+  def apply(project: Project): Project =
     project
       .enablePlugins(ReleasePlugin)
       .settings(defaultSettings)

@@ -33,7 +33,8 @@ object Scala3 extends AutoPluginHelper {
       docBaseURL.map(u => s"-doc-canonical-base-url:$u").toSeq
   }
 
-  def configure(project: Project): Project = Scala3.configure()(project)
+  /** Default apply - enables direct use as `With.Scala3` */
+  def apply(project: Project): Project = configure()(project)
 
   /** Configure Scala 3 compilation with optional documentation settings.
     *

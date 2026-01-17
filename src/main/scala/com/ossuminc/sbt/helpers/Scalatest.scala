@@ -9,7 +9,7 @@ object Scalatest extends AutoPluginHelper {
 
   val latest_version = "3.2.19"
 
-  override def configure(project: Project) = apply()(project)
+  override def apply(project: Project) = apply()(project)
 
   def apply(
     version: String = "3.2.19",

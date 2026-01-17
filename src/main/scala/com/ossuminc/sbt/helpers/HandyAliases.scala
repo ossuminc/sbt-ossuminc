@@ -41,7 +41,7 @@ object HandyAliases extends AutoPluginHelper {
     )
   }
 
-  def configure(project: Project): Project = {
+  def apply(project: Project): Project = {
     project
       .settings(
         Global / commands ++= Seq(shell_command),

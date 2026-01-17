@@ -28,156 +28,186 @@ object OssumIncPlugin extends AutoPlugin {
     // Clauses to customize the major declarations
     object With {
 
-      def akka: ConfigFunc = helpers.Akka.configure
-
-      def Akka = helpers.Akka
+      // ===== PascalCase helpers (preferred) =====
 
       /** Use this to provide dependencies on most recent Akka libraries */
+      def Akka: helpers.Akka.type = helpers.Akka
 
       /** Use this to provide handy sbt command line aliases */
-      def aliases: ConfigFunc = helpers.HandyAliases.configure
+      def Aliases: helpers.HandyAliases.type = helpers.HandyAliases
 
-      /** Use this to configure AsciiDoc document generation for static websites and PDFs */
-      val AsciiDoc = helpers.AsciiDoc
+      /** Use this to configure AsciiDoc document generation */
+      val AsciiDoc: helpers.AsciiDoc.type = helpers.AsciiDoc
 
-      /** Use this to have the build generate build information. "I know this because sbt knows
-        * this"
-        */
-      def build_info: ConfigFunc = helpers.BuildInfo.configure
-
+      /** Use this to have the build generate build information */
       def BuildInfo: helpers.BuildInfo.type = helpers.BuildInfo
 
-      /** Configure the project to require a certain percentage of coverage in test cases */
+      /** Use dynamic versioning based on git tags */
+      def DynVer: helpers.DynamicVersioning.type = helpers.DynamicVersioning
+
+      /** Use this to get git command line support at the sbt prompt */
+      def Git: helpers.Git.type = helpers.Git
+
+      /** Configure publishing to GitHub Packages
+        * @note
+        *   Do not combine with SonatypePublishing
+        */
+      def GithubPublishing: helpers.GithubPublishing.type = helpers.GithubPublishing
+
+      /** Use this to manage source file headers automatically */
+      def Header: helpers.Header.type = helpers.Header
+
+      /** Configure IntelliJ IDEA plugin development */
+      def IdeaPlugin: helpers.IdeaPlugin.type = helpers.IdeaPlugin
+
+      /** Use this to enable compilation of Java code too */
+      def Java: helpers.Java.type = helpers.Java
+
+      /** Use this to configure Laminar dependencies */
+      def Laminar: helpers.Laminar.type = helpers.Laminar
+
+      /** Configure binary compatibility checking */
+      def MiMa: helpers.MiMa.type = helpers.MiMa
+
+      /** Use this to build native code with Scala Native */
+      def Native: helpers.Native.type = helpers.Native
+
+      /** Configure sbt-native-packager */
+      def Packaging: helpers.Packaging.type = helpers.Packaging
+
+      /** Configure the release process */
+      def Release: helpers.Release.type = helpers.Release
+
+      /** Add extra resolvers to the build */
+      def Resolvers: helpers.Resolvers.type = helpers.Resolvers
+
+      /** Configure dependency on RIDDL library */
+      def Riddl: helpers.Riddl.type = helpers.Riddl
+
+      /** Compile scala code as Scala 2.13.latest */
+      def Scala2: helpers.Scala2.type = helpers.Scala2
+
+      /** Compile scala code as Scala 3's latest LTS release */
+      def Scala3: helpers.Scala3.type = helpers.Scala3
+
+      /** Configure ScalablyTyped for TypeScript facades */
+      def ScalablyTyped: helpers.ScalablyTyped.type = helpers.ScalablyTyped
+
+      /** Configure code coverage testing */
+      def ScalaCoverage: helpers.ScalaCoverage.type = helpers.ScalaCoverage
+
+      /** Configure standard Scalafmt formatting rules */
+      def Scalafmt: helpers.Scalafmt.type = helpers.Scalafmt
+
+      /** Configure Scala.js compilation */
+      def ScalaJS: helpers.ScalaJS.type = helpers.ScalaJS
+
+      /** Add ScalaTest libraries to the libraryDependencies */
+      def Scalatest: helpers.Scalatest.type = helpers.Scalatest
+
+      /** Configure publishing to Sonatype/Maven Central
+        * @note
+        *   Do not combine with GithubPublishing
+        */
+      def SonatypePublishing: helpers.SonatypePublishing.type = helpers.SonatypePublishing
+
+      /** Configure unified API documentation */
+      def Unidoc: helpers.Unidoc.type = helpers.Unidoc
+
+      // ===== Deprecated lowercase aliases (will be removed in 2.0) =====
+
+      @deprecated("Use Akka instead", "1.1.0")
+      def akka: helpers.Akka.type = helpers.Akka
+
+      @deprecated("Use Aliases instead", "1.1.0")
+      def aliases: helpers.HandyAliases.type = helpers.HandyAliases
+
+      @deprecated("Use BuildInfo instead", "1.1.0")
+      def build_info: helpers.BuildInfo.type = helpers.BuildInfo
+
+      @deprecated("Use DynVer instead", "1.1.0")
+      def dynver: helpers.DynamicVersioning.type = helpers.DynamicVersioning
+
+      @deprecated("Use Git instead", "1.1.0")
+      def git: helpers.Git.type = helpers.Git
+
+      @deprecated("Use Header instead", "1.1.0")
+      def header: helpers.Header.type = helpers.Header
+
+      @deprecated("Use Java instead", "1.1.0")
+      def java: helpers.Java.type = helpers.Java
+
+      @deprecated("Use ScalaJS instead", "1.1.0")
+      def Javascript: helpers.ScalaJS.type = helpers.ScalaJS
+
+      @deprecated("Use Release instead", "1.1.0")
+      def release: helpers.Release.type = helpers.Release
+
+      @deprecated("Use Resolvers instead", "1.1.0")
+      def resolvers: helpers.Resolvers.type = helpers.Resolvers
+
+      @deprecated("Use Riddl instead", "1.1.0")
+      def riddl: helpers.Riddl.type = helpers.Riddl
+
+      @deprecated("Use Scala2 instead", "1.1.0")
+      def scala2: helpers.Scala2.type = helpers.Scala2
+
+      @deprecated("Use Scala3 instead", "1.1.0")
+      def scala3: helpers.Scala3.type = helpers.Scala3
+
+      @deprecated("Use ScalaJS instead", "1.1.0")
+      def scalajs: helpers.ScalaJS.type = helpers.ScalaJS
+
+      @deprecated("Use ScalaCoverage instead", "1.1.0")
+      def scoverage: helpers.ScalaCoverage.type = helpers.ScalaCoverage
+
+      // ===== Special helpers =====
+
+      /** Configure code coverage with minimum threshold */
       def coverage(percent: Double = 50.0d)(project: Project): Project =
         project
-          .configure(helpers.ScalaCoverage.configure)
+          .configure(helpers.ScalaCoverage)
           .settings(
             helpers.ScalaCoverage.Keys.coveragePercent := percent
           )
 
-      /** Use dynamic versioning based on the most recent tag, and the commit hash and data/time
-        * stamp if necessary
-        */
-      def dynver: ConfigFunc = helpers.DynamicVersioning.configure
-
-      /** Use this to get git command line support at the sbt prompt */
-      def git: ConfigFunc = helpers.Git.configure
-
-      /** Configure this project to be published as a Maven GitHub Package in the organization
-        * specified by Root
-        * @note
-        *   Do not combine this with SonatypePublishing
-        */
-      def GithubPublishing: ConfigFunc = helpers.GithubPublishing.configure
-
-      /** Use this to get the `headerCheck` and `headerCreate` sbt commands to generate source file
-        * headers automatically
-        */
-      def header: ConfigFunc = helpers.Header.configure
-
-      def IdeaPlugin: helpers.IdeaPlugin.type = helpers.IdeaPlugin
-
-      /** Use this to enable compilation of Java code too */
-      def java: ConfigFunc = helpers.Java.configure
-
-      /** Use this to configure your project to compile Scala to ScalaJS via scala.js */
-      def ScalaJS: helpers.ScalaJS.type = helpers.ScalaJS
-      def scalajs: ConfigFunc = helpers.ScalaJS.configure
-
-      /** @deprecated Use ScalaJS instead - this alias will be removed in 2.0 */
-      @deprecated("Use ScalaJS instead", "1.0.0")
-      def Javascript: helpers.ScalaJS.type = helpers.ScalaJS
-
-      /** Use this to configure your project to include typical laminar dependencies */
-      def Laminar: helpers.Laminar.type = helpers.Laminar
-
-      def MiMa: helpers.MiMa.type = helpers.MiMa
-
-      /** Use this to configure your project to build native code with Scala.Native */
-      def Native: helpers.Native.type = helpers.Native
-
-      /** Do not configure this project for Lightbend's Migration Manager */
+      /** Do not configure binary compatibility checking */
       def noMiMa: ConfigFunc = helpers.MiMa.without
 
-      /** Configure this project to produce no artifact and not be published */
+      /** Configure project to produce no artifact and not be published */
       def noPublishing(project: Project): Project =
         project.settings(
-          publishArtifact := false, // no artifact to publish for the virtual root project
-          publish := {}, // just to be sure
-          publishLocal := {}, // and paranoid
+          publishArtifact := false,
+          publish := {},
+          publishLocal := {},
           publishTo := Some(Resolver.defaultLocal),
           publish / skip := true
         )
 
-      def Packaging: helpers.Packaging.type = helpers.Packaging
-
-      /** Configure this project to be published as open source
-        * @note
-        *   Do not combine this with SonatypePublishing
-        */
-      def SonatypePublishing: ConfigFunc = helpers.SonatypePublishing.configure
-
-      /** Configure this project to support releasing with a systematic release procedure */
-      def release: ConfigFunc = helpers.Release.configure
-
-      /** Add extra resolvers to the build for this project */
-      def resolvers: ConfigFunc = helpers.Resolvers.configure
-
-      /** Configure dependency on a version of the RIDDL library */
-      def riddl: ConfigFunc = helpers.Riddl.configure
-      def Riddl = helpers.Riddl
-
-      /** Compile scala code as Scala 2.13.latest */
-      def scala2: ConfigFunc = helpers.Scala2.configure
-
-      /** Compile scala code as Scala 3's latest LTS release */
-      def scala3: ConfigFunc = helpers.Scala3.configure
-
-      /** Configure this project to use standard Scalafmt formatting rules. */
-      def Scalafmt: helpers.Scalafmt.type = helpers.Scalafmt
-
-      /** Add scalaTest libraries to the libraryDependencies */
-      def Scalatest: helpers.Scalatest.type = helpers.Scalatest
-
-      /** Configure this project to enable coverage testing */
-      def scoverage: ConfigFunc = helpers.ScalaCoverage.configure
-
-      def ScalablyTyped: helpers.ScalablyTyped.type = helpers.ScalablyTyped
-
-      def Unidoc: helpers.Unidoc.type = helpers.Unidoc
-
+      /** Apply multiple configuration functions */
       def these(cfuncs: ConfigFunc*)(project: Project): Project =
         cfuncs.foldLeft(project) { (p, func) =>
           p.configure(func)
         }
 
-      /** Use this to more easily configure:
-        *   - [[com.ossuminc.sbt.OssumIncPlugin.autoImport.With.aliases]],
-        *   - [[com.ossuminc.sbt.OssumIncPlugin.autoImport.With.dynver]]
-        *   - [[com.ossuminc.sbt.OssumIncPlugin.autoImport.With.git]]
-        *   - [[com.ossuminc.sbt.OssumIncPlugin.autoImport.With.header]]
-        *   - [[com.ossuminc.sbt.OssumIncPlugin.autoImport.With.resolvers]] more easily
-        */
+      // ===== Composite helpers =====
+
+      /** Configure: Aliases, DynVer, Git, Header, Resolvers */
       def basic(project: Project): Project =
-        these(aliases, dynver, git, header, resolvers)(project)
+        these(Aliases, DynVer, Git, Header, Resolvers)(project)
 
-      /** Configure support for all the simple things:
-        *   - [[com.ossuminc.sbt.OssumIncPlugin.autoImport.With.typical]]
-        *   - [[com.ossuminc.sbt.OssumIncPlugin.autoImport.With.java]]
-        *   - [[com.ossuminc.sbt.OssumIncPlugin.autoImport.With.build_info]]
-        *   - [[com.ossuminc.sbt.OssumIncPlugin.autoImport.With.release]]
-        */
-      def everything(project: Project): Project = {
-        project.configure(typical)
-        these(java, release)(project)
-      }
-
-      /** Use this to enable the [[basic]] features as well as [[scala3]] and [[build_info]] */
+      /** Configure: basic + Scala3 + Scalatest */
       def typical(project: Project): Project = {
         project
           .configure(basic)
-          .configure(scala3)
-          .configure(Scalatest())
+          .configure(Scala3)
+          .configure(Scalatest)
+      }
+
+      /** Configure: typical + Java + Release */
+      def everything(project: Project): Project = {
+        project.configure(typical)
+        these(Java, Release)(project)
       }
     }
   }

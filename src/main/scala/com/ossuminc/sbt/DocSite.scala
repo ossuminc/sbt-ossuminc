@@ -41,7 +41,7 @@ object DocSite {
     Project
       .apply(dirName, file(dirName))
       .enablePlugins(OssumIncPlugin)
-      .configure(With.basic, With.scala3)
+      .configure(With.basic, With.Scala3)
       .configure(
         helpers.Unidoc.configure(
           outpath,

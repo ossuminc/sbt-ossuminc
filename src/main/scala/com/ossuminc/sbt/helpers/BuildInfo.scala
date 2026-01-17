@@ -19,7 +19,7 @@ object BuildInfo extends AutoPluginHelper {
     * @return
     *   The same project passed as an argument, post configuration
     */
-  def configure(project: Project): Project = {
+  def apply(project: Project): Project = {
     val utcDate: String = java.time.Instant
       .now()
       .atZone(java.time.ZoneOffset.UTC)
@@ -79,7 +79,7 @@ object BuildInfo extends AutoPluginHelper {
     *   The keys and value to add to the BuildInfo output
     */
   def withKeys(keyValues: (String, Any)*)(project: Project): Project = {
-    configure(project).settings(
+    apply(project).settings(
       buildInfoKeys ++= { keyValues.map { case (k, v) => BuildInfoKey.action(k) { v } } }
     )
   }
