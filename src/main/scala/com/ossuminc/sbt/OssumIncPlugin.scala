@@ -185,6 +185,16 @@ object OssumIncPlugin extends AutoPlugin {
       /** Do not configure binary compatibility checking */
       def noMiMa: ConfigFunc = helpers.MiMa.without
 
+      /** Use a classpath JAR for packaging (reduces command line length) */
+      def ClassPathJar: ConfigFunc = helpers.Miscellaneous.useClassPathJar
+
+      /** Use unmanaged JAR files from libs/ directory */
+      def UnmanagedJars: ConfigFunc = helpers.Miscellaneous.useUnmanagedJarLibs
+
+      /** Custom shell prompt showing project name, branch, and version */
+      def ShellPrompt: Def.Initialize[State => String] =
+        helpers.Miscellaneous.buildShellPrompt
+
       /** Configure project to produce no artifact and not be published */
       def noPublishing(project: Project): Project =
         project.settings(

@@ -2,15 +2,19 @@ package com.ossuminc.sbt
 
 import sbt.{Developer, Project, URL, file, url}
 
-/** A configuration object for a root project of a monorepo composed of subordinate sbt projects */
+/** A configuration object for a root project of a monorepo composed of
+  * subordinate sbt projects
+  */
 object Root {
 
-  /** Define a Root level project whether it is for a single-project repo or an unirepo with many subprojects. This
-    * project is configured with a shell prompt, and the standard project information at ThisBuild scope
+  /** Define a Root level project whether it is for a single-project repo or
+    * a unirepo with many subprojects. This project is configured with a shell
+    * prompt, and the standard project information at ThisBuild scope.
+    *
     * @param ghRepoName
     *   The name of the GitHub repository we are building
     * @param ghOrgName
-    *   THe name of the GitHub organization/user that contains the `ghRepoName`
+    *   The name of the GitHub organization/user that contains the `ghRepoName`
     * @param orgPackage
     *   The organization part of the JVM package this repo uses for its code
     * @param orgName
@@ -21,6 +25,10 @@ object Root {
     *   The year in which this project started, for copyright purposes
     * @param devs
     *   A list of Developer specifications to include in POM (required by Maven)
+    * @param spdx
+    *   The SPDX license identifier (e.g., "Apache-2.0", "MIT")
+    * @param projectId
+    *   The sbt project ID (default: "root")
     * @return
     *   The project that was created and configured.
     */
@@ -32,10 +40,11 @@ object Root {
     orgPage: URL = url("https://ossuminc.com/"),
     startYr: Int = 2023,
     devs: List[Developer] = List.empty,
-    spdx: String = "Apache-2.0"
+    spdx: String = "Apache-2.0",
+    projectId: String = "root"
   ): Project = {
     Project
-      .apply("root", file(System.getProperty("user.dir")))
+      .apply(projectId, file(System.getProperty("user.dir")))
       .enablePlugins(OssumIncPlugin)
       .configure(
         helpers.RootProjectInfo.initialize(

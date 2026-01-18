@@ -82,7 +82,7 @@ In your `project/plugins.sbt` file, add the GitHub Packages resolver and the plu
 // GitHub Packages resolver for sbt-ossuminc
 resolvers += "GitHub Packages" at "https://maven.pkg.github.com/ossuminc/sbt-ossuminc"
 
-addSbtPlugin("com.ossuminc" % "sbt-ossuminc" % "1.1.0")
+addSbtPlugin("com.ossuminc" % "sbt-ossuminc" % "1.2.0")
 ```
 
 ### ~/sbt/1.0/github.sbt
@@ -225,15 +225,16 @@ then your commands get passed down to the sub-projects.
 
 For example, this:
 
-```scala 
+```scala
 lazy val riddl: Project = Root(
   ghRepoName = "my-project",
   ghOrgName = "my-organization",
   orgPackage = "com.my_org.my_proj",
   orgName = "My Organization",
   orgPage = url("https://my_org.com/"),
-  maintainerEmail = "somebody@my_org.com",
-  startYr = 2024)
+  startYr = 2024,
+  projectId = "root"  // Optional: customize sbt project ID (default: "root")
+)
   .configure(With.noPublishing, With.git, With.dynver)
   .aggregate(
     module0, // a sub-component of your project
@@ -412,6 +413,10 @@ These helpers take no parameters (or use all defaults):
 * **`With.scalajs`** - Enable Scala.js compilation (default configuration)
 * **`With.noMiMa`** - Disable binary compatibility checking
 * **`With.noPublishing`** - Disable artifact publishing (useful for root aggregator projects)
+* **`With.ScalaJavaTime()`** - Add `scala-java-time` dependency for cross-platform `java.time` API
+* **`With.ClassPathJar`** - Use classpath JAR for packaging (reduces command line length)
+* **`With.UnmanagedJars`** - Use unmanaged JAR files from `libs/` directory
+* **`With.ShellPrompt`** - Custom shell prompt showing project name, git branch, and version
 * **`With.release`** - Enable `sbt-release` plugin
 * **`With.resolvers`** - Add standard resolvers (Maven Local, JCenter, Typesafe)
 * **`With.scala2`** - Configure for Scala 2.13 (latest)
@@ -420,10 +425,13 @@ These helpers take no parameters (or use all defaults):
 
 ### Publishing Helpers
 
-* **`With.GithubPublishing`** - Configure publishing to GitHub Packages
-* **`With.SonatypePublishing`** - Configure publishing to Sonatype/Maven Central
+* **`With.Publishing`** - Configure publishing (defaults to GitHub Packages)
+* **`With.Publishing.github`** - Explicitly configure GitHub Packages publishing
+* **`With.Publishing.sonatype`** - Configure publishing to Sonatype/Maven Central
+* **`With.GithubPublishing`** - Alias for `With.Publishing.github`
+* **`With.SonatypePublishing`** - Alias for `With.Publishing.sonatype`
 
-> **Note**: Do not combine GithubPublishing and SonatypePublishing in the same project.
+> **Note**: Do not combine GitHub and Sonatype publishing in the same project.
 
 ### Composite Helpers
 
@@ -521,13 +529,16 @@ Configure Scala.js compilation.
 - **`hasMain`**: Enable main module initializer
 - **`forProd`**: Enable optimizer (production mode)
 - **`withCommonJSModule`**: Use CommonJS modules instead of ES modules
+- **`scalaJavaTimeVersion`**: Override scala-java-time version (default: `"2.6.0"`)
+- **`scalatestVersion`**: Override scalatest version (default: `"3.2.19"`)
 
 ```scala
 CrossModule("my-ui", "ui")(JVM, JS)
   .jsConfigure(With.ScalaJS(
     header = "My App UI v1.0",
     hasMain = true,
-    forProd = true
+    forProd = true,
+    scalaJavaTimeVersion = "2.6.0"
   ))
 ```
 
@@ -573,12 +584,14 @@ Configure Scala Native compilation.
 - **`verbose`**: Verbose compilation output
 - **`targetTriple`**: Target platform triple (optional)
 - **`linkOptions`**: Additional linker options
+- **`scalatestVersion`**: Override scalatest version (default: `"3.2.19"`)
 
 ```scala
 CrossModule("cli-tool", "tool")(JVM, Native)
   .nativeConfigure(With.Native(
     mode = "release",
-    buildTarget = "application"
+    buildTarget = "application",
+    scalatestVersion = "3.2.19"
   ))
 ```
 
@@ -684,6 +697,42 @@ DocSite(
 )
 ```
 
-  
+## Migration Notes
+
+### Migrating from 1.1.0 to 1.2.0
+
+#### Breaking Change: CrossModule Dependencies Now Opt-In
+
+In 1.1.0, `CrossModule` automatically included testing and time dependencies. In 1.2.0, these are now opt-in for cleaner, more explicit builds.
+
+```scala
+// Old (1.1.0) - dependencies were automatic
+CrossModule("foo", "bar")(JVM, JS)
+
+// New (1.2.0) - explicitly add what you need
+CrossModule("foo", "bar")(JVM, JS)
+  .configure(With.Scalatest())      // Add if you need testing
+  .configure(With.ScalaJavaTime())  // Add if you need java.time API
+```
+
+#### New Helpers in 1.2.0
+
+* **`With.Publishing`** - Generic publishing helper (defaults to GitHub Packages)
+  - Use `With.Publishing` for default (GitHub) publishing
+  - Use `With.Publishing.github` to explicitly use GitHub Packages
+  - Use `With.Publishing.sonatype` for Sonatype/Maven Central
+
+* **`With.ScalaJavaTime()`** - Add `scala-java-time` dependency for cross-platform date/time support
+
+* **`With.ClassPathJar`** - Use classpath JAR to reduce command line length on Windows
+
+* **`With.UnmanagedJars`** - Configure unmanaged JAR files from `libs/` directory
+
+* **`With.ShellPrompt`** - Custom sbt shell prompt with project, branch, and version info
+
+#### Other Changes
+
+* **`Root()` project ID is now configurable** - Use `projectId` parameter to customize (default: `"root"`)
+* **Parameterized versions** - `With.ScalaJS()` and `With.Native()` now accept version parameters to override defaults
 
 

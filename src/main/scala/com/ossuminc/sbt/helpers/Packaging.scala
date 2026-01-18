@@ -64,10 +64,4 @@ object Packaging extends AutoPluginHelper {
         graalVMNativeImageCommand := native_image_path.getAbsolutePath
       )
   }
-
-  def jdkPackager()(project: Project): Project = project
-
-  def linuxDebian()(project: Project): Project = project
-
-  def linuxRPM()(project: Project): Project = project
 }

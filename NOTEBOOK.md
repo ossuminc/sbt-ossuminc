@@ -2,13 +2,16 @@
 
 ## Current Status
 
-Version 1.1.0 released. Significant maintenance work completed Jan 17, 2026
-addressing most of the 15 UX issues identified in the maintenance analysis.
-All 16 scripted tests now passing (100%). Key changes include:
+**Version 1.2.0 ready for release.** Significant maintenance work completed Jan 17, 2026
+addressing all 15 UX issues identified in the maintenance analysis.
+All 16 scripted tests passing (100%). Key changes since 1.1.0:
 - CrossModule dependencies now opt-in (breaking change)
-- New helpers: `With.Publishing`, `With.ScalaJavaTime()`
+- New helpers: `With.Publishing`, `With.ScalaJavaTime()`, `With.ClassPathJar`, `With.UnmanagedJars`, `With.ShellPrompt`
 - Improved error messages when Root() not configured
 - Parameterized dependency versions in ScalaJS/Native helpers
+- Configurable Root project ID
+- Removed dead code (NodeTarget, placeholder Packaging methods)
+- Removed obsolete project/SonatypePublishing.scala
 
 ## Work Completed (Recent)
 
