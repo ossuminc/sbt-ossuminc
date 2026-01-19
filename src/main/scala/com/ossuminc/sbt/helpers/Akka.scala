@@ -6,13 +6,28 @@ import sbt.Keys.*
 /** A helper that can be used to configure the complex dependencies in the Akka Platform.
   *
   * IMPORTANT: Akka is licensed under the Business Source License (BSL) 1.1 as of 2024.
-  * A repository token is required to access Akka artifacts. Configure the Akka repository
-  * resolver in ~/.sbt/1.0/ per Akka's instructions at https://akka.io/key
+  * A repository token is required to access Akka artifacts. Set the AKKA_REPO_TOKEN
+  * environment variable with your token from https://akka.io/key
   *
-  * Akka artifacts are published for Scala 2.13 only. This helper automatically configures
-  * CrossVersion.for3Use2_13 for Scala 3 projects.
+  * This helper automatically:
+  * - Adds the Akka repository resolver (https://repo.akka.io/maven)
+  * - Configures credentials from AKKA_REPO_TOKEN environment variable
+  * - Configures CrossVersion.for3Use2_13 for Scala 3 projects (Akka is Scala 2.13 only)
   */
 object Akka extends AutoPluginHelper {
+
+  /** Akka repository URL */
+  val akkaRepoUrl = "https://repo.akka.io/maven"
+
+  /** Akka repository resolver */
+  val akkaResolver: MavenRepository = "Akka library repository".at(akkaRepoUrl)
+
+  /** Akka repository credentials from AKKA_REPO_TOKEN environment variable */
+  def akkaCredentials: Seq[Credentials] = {
+    sys.env.get("AKKA_REPO_TOKEN").map { token =>
+      Credentials("Akka library repository", "repo.akka.io", "token", token)
+    }.toSeq
+  }
 
   /** Helper to create Akka dependency with Scala 2.13 cross-version for Scala 3 compatibility */
   def akkaModule(org: String, name: String, version: String): ModuleID =
@@ -119,12 +134,14 @@ object Akka extends AutoPluginHelper {
 
   /** Configure Akka dependencies for a specific release.
     *
-    * NOTE: The Akka repository resolver must be configured separately in ~/.sbt/1.0/
-    * per Akka's instructions at https://akka.io/key
+    * Automatically adds:
+    * - Akka repository resolver (https://repo.akka.io/maven)
+    * - Credentials from AKKA_REPO_TOKEN environment variable
+    * - Core Akka modules for the specified release
     *
     * @param release The Akka release version ("25.10" or "24.10"). Default is latest (25.10).
     * @param project The project to configure
-    * @return The configured project with core Akka modules
+    * @return The configured project with Akka resolver, credentials, and core modules
     */
   def forRelease(release: String = "")(project: Project): Project = {
     val coreVersion = release match {
@@ -135,8 +152,9 @@ object Akka extends AutoPluginHelper {
       )
     }
 
-    // Only include core modules by default - users can add HTTP, gRPC etc. as needed
     project.settings(
+      resolvers += akkaResolver,
+      credentials ++= akkaCredentials,
       libraryDependencies ++= coreModules(coreVersion)
     )
   }
