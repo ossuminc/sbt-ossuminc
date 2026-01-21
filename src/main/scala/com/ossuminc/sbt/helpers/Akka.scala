@@ -6,28 +6,49 @@ import sbt.Keys.*
 /** A helper that can be used to configure the complex dependencies in the Akka Platform.
   *
   * IMPORTANT: Akka is licensed under the Business Source License (BSL) 1.1 as of 2024.
-  * A repository token is required to access Akka artifacts. Set the AKKA_REPO_TOKEN
-  * environment variable with your token from https://akka.io/key
+  * Two separate credentials are required:
+  *
+  * 1. AKKA_REPO_TOKEN - Repository access token for downloading artifacts.
+  *    Set this environment variable with your token from https://account.akka.io
+  *    Used in repository URL: https://repo.akka.io/{token}/secure
+  *
+  * 2. akka.license-key - Runtime license key for your application.
+  *    Configure this in your application.conf, NOT as an environment variable for sbt.
   *
   * This helper automatically:
-  * - Adds the Akka repository resolver (https://repo.akka.io/maven)
-  * - Configures credentials from AKKA_REPO_TOKEN environment variable
+  * - Adds the Akka repository resolver with tokenized URL (requires AKKA_REPO_TOKEN)
   * - Configures CrossVersion.for3Use2_13 for Scala 3 projects (Akka is Scala 2.13 only)
   */
 object Akka extends AutoPluginHelper {
 
-  /** Akka repository URL */
-  val akkaRepoUrl = "https://repo.akka.io/maven"
-
-  /** Akka repository resolver */
-  val akkaResolver: MavenRepository = "Akka library repository".at(akkaRepoUrl)
-
-  /** Akka repository credentials from AKKA_LICENSE_KEY environment variable */
-  def akkaCredentials: Seq[Credentials] = {
-    sys.env.get("AKKA_LICENSE_KEY").map { token =>
-      Credentials("Akka library repository", "repo.akka.io", "token", token)
-    }.toSeq
+  /** Akka repository URL with embedded token.
+    * Akka uses tokenized URLs for authentication - the token is part of the URL path.
+    * See https://doc.akka.io/libraries/akka-dependencies/current/
+    */
+  def akkaRepoUrl: String = {
+    sys.env.get("AKKA_REPO_TOKEN") match {
+      case Some(token) => s"https://repo.akka.io/$token/secure"
+      case None =>
+        System.err.println(
+          "WARNING: AKKA_REPO_TOKEN environment variable not set. " +
+          "Get your repository access token at https://account.akka.io"
+        )
+        // Return a URL that will fail with a clear error
+        "https://repo.akka.io/MISSING_TOKEN/secure"
+    }
   }
+
+  /** Akka Maven-style repository resolver */
+  def akkaMavenResolver: MavenRepository = "akka-secure-mvn".at(akkaRepoUrl)
+
+  /** Akka Ivy-style repository resolver.
+    * Some Akka artifacts are published in Ivy format and require Ivy-style patterns.
+    */
+  def akkaIvyResolver: URLRepository =
+    Resolver.url("akka-secure-ivy", url(akkaRepoUrl))(Resolver.ivyStylePatterns)
+
+  /** Both Akka resolvers (Maven and Ivy style) */
+  def akkaResolvers: Seq[Resolver] = Seq(akkaMavenResolver, akkaIvyResolver)
 
   /** Helper to create Akka dependency with Scala 2.13 cross-version for Scala 3 compatibility */
   def akkaModule(org: String, name: String, version: String): ModuleID =
@@ -135,13 +156,12 @@ object Akka extends AutoPluginHelper {
   /** Configure Akka dependencies for a specific release.
     *
     * Automatically adds:
-    * - Akka repository resolver (https://repo.akka.io/maven)
-    * - Credentials from AKKA_REPO_TOKEN environment variable
+    * - Akka repository resolvers (Maven and Ivy style) with tokenized URL from AKKA_LICENSE_KEY
     * - Core Akka modules for the specified release
     *
     * @param release The Akka release version ("25.10" or "24.10"). Default is latest (25.10).
     * @param project The project to configure
-    * @return The configured project with Akka resolver, credentials, and core modules
+    * @return The configured project with Akka resolvers and core modules
     */
   def forRelease(release: String = "")(project: Project): Project = {
     val coreVersion = release match {
@@ -153,8 +173,7 @@ object Akka extends AutoPluginHelper {
     }
 
     project.settings(
-      resolvers += akkaResolver,
-      credentials ++= akkaCredentials,
+      resolvers ++= akkaResolvers,
       libraryDependencies ++= coreModules(coreVersion)
     )
   }

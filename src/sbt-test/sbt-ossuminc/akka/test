@@ -1,4 +1,5 @@
 # Verify the Akka helper configures the project correctly
-# Note: Akka dependencies require a commercial repository token to resolve
-# This test only verifies project configuration, not dependency resolution
+# Note: Akka dependencies require AKKA_REPO_TOKEN environment variable to resolve
+# This is the repository access token from https://account.akka.io (not the runtime license key)
 > show libraryDependencies
+> update
