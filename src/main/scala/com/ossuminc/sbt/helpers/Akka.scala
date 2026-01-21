@@ -22,9 +22,9 @@ object Akka extends AutoPluginHelper {
   /** Akka repository resolver */
   val akkaResolver: MavenRepository = "Akka library repository".at(akkaRepoUrl)
 
-  /** Akka repository credentials from AKKA_REPO_TOKEN environment variable */
+  /** Akka repository credentials from AKKA_LICENSE_KEY environment variable */
   def akkaCredentials: Seq[Credentials] = {
-    sys.env.get("AKKA_REPO_TOKEN").map { token =>
+    sys.env.get("AKKA_LICENSE_KEY").map { token =>
       Credentials("Akka library repository", "repo.akka.io", "token", token)
     }.toSeq
   }
