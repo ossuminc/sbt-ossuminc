@@ -1,7 +1,9 @@
 package com.ossuminc.sbt.helpers
 
-import sbt._
-import sbt.Keys._
+import sbt.*
+import sbt.Keys.*
+
+import java.net.URI
 
 object Scala3 extends AutoPluginHelper {
 
@@ -59,7 +61,7 @@ object Scala3 extends AutoPluginHelper {
     project: Project
   ): Project = {
     val apiURLSetting = docBaseURL match {
-      case Some(url) => Seq(apiURL := Some(new URL(url)))
+      case Some(url) => Seq(apiURL := Some(URI.create(url).toURL))
       case None      => Seq.empty
     }
 
