@@ -11,6 +11,7 @@ jobs:
   build:
     env:
       GITHUB_TOKEN: ${{ secrets.WORKFLOW_BUILD_TOKEN }}
+      AKKA_REPO_TOKEN: ${{secrets.AKKA_REPO_TOKEN}}
     runs-on: ubuntu-latest
     steps:
 
