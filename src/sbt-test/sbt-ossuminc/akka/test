@@ -2,4 +2,4 @@
 # Note: Akka dependencies require AKKA_REPO_TOKEN environment variable to resolve
 # This is the repository access token from https://account.akka.io (not the runtime license key)
 > show libraryDependencies
-#> update
+> update
