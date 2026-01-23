@@ -1,5 +1,6 @@
 package com.ossuminc.sbt.helpers
 
+import com.github.sbt.git.SbtGit.useReadableConsoleGit
 import sbt.*
 import sbtdynver.DynVerPlugin
 import sbtdynver.DynVerPlugin.autoImport.{dynverSeparator, dynverVTagPrefix}
@@ -26,6 +27,12 @@ object DynamicVersioning extends AutoPluginHelper {
         ThisBuild / dynverVTagPrefix := false,
 
         // use the minus character to separate version fields
-        ThisBuild / dynverSeparator := "-"
+        ThisBuild / dynverSeparator := "-",
+
+        // Use native git instead of JGit to support git worktrees.
+        // JGit doesn't properly handle worktrees (sees .git file as bare repo).
+        // Native git fully supports worktrees and is required for parallel
+        // development with multiple Claude workers in separate worktrees.
+        useReadableConsoleGit
       )
 }
