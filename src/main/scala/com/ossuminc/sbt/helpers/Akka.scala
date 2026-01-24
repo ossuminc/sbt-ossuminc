@@ -57,6 +57,10 @@ object Akka extends AutoPluginHelper {
   private def akkaTestModule(org: String, name: String, version: String): ModuleID =
     (org %% name % version % Test).cross(CrossVersion.for3Use2_13)
 
+  /** Helper to create a Java-only dependency (no Scala suffix) */
+  private def javaModule(org: String, name: String, version: String): ModuleID =
+    org % name % version
+
   sealed trait ReleaseVersions {
     def akka_core: String
     def akka_http: String
@@ -65,6 +69,7 @@ object Akka extends AutoPluginHelper {
     def akka_management: String
     def akka_projections: String
     def akka_kafka: String
+    def akka_insights: String
   }
 
   /** Version numbers for Akka 2024.10 release */
@@ -76,6 +81,7 @@ object Akka extends AutoPluginHelper {
     val akka_management = "1.6.0"
     val akka_projections = "1.6.0"
     val akka_kafka = "7.0.0"
+    val akka_insights = "2.21.0"
   }
 
   /** Version numbers for Akka 25.10 release (latest as of Jan 2026) Version numbers from:
@@ -89,6 +95,7 @@ object Akka extends AutoPluginHelper {
     val akka_management = "1.6.4"
     val akka_projections = "1.6.18"
     val akka_kafka = "8.0.0"
+    val akka_insights = "2.22.0"
   }
 
   /** Core Akka modules (actor, cluster, persistence, stream) - available in all releases */
@@ -150,12 +157,72 @@ object Akka extends AutoPluginHelper {
     akkaModule("com.lightbend.akka", "akka-projection-r2dbc", version)
   )
 
-  /** Akka Management modules */
+  /** Akka Management modules (core) */
   def managementModules(version: String): Seq[ModuleID] = Seq(
     akkaModule("com.lightbend.akka.management", "akka-management", version),
     akkaModule("com.lightbend.akka.management", "akka-management-cluster-http", version),
     akkaModule("com.lightbend.akka.management", "akka-management-cluster-bootstrap", version)
   )
+
+  /** Akka Management Kubernetes-specific modules */
+  def managementKubernetesModules(version: String): Seq[ModuleID] = Seq(
+    akkaModule("com.lightbend.akka.discovery", "akka-discovery-kubernetes-api", version),
+    akkaModule("com.lightbend.akka.management", "akka-lease-kubernetes", version),
+    akkaModule("com.lightbend.akka.management", "akka-rolling-update-kubernetes", version)
+  )
+
+  /** Akka Insights / Cinnamon modules for telemetry and observability.
+    *
+    * Provides:
+    *   - Actor metrics (mailbox size, processing time, failures)
+    *   - HTTP metrics (request latency, status codes)
+    *   - Cluster metrics (phi accrual, member events)
+    *   - Prometheus endpoint for metrics export
+    *   - OpenTelemetry for distributed tracing
+    *
+    * NOTE: For full instrumentation at runtime, you may need to configure the Cinnamon
+    * Java agent. See: https://doc.akka.io/libraries/akka-insights/current/setup/
+    *
+    * @param version
+    *   The Akka Insights version (e.g., "2.22.0" for Akka 25.10)
+    * @param withHTTP
+    *   Include HTTP instrumentation (requires withHTTP in forRelease)
+    * @param withPrometheus
+    *   Include Prometheus metrics export (default: true)
+    * @param withOpenTelemetry
+    *   Include OpenTelemetry tracing (default: true)
+    */
+  def insightsModules(
+    version: String,
+    withHTTP: Boolean = false,
+    withPrometheus: Boolean = true,
+    withOpenTelemetry: Boolean = true
+  ): Seq[ModuleID] = {
+    // Core Cinnamon modules (Scala 2.13 cross-compiled)
+    val base = Seq(
+      akkaModule("com.lightbend.cinnamon", "cinnamon-akka", version),
+      akkaModule("com.lightbend.cinnamon", "cinnamon-akka-typed", version),
+      akkaModule("com.lightbend.cinnamon", "cinnamon-akka-stream", version),
+      akkaModule("com.lightbend.cinnamon", "cinnamon-akka-cluster", version)
+    )
+    val http = if (withHTTP) Seq(
+      akkaModule("com.lightbend.cinnamon", "cinnamon-akka-http", version)
+    ) else Seq.empty
+    // Prometheus modules (Java-only, no Scala suffix)
+    val prometheus = if (withPrometheus) Seq(
+      javaModule("com.lightbend.cinnamon", "cinnamon-prometheus", version),
+      javaModule("com.lightbend.cinnamon", "cinnamon-prometheus-httpserver", version)
+    ) else Seq.empty
+    // OpenTelemetry module
+    val otel = if (withOpenTelemetry) Seq(
+      javaModule("com.lightbend.cinnamon", "cinnamon-opentelemetry", version)
+    ) else Seq.empty
+    // Cinnamon agent (needed for runtime instrumentation)
+    val agent = Seq(
+      javaModule("com.lightbend.cinnamon", "cinnamon-agent", version)
+    )
+    base ++ http ++ prometheus ++ otel ++ agent
+  }
 
   /** Alpakka Kafka (akka-stream-kafka) modules */
   def kafkaModules(version: String): Seq[ModuleID] = Seq(
@@ -165,15 +232,35 @@ object Akka extends AutoPluginHelper {
   /** Configure Akka dependencies for a specific release.
     *
     * Automatically adds:
-    *   - Akka repository resolvers (Maven and Ivy style) with tokenized URL from AKKA_LICENSE_KEY
+    *   - Akka repository resolvers (Maven and Ivy style) with tokenized URL from AKKA_REPO_TOKEN
     *   - Core Akka modules for the specified release
     *
     * @param release
     *   The Akka release version ("25.10" or "24.10"). Default is latest (25.10).
+    * @param withHTTP
+    *   Include Akka HTTP modules
+    * @param withGrpc
+    *   Include Akka gRPC runtime
+    * @param withPersistence
+    *   Include Akka Persistence R2DBC
+    * @param withProjections
+    *   Include Akka Projections
+    * @param withManagement
+    *   Include Akka Management (core: health checks, cluster HTTP)
+    * @param withManagementKubernetes
+    *   Include Akka Management Kubernetes modules (discovery, lease, rolling updates)
+    * @param withKafka
+    *   Include Alpakka Kafka connector
+    * @param withInsights
+    *   Include Akka Insights (Cinnamon) for telemetry and observability
+    * @param withInsightsPrometheus
+    *   Include Prometheus metrics export with Insights (default: true when withInsights)
+    * @param withInsightsOpenTelemetry
+    *   Include OpenTelemetry tracing with Insights (default: true when withInsights)
     * @param project
     *   The project to configure
     * @return
-    *   The configured project with Akka resolvers and core modules
+    *   The configured project with Akka resolvers and selected modules
     */
   def forRelease(
     release: String = "",
@@ -182,7 +269,11 @@ object Akka extends AutoPluginHelper {
     withPersistence: Boolean = false,
     withProjections: Boolean = false,
     withManagement: Boolean = false,
-    withKafka: Boolean = false
+    withManagementKubernetes: Boolean = false,
+    withKafka: Boolean = false,
+    withInsights: Boolean = false,
+    withInsightsPrometheus: Boolean = true,
+    withInsightsOpenTelemetry: Boolean = true
   )(project: Project): Project = {
     val versions: ReleaseVersions = release match {
       case "2025.10" | "25.10" | "latest" | "" => V_25_10
@@ -212,7 +303,17 @@ object Akka extends AutoPluginHelper {
         } ++ {
           if (withManagement) managementModules(versions.akka_management) else Seq.empty[ModuleID]
         } ++ {
+          if (withManagementKubernetes) managementKubernetesModules(versions.akka_management)
+          else Seq.empty[ModuleID]
+        } ++ {
           if (withKafka) kafkaModules(versions.akka_kafka) else Seq.empty[ModuleID]
+        } ++ {
+          if (withInsights) insightsModules(
+            versions.akka_insights,
+            withHTTP = withHTTP,
+            withPrometheus = withInsightsPrometheus,
+            withOpenTelemetry = withInsightsOpenTelemetry
+          ) else Seq.empty[ModuleID]
         }
       }
     )

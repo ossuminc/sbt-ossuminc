@@ -14,8 +14,6 @@
  * limitations under the License.
  */
 
-// resolvers += "Akka library Repository".at("https://repo.akka.io/maven")
-
 // Generic plugins from github.sbt project
 addSbtPlugin("com.github.sbt" % "sbt-dynver" % "5.0.1")
 

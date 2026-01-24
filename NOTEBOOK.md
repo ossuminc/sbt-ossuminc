@@ -2,9 +2,9 @@
 
 ## Current Status
 
-**Version 1.2.0 ready for release.** Significant maintenance work completed Jan 17, 2026
-addressing all 15 UX issues identified in the maintenance analysis.
-All 16 scripted tests passing (100%). Key changes since 1.1.0:
+**Version 1.2.4 in development.** Added Akka Insights (withInsights) and Kubernetes
+management (withManagementKubernetes) support to the Akka helper. All 16 scripted
+tests passing. Key changes since 1.2.3:
 - CrossModule dependencies now opt-in (breaking change)
 - New helpers: `With.Publishing`, `With.ScalaJavaTime()`, `With.ClassPathJar`, `With.UnmanagedJars`, `With.ShellPrompt`
 - Improved error messages when Root() not configured
@@ -14,6 +14,32 @@ All 16 scripted tests passing (100%). Key changes since 1.1.0:
 - Removed obsolete project/SonatypePublishing.scala
 
 ## Work Completed (Recent)
+
+### Session Jan 24, 2026 - Akka Insights Support
+
+Added `withInsights` and `withManagementKubernetes` parameters to `With.Akka.forRelease()`:
+
+**New Features:**
+- `withInsights` - Adds Cinnamon telemetry modules (actor, HTTP, cluster metrics)
+- `withInsightsPrometheus` - Prometheus metrics export (default: true)
+- `withInsightsOpenTelemetry` - OpenTelemetry tracing (default: true)
+- `withManagementKubernetes` - K8s discovery, lease, rolling updates
+
+**Implementation:**
+- Added `javaModule()` helper for Java-only dependencies (no Scala suffix)
+- Added `insightsModules()` function with all Cinnamon dependencies
+- Added `managementKubernetesModules()` function
+- Uses direct Maven coordinates instead of sbt-cinnamon plugin
+
+**Technical Notes:**
+- Cinnamon Scala modules: cinnamon-akka, cinnamon-akka-typed, cinnamon-akka-stream,
+  cinnamon-akka-cluster, cinnamon-akka-http
+- Cinnamon Java modules: cinnamon-prometheus, cinnamon-prometheus-httpserver,
+  cinnamon-opentelemetry, cinnamon-agent
+- K8s modules: akka-discovery-kubernetes-api, akka-lease-kubernetes,
+  akka-rolling-update-kubernetes
+
+**Release:** Tag as 1.2.4 after testing
 
 ### Session Jan 17, 2026
 - [x] Refactored AutoPluginHelper to extend `(Project => Project)` for better UX
