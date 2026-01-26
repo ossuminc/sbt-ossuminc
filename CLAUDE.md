@@ -1,12 +1,20 @@
 # sbt-ossuminc Plugin Guide for Claude Code
 
-This file provides specific guidance for working with the sbt-ossuminc plugin. For general ossuminc organization patterns, see `../CLAUDE.md` (parent directory).
+This file provides specific guidance for working with the sbt-ossuminc plugin.
+For general ossuminc organization patterns, see `../CLAUDE.md` (parent
+directory).
+
+**IMPORTANT:** For comprehensive usage documentation, configuration options,
+and examples, see `README.md` in this directory. This CLAUDE.md provides a
+quick reference; the README is the authoritative source.
 
 ## Project Overview
 
-SBT plugin providing build infrastructure and configuration helpers for Ossum Inc. projects. Defines declarative project types and configuration options used across all Scala projects in the organization.
+SBT plugin providing build infrastructure and configuration helpers for Ossum
+Inc. projects. Defines declarative project types and configuration options
+used across all Scala projects in the organization.
 
-**Current version: 1.0.0** (updated Jan 2026)
+**Current version: 1.2.4** (updated Jan 2026)
 
 ## Project Types Provided
 
@@ -68,13 +76,36 @@ SBT plugin providing build infrastructure and configuration helpers for Ossum In
   ))
   ```
 
+**`With.Akka.forRelease(...)`** - Akka platform dependencies (v1.2.4+)
+- See README.md for full parameter documentation
+- Core Akka modules are always included
+- Optional modules via boolean flags: `withHTTP`, `withGrpc`, `withPersistence`,
+  `withProjections`, `withManagement`, `withManagementKubernetes`, `withKafka`,
+  `withInsights`
+- Example:
+  ```scala
+  .configure(With.Akka.forRelease(
+    "25.10",
+    withHTTP = true,
+    withPersistence = true,
+    withInsights = true
+  ))
+  ```
+
+**Note for riddl-server-infrastructure dependents:** If your server depends on
+`riddl-server-infrastructure`, some Akka modules (core, HTTP) are already
+provided transitively. Only use `With.Akka.forRelease()` if you need modules
+beyond what the server infrastructure provides (e.g., Kafka, Insights,
+Management, Projections).
+
 **Other parameterized options:**
 - `With.Laminar(...)` - Laminar + DOM dependencies
 - `With.MiMa(...)` - Binary compatibility checking
 - `With.Packaging.universal(...)` - Universal packaging
 - `With.GithubPublishing` - GitHub Packages publishing
 
-Refer to the comprehensive README.md in this directory for all options.
+**For all configuration options, examples, and migration notes, refer to
+README.md in this directory.**
 
 ## Migration from 0.x to 1.0.0
 
@@ -104,7 +135,7 @@ sbt scalafmt
 All Scala projects in ossuminc use this plugin. Add to `project/plugins.sbt`:
 
 ```scala
-addSbtPlugin("com.ossuminc" % "sbt-ossuminc" % "1.0.0")
+addSbtPlugin("com.ossuminc" % "sbt-ossuminc" % "1.2.4")
 ```
 
 ### Example CrossModule Definition

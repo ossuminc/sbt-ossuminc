@@ -82,7 +82,7 @@ In your `project/plugins.sbt` file, add the GitHub Packages resolver and the plu
 // GitHub Packages resolver for sbt-ossuminc
 resolvers += "GitHub Packages" at "https://maven.pkg.github.com/ossuminc/sbt-ossuminc"
 
-addSbtPlugin("com.ossuminc" % "sbt-ossuminc" % "1.2.0")
+addSbtPlugin("com.ossuminc" % "sbt-ossuminc" % "1.2.4")
 ```
 
 ### ~/sbt/1.0/github.sbt
@@ -445,16 +445,59 @@ Shortcuts that combine multiple helpers:
 
 These helpers accept parameters for customization:
 
-#### **`With.Akka.forRelease(release: String)`**
+#### **`With.Akka.forRelease(...)`**
 Add Akka dependencies to the project. Akka requires a commercial license and repository token since 2024.
-- **`release`**: Akka version (`"24.10"` or `"25.10"` (latest))
 
+**Parameters:**
+- **`release`**: Akka version (`"24.10"` or `"25.10"` (latest), default: `""` = latest)
+- **`withHTTP`**: Include Akka HTTP modules (default: `false`)
+- **`withGrpc`**: Include Akka gRPC runtime (default: `false`)
+- **`withPersistence`**: Include Akka Persistence R2DBC (default: `false`)
+- **`withProjections`**: Include Akka Projections (default: `false`)
+- **`withManagement`**: Include Akka Management core (health checks, cluster HTTP) (default: `false`)
+- **`withManagementKubernetes`**: Include Kubernetes modules (discovery, lease, rolling updates) (default: `false`)
+- **`withKafka`**: Include Alpakka Kafka connector (default: `false`)
+- **`withInsights`**: Include Akka Insights/Cinnamon telemetry (default: `false`)
+- **`withInsightsPrometheus`**: Include Prometheus export (default: `true`, only applies when `withInsights = true`)
+- **`withInsightsOpenTelemetry`**: Include OpenTelemetry tracing (default: `true`, only applies when `withInsights = true`)
+
+**Basic usage (core modules only):**
 ```scala
 Module("my-actor-system")
   .configure(With.Akka.forRelease("25.10"))
 ```
 
-> **Note**: Akka repository access requires a token. Configure per Akka's instructions at https://akka.io/key
+**Full-featured server example:**
+```scala
+Module("my-server")
+  .configure(With.Akka.forRelease(
+    "25.10",
+    withHTTP = true,
+    withPersistence = true,
+    withProjections = true,
+    withManagement = true,
+    withManagementKubernetes = true,
+    withInsights = true
+  ))
+```
+
+**Modules included by default (core):**
+- akka-actor, akka-actor-typed
+- akka-cluster, akka-cluster-typed, akka-cluster-sharding, akka-cluster-sharding-typed, akka-cluster-tools
+- akka-coordination, akka-discovery, akka-distributed-data
+- akka-persistence, akka-persistence-typed, akka-persistence-query
+- akka-remote, akka-serialization-jackson, akka-slf4j
+- akka-stream, akka-stream-typed
+- Test: akka-testkit, akka-actor-testkit-typed, akka-stream-testkit
+
+> **Note**: Akka repository access requires `AKKA_REPO_TOKEN` environment variable.
+> Get your token at https://account.akka.io
+
+> **Note for riddl-server-infrastructure dependents:** If your project depends on
+> `riddl-server-infrastructure`, Akka core and HTTP modules are already provided
+> transitively. Only use `With.Akka.forRelease()` if you need additional modules
+> beyond what the server infrastructure provides (e.g., Kafka, Insights, Management,
+> Projections, or specific persistence backends).
 
 #### **`With.AsciiDoc(...)`**
 Configure AsciiDoc document generation for static websites and PDFs.
