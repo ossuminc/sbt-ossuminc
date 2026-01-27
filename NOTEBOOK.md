@@ -10,6 +10,17 @@ Manual `sbt publish` used for release.
 
 ## Work Completed (Recent)
 
+### Session Jan 27, 2026 - Documentation Updates
+
+Improved documentation for With.Akka helper to reduce confusion for users:
+
+- Updated CLAUDE.md to direct users to README.md as authoritative source
+- Updated version references from 1.0.0/1.2.0 to 1.2.4 in both files
+- Documented all With.Akka.forRelease boolean parameters in README.md
+- Added note for riddl-server-infrastructure dependents explaining when to use
+  With.Akka (only needed for modules beyond what server infrastructure provides)
+- Included examples for basic and full-featured Akka configurations
+
 ### Session Jan 24, 2026 - v1.2.4 Released
 
 **Released:** v1.2.4 to GitHub Packages
