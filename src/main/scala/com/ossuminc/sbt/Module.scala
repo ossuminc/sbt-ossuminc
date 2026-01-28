@@ -29,6 +29,7 @@ object Module {
     Project
       .apply(identity, file(dirName))
       .enablePlugins(OssumIncPlugin, JavaAppPackaging)
+      .configure(helpers.Resolvers)
       .settings(
         name := identity,
         moduleName := mname
