@@ -2,13 +2,44 @@
 
 ## Current Status
 
-**Version 1.2.4 released.** Added Akka Insights (withInsights) and Kubernetes
-management (withManagementKubernetes) support to the Akka helper.
-
-Note: CI scripted tests failing due to environment issues unrelated to code changes.
-Manual `sbt publish` used for release.
+**Version 1.2.5 released.** Fixed CI scripted tests and AKKA_REPO_TOKEN
+propagation. All 16 scripted tests now pass in CI.
 
 ## Work Completed (Recent)
+
+### Session Jan 28-29, 2026 - v1.2.5 Released (CI Fixes)
+
+**Released:** v1.2.5 to GitHub Packages
+
+**Root Cause Analysis:**
+The scripted tests had been failing since PR #8 "Use native git instead of
+JGit for worktree support". Native git fails hard in non-git directories,
+while JGit was more lenient. Scripted tests run in temp directories that
+aren't git repositories.
+
+**Bug Fixes:**
+1. **Git/DynamicVersioning helpers now detect git repos** - Added `isGitRepo`
+   check that walks up directory tree looking for `.git`. Only enables native
+   git (`useReadableConsoleGit`) if actually in a git repo. Falls back to JGit
+   for non-git directories (scripted tests).
+
+2. **AKKA_REPO_TOKEN propagation to scripted tests** - The `scriptedLaunchOpts`
+   now passes `AKKA_REPO_TOKEN` as system property `-Dakka.repo.token=...`.
+   The Akka helper checks both `sys.props` and `sys.env` for the token.
+
+3. **Modules now apply Resolvers** - `Module()` was missing the Resolvers
+   configuration, breaking dependency resolution for Akka dependencies.
+
+**Improvements:**
+- Updated scripted test build.sbt files to use modern PascalCase `With.*`
+  syntax (BuildInfo, Scala3, Riddl) instead of deprecated lowercase versions.
+
+**Technical Notes:**
+- The `isGitRepo` function is duplicated in both Git.scala and
+  DynamicVersioning.scala because the project/ directory uses symlinks to
+  the source files, and DynamicVersioning.scala is linked while Git.scala
+  is not. Sharing the function would require adding another symlink.
+- CI now passes all 16 scripted tests.
 
 ### Session Jan 27, 2026 - Documentation Updates
 
@@ -163,7 +194,7 @@ Run scripted tests on every PR. Skip Akka test in CI (requires credentials).
 
 ## Test Coverage Status
 
-### Current Test Results (Jan 17, 2026)
+### Current Test Results (Jan 29, 2026)
 
 | Test Scenario  | Purpose                       | Status                    |
 |----------------|-------------------------------|---------------------------|

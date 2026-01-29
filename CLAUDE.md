@@ -14,7 +14,7 @@ SBT plugin providing build infrastructure and configuration helpers for Ossum
 Inc. projects. Defines declarative project types and configuration options
 used across all Scala projects in the organization.
 
-**Current version: 1.2.4** (updated Jan 2026)
+**Current version: 1.2.5** (updated Jan 2026)
 
 ## Project Types Provided
 
@@ -135,7 +135,7 @@ sbt scalafmt
 All Scala projects in ossuminc use this plugin. Add to `project/plugins.sbt`:
 
 ```scala
-addSbtPlugin("com.ossuminc" % "sbt-ossuminc" % "1.2.4")
+addSbtPlugin("com.ossuminc" % "sbt-ossuminc" % "1.2.5")
 ```
 
 ### Example CrossModule Definition

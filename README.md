@@ -82,7 +82,7 @@ In your `project/plugins.sbt` file, add the GitHub Packages resolver and the plu
 // GitHub Packages resolver for sbt-ossuminc
 resolvers += "GitHub Packages" at "https://maven.pkg.github.com/ossuminc/sbt-ossuminc"
 
-addSbtPlugin("com.ossuminc" % "sbt-ossuminc" % "1.2.4")
+addSbtPlugin("com.ossuminc" % "sbt-ossuminc" % "1.2.5")
 ```
 
 ### ~/sbt/1.0/github.sbt
