@@ -31,7 +31,9 @@ lazy val `sbt-ossuminc` = project
     scalaVersion := "2.12.19",
     // Scripted == sbt plugin tests
     scriptedLaunchOpts := {
-      scriptedLaunchOpts.value ++ Seq("-Xmx1024M", "-Dplugin.version=" + version.value)
+      scriptedLaunchOpts.value ++
+        Seq("-Xmx1024M", "-Dplugin.version=" + version.value) ++
+        sys.env.get("AKKA_REPO_TOKEN").map(t => s"-Dakka.repo.token=$t").toSeq
     },
     libraryDependencies ++= Seq(
       "org.apache.commons" % "commons-lang3" % "3.20.0",

@@ -23,9 +23,13 @@ object Akka extends AutoPluginHelper {
 
   /** Akka repository URL with embedded token. Akka uses tokenized URLs for authentication - the
     * token is part of the URL path. See https://doc.akka.io/libraries/akka-dependencies/current/
+    *
+    * The token is read from (in order of precedence):
+    *   1. `akka.repo.token` system property (used by scripted tests)
+    *   2. `AKKA_REPO_TOKEN` environment variable (normal usage)
     */
   private def akkaRepoUrl: String = {
-    sys.env.get("AKKA_REPO_TOKEN") match {
+    sys.props.get("akka.repo.token").orElse(sys.env.get("AKKA_REPO_TOKEN")) match {
       case Some(token) => s"https://repo.akka.io/$token/secure"
       case None =>
         System.err.println(

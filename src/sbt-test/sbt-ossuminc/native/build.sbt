@@ -21,4 +21,4 @@ lazy val root = Root("hello", startYr = 2024)
   )
 
 lazy val hello = Program("hello", "hello", Some("test.hello"))
-  .configure(With.basic, With.build_info, With.scala3, With.Native(buildTarget = "application"))
+  .configure(With.basic, With.BuildInfo, With.Scala3, With.Native(buildTarget = "application"))
