@@ -1,9 +1,13 @@
 package com.ossuminc.sbt.helpers
 
-import org.portablescala.sbtplatformdeps.PlatformDepsPlugin.autoImport.*
 import sbt.*
-import sbt.Keys.libraryDependencies
 
+/** Laminar UI library support for Scala.js.
+  *
+  * @deprecated This helper is awaiting sbt 2.0 support from sbt-platform-deps plugin
+  *             (required for %%% syntax).
+  */
+@deprecated("Awaiting sbt 2.0 support from sbt-platform-deps plugin", "2.0.0")
 object Laminar extends AutoPluginHelper {
 
   override def apply(project: Project): Project = apply()(project)
@@ -15,42 +19,10 @@ object Laminar extends AutoPluginHelper {
     laminextVersion: Option[String] = None,
     laminextModules: Seq[String] = Seq.empty
   )(project: Project): Project = {
-    project.settings(
-      libraryDependencies ++= {
-        val waypoint: Seq[ModuleID] =
-          waypoint_version.map(v => "com.raquo" %%% "waypoint" % v).toSeq
-        val v_laminext = laminextVersion.getOrElse("0.17.1")
-        val org = v_laminext match {
-          case s: String if s.startsWith("0.") =>
-            val strs = s.split('.')
-            require(strs.length > 2, s"Invalid 3 part laminext version: $s")
-            val minor = strs(1).toInt
-            if (minor < 17) "io.laminext"
-            else if (minor >= 18) "dev.laminext"
-            else {
-              val patch = strs(2).toInt
-              if (patch >= 1) "dev.laminext"
-              else "io.laminext"
-            }
-          case _: String => "dev.laminext"
-        }
-        val laminext: Seq[ModuleID] = {
-          laminextModules.map {
-            case "core"       => org %%% "core" % v_laminext
-            case "fetch"      => org %%% "fetch" % v_laminext
-            case "websocket"  => org %%% "websocket" % v_laminext
-            case "ui"         => org %%% "ui" % v_laminext
-            case "validation" => org %%% "validation" % v_laminext
-            case "util"       => org %%% "util" % v_laminext
-            case s: String =>
-              throw new IllegalArgumentException(s"Unsupported laminar module $s")
-          }
-        }
-        Seq(
-          "org.scala-js" %%% "scalajs-dom" % dom_version,
-          "com.raquo" %%% "laminar" % laminar_version
-        ) ++ waypoint ++ laminext
-      }
+    throw new UnsupportedOperationException(
+      "Laminar is not available in sbt 2.x. " +
+        "The sbt-platform-deps plugin (required for %%%) does not yet support sbt 2.0. " +
+        "Please wait for plugin updates."
     )
   }
 }

@@ -18,6 +18,7 @@ package com.ossuminc.sbt.helpers
 
 import sbt.*
 import sbt.Keys.*
+import xsbti.FileConverter
 
 import scala.sys.process.{Process, ProcessLogger}
 
@@ -70,25 +71,28 @@ object HandyAliases extends AutoPluginHelper {
       }
   }
 
-  private def printAClasspath(name: String, out: File, cp: Classpath): Unit = {
+  private def printAClasspath(name: String, out: File, cp: Classpath)(using fc: FileConverter): Unit = {
     println(s"----- $name: " + out.getCanonicalPath + ": FILES:")
-    println(cp.files.map(_.getCanonicalPath).mkString("\n"))
+    println(cp.files.map(_.toAbsolutePath.toString).mkString("\n"))
     println(s"----- $name: END")
   }
 
   private def printClassPath: Def.Initialize[Task[Unit]] = Def.task[Unit] {
+    given FileConverter = fileConverter.value
     val out = (Compile / target).value
     val cp = (Compile / fullClasspath).value
     printAClasspath(Compile.name, out, cp)
   }
 
   private def printTestClassPath: Def.Initialize[Task[Unit]] = Def.task[Unit] {
+    given FileConverter = fileConverter.value
     val out = (Test / target).value
     val cp = (Test / fullClasspath).value
     printAClasspath(Test.name, out, cp)
   }
 
   private def printRuntimeClassPath: Def.Initialize[Task[Unit]] = Def.task[Unit] {
+    given FileConverter = fileConverter.value
     val out = (Runtime / target).value
     val cp = (Runtime / fullClasspath).value
     printAClasspath(Runtime.name, out, cp)

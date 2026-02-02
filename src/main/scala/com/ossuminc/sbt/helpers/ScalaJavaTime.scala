@@ -1,6 +1,5 @@
 package com.ossuminc.sbt.helpers
 
-import org.portablescala.sbtplatformdeps.PlatformDepsPlugin.autoImport.*
 import sbt.*
 import sbt.Keys.libraryDependencies
 
@@ -11,6 +10,9 @@ import sbt.Keys.libraryDependencies
   * these platforms natively.
   *
   * @see https://github.com/cquiroz/scala-java-time
+  *
+  * @note In sbt 2.x, cross-platform (nonJVM=true) is not available until
+  *       sbt-platform-deps supports sbt 2.0. Use nonJVM=false for JVM-only.
   */
 object ScalaJavaTime extends AutoPluginHelper {
 
@@ -21,18 +23,22 @@ object ScalaJavaTime extends AutoPluginHelper {
   /** Add scala-java-time dependency
     *
     * @param version The version of scala-java-time to use
-    * @param nonJVM If true, uses %%% for cross-platform. If false, uses %% for
-    *               JVM-only.
+    * @param nonJVM If true, uses %%% for cross-platform (NOT AVAILABLE in sbt 2.x).
+    *               If false, uses %% for JVM-only.
     */
   def apply(
     version: String = defaultVersion,
-    nonJVM: Boolean = true
+    nonJVM: Boolean = false
   )(project: Project): Project = {
+    if (nonJVM) {
+      throw new UnsupportedOperationException(
+        "ScalaJavaTime with nonJVM=true is not available in sbt 2.x. " +
+          "The sbt-platform-deps plugin (required for %%%) does not yet support sbt 2.0. " +
+          "Use nonJVM=false for JVM-only builds."
+      )
+    }
     project.settings(
-      libraryDependencies += {
-        if (nonJVM) "io.github.cquiroz" %%% "scala-java-time" % version
-        else "io.github.cquiroz" %% "scala-java-time" % version
-      }
+      libraryDependencies += "io.github.cquiroz" %% "scala-java-time" % version
     )
   }
 }

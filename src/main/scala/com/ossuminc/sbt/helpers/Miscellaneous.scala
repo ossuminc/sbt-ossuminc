@@ -18,8 +18,9 @@ package com.ossuminc.sbt.helpers
 
 import com.typesafe.sbt.SbtNativePackager.Universal
 import com.typesafe.sbt.packager.Keys.scriptClasspath
-import sbt.Keys._
-import sbt.{IO, _}
+import sbt.Keys.*
+import sbt.{IO, *}
+import xsbti.HashedVirtualFileRef
 
 import java.io.File
 
@@ -30,39 +31,46 @@ object Miscellaneous {
     project.settings(
       Seq[Def.SettingsDefinition](
         scriptClasspath := {
-          import com.typesafe.sbt.SbtNativePackager._
-          import com.typesafe.sbt.packager.Keys._
+          import com.typesafe.sbt.SbtNativePackager.*
+          import com.typesafe.sbt.packager.Keys.*
           Miscellaneous.makeClasspathJar(
             scriptClasspathOrdering
               .map(Miscellaneous.makeRelativeClasspathNames)
               .value,
             (Universal / target).value
           )
-        },
-        Universal / mappings += {
-          (Universal / target).value / "lib" / "classpath.jar" -> "lib/classpath.jar"
         }
-      ): _*
+        // Note: mappings type changed in sbt 2.x from (File, String) to (HashedVirtualFileRef, String)
+        // This functionality needs updating for sbt 2.x
+      )*
     )
   }
 
+  /** Use unmanaged JAR libraries from a libs/ directory.
+    *
+    * Note: In sbt 2.x, Classpath uses HashedVirtualFileRef instead of File.
+    * This helper needs the FileConverter to convert Files to HashedVirtualFileRef.
+    */
   def useUnmanagedJarLibs(project: Project): Project = {
     project
       .settings(
-        Compile / unmanagedJars := {
-          baseDirectory.map { base =>
-            (base / "libs" ** "*.jar").classpath
-          }.value
+        Compile / unmanagedJars := Def.uncached {
+          val fc = fileConverter.value
+          val base = baseDirectory.value
+          val jars = (base / "libs" ** "*.jar").get()
+          jars.map(f => Attributed.blank(fc.toVirtualFile(f.toPath)))
         },
-        Runtime / unmanagedJars := {
-          baseDirectory.map { base =>
-            (base / "libs" ** "*.jar").classpath
-          }.value
+        Runtime / unmanagedJars := Def.uncached {
+          val fc = fileConverter.value
+          val base = baseDirectory.value
+          val jars = (base / "libs" ** "*.jar").get()
+          jars.map(f => Attributed.blank(fc.toVirtualFile(f.toPath)))
         },
-        Test / unmanagedJars := {
-          baseDirectory.map { base =>
-            (base / "libs" ** "*.jar").classpath
-          }.value
+        Test / unmanagedJars := Def.uncached {
+          val fc = fileConverter.value
+          val base = baseDirectory.value
+          val jars = (base / "libs" ** "*.jar").get()
+          jars.map(f => Attributed.blank(fc.toVirtualFile(f.toPath)))
         },
         Compile / packageBin / mappings ~= filter,
         Compile / packageSrc / mappings ~= filter,
@@ -83,7 +91,7 @@ object Miscellaneous {
     jgit.branch
   }
 
-  private def filter(ms: Seq[(File, String)]): Seq[(File, String)] = {
+  private def filter(ms: Seq[(HashedVirtualFileRef, String)]): Seq[(HashedVirtualFileRef, String)] = {
     ms.filter { case (_, path) =>
       path != "logback.xml" &&
       !path.startsWith("toignore") &&
@@ -94,7 +102,7 @@ object Miscellaneous {
   private val classpath_jar = "classpath.jar"
 
   private def makeRelativeClasspathNames(
-    mappings: Seq[(File, String)]
+    mappings: Seq[(HashedVirtualFileRef, String)]
   ): Seq[String] = {
     for {
       (_, name) <- mappings

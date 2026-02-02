@@ -1,17 +1,11 @@
 package com.ossuminc.sbt
 
 import com.ossuminc.sbt.OssumIncPlugin.autoImport.With
-import com.ossuminc.sbt.OssumIncPlugin.autoImport.With
-import com.ossuminc.sbt.OssumIncPlugin.autoImport.With
 import com.typesafe.sbt.packager.archetypes.JavaAppPackaging
 import sbt.*
 import sbt.Keys.*
-import sbt.Keys.scalaVersion
-import sbt.ScriptedPlugin.autoImport.scriptedBufferLog
-import sbt.ScriptedPlugin.autoImport.scriptedLaunchOpts
-import sbt.ScriptedPlugin.autoImport.scriptedLaunchOpts
+import sbt.ScriptedPlugin.autoImport.{scriptedBufferLog, scriptedLaunchOpts}
 import sbt.plugins.SbtPlugin
-import scoverage.ScoverageSbtPlugin
 
 /** The object for configuration a sbt autoplugin */
 object Plugin {
@@ -30,12 +24,12 @@ object Plugin {
     Project
       .apply(dirName, file(dirName))
       .enablePlugins(OssumIncPlugin, SbtPlugin, JavaAppPackaging)
-      .disablePlugins(ScoverageSbtPlugin)
-      .configure(With.basic, With.Scala2, helpers.Scalafmt, With.SonatypePublishing)
+      // Note: ScoverageSbtPlugin not available in sbt 2.x
+      .configure(With.basic, With.Scala3, helpers.Scalafmt)
       .settings(
         name := dirName,
         moduleName := { if (modName.isEmpty) dirName else modName },
-        scalaVersion := "2.12.19",
+        scalaVersion := "3.7.1",
         sbtPlugin := true,
         scriptedLaunchOpts := {
           scriptedLaunchOpts.value ++ Seq("-Xmx1024M", "-Dplugin.version=" + version.value)

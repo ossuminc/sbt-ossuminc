@@ -1,9 +1,12 @@
 package com.ossuminc.sbt.helpers
 
-import sbt._
-import scoverage.ScoverageKeys._
-import scoverage.ScoverageSbtPlugin
+import sbt.*
 
+/** Code coverage support using Scoverage.
+  *
+  * @deprecated This helper is awaiting sbt 2.0 support from sbt-scoverage plugin.
+  */
+@deprecated("Awaiting sbt 2.0 support from sbt-scoverage plugin", "2.0.0")
 object ScalaCoverage extends AutoPluginHelper {
 
   object Keys {
@@ -20,19 +23,10 @@ object ScalaCoverage extends AutoPluginHelper {
     *   The same project passed as an argument, post configuration
     */
   def apply(project: Project): Project = {
-    project
-      .enablePlugins(ScoverageSbtPlugin)
-      .settings(
-        Keys.coveragePercent := 50,
-        coverageFailOnMinimum := true,
-        coverageMinimumStmtTotal := Keys.coveragePercent.value,
-        coverageMinimumBranchTotal := Keys.coveragePercent.value,
-        coverageMinimumStmtPerPackage := Keys.coveragePercent.value,
-        coverageMinimumBranchPerPackage := Keys.coveragePercent.value,
-        coverageMinimumStmtPerFile := Keys.coveragePercent.value,
-        coverageMinimumBranchPerFile := Keys.coveragePercent.value,
-        coverageExcludedPackages := "<empty>"
-      )
-
+    throw new UnsupportedOperationException(
+      "ScalaCoverage is not available in sbt 2.x. " +
+        "The sbt-scoverage plugin does not yet support sbt 2.0. " +
+        "Please wait for plugin updates."
+    )
   }
 }

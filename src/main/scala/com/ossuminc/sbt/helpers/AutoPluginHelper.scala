@@ -16,7 +16,7 @@
 
 package com.ossuminc.sbt.helpers
 
-import sbt.Project
+import sbt.*
 
 /** A Little Help For AutoPlugins. This trait extends `(Project => Project)`
   * so helpers can be used directly as configuration functions:

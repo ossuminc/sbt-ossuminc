@@ -1,49 +1,48 @@
 package com.ossuminc.sbt.helpers
 
-import org.portablescala.sbtplatformdeps.PlatformDepsPlugin.autoImport.*
 import sbt.*
 import sbt.Keys.libraryDependencies
 
+/** RIDDL library and testkit support.
+  *
+  * @note In sbt 2.x, cross-platform (nonJVMDependency=true) is not available until
+  *       sbt-platform-deps supports sbt 2.0. Use nonJVMDependency=false for JVM-only.
+  */
 object Riddl extends AutoPluginHelper {
 
-  val latest_version = "1.0.0-RC6"
+  val latest_version = "1.2.0"
 
-  override def apply(project: Project) = testKit()(project)
+  override def apply(project: Project): Project = testKit()(project)
 
   def library(
     version: String = latest_version,
-    nonJVMDependency: Boolean = true
-  )(project: Project): Project =
+    nonJVMDependency: Boolean = false
+  )(project: Project): Project = {
+    if (nonJVMDependency) {
+      throw new UnsupportedOperationException(
+        "Riddl.library with nonJVMDependency=true is not available in sbt 2.x. " +
+          "The sbt-platform-deps plugin (required for %%%) does not yet support sbt 2.0. " +
+          "Use nonJVMDependency=false for JVM-only builds."
+      )
+    }
     project.settings(
-      libraryDependencies ++= {
-        if (nonJVMDependency) {
-          Seq(
-            "com.ossuminc" %%% "riddl-lib" % version
-          )
-        } else {
-          Seq(
-            "com.ossuminc" %% "riddl-lib" % version
-          )
-        }
-      }
+      libraryDependencies += "com.ossuminc" %% "riddl-lib" % version
     )
+  }
 
   def testKit(
     version: String = latest_version,
-    nonJVMDependency: Boolean = true
+    nonJVMDependency: Boolean = false
   )(project: Project): Project = {
+    if (nonJVMDependency) {
+      throw new UnsupportedOperationException(
+        "Riddl.testKit with nonJVMDependency=true is not available in sbt 2.x. " +
+          "The sbt-platform-deps plugin (required for %%%) does not yet support sbt 2.0. " +
+          "Use nonJVMDependency=false for JVM-only builds."
+      )
+    }
     Scalatest(project).settings(
-      libraryDependencies ++= {
-        if (nonJVMDependency) {
-          Seq(
-            "com.ossuminc" %%% "riddl-testkit" % version % Test
-          )
-        } else {
-          Seq(
-            "com.ossuminc" %% "riddl-testkit" % version % Test
-          )
-        }
-      }
+      libraryDependencies += "com.ossuminc" %% "riddl-testkit" % version % Test
     )
   }
 }

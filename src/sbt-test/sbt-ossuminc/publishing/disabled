@@ -1,0 +1,1 @@
+Test disabled: uses GithubPublishing which is not supported in sbt 2.x

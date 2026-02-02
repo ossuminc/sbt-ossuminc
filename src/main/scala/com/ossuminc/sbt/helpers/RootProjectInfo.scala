@@ -19,8 +19,9 @@ package com.ossuminc.sbt.helpers
 import com.ossuminc.sbt.helpers.Miscellaneous.buildShellPrompt
 import sbt.*
 import sbt.Keys.*
-import sbt.plugins.MiniDependencyTreePlugin
+import sbt.librarymanagement.syntax.given_Conversion_String_URI_License
 import java.util.Calendar
+import java.net.URI
 
 object RootProjectInfo {
 
@@ -56,7 +57,7 @@ object RootProjectInfo {
   }
 
   object Keys {
-    val projectHomePage: SettingKey[URL] = settingKey[URL](
+    val projectHomePage: SettingKey[URI] = settingKey[URI](
       "The url of the project's home page"
     )
 
@@ -86,7 +87,7 @@ object RootProjectInfo {
       "reid-spencer",
       "Reid Spencer",
       "",
-      url("https://github.com/reid-spencer")
+      new URI("https://github.com/reid-spencer")
     )
   )
 
@@ -96,12 +97,12 @@ object RootProjectInfo {
     startYr: Int = Calendar.getInstance().get(Calendar.YEAR),
     orgPackage: String = "com.ossuminc",
     orgName: String = "Ossum, Inc.",
-    orgPage: URL = url("https://ossuminc.com/"),
+    orgPage: URI = new URI("https://ossuminc.com/"),
     devs: List[Developer] = defaultDevs,
     spdxLicenseName: String = "Apache-2.0"
   )(project: Project): Project = {
+    // Note: MiniDependencyTreePlugin is built-in to sbt 2.x, no need to enable
     project
-      .enablePlugins(MiniDependencyTreePlugin)
       .settings(
         ThisBuild / Keys.copyrightHolder := orgName,
         ThisBuild / Keys.gitHubOrganization := ghOrgName,

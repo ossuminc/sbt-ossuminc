@@ -4,7 +4,10 @@ import sbt.*
 import sbt.Keys.*
 import sbt.librarymanagement.Resolver
 
-/** And sbt plugin for many different kind of projects and used for every project at Ossum Inc.
+/** An sbt plugin for many different kind of projects and used for every project at Ossum Inc.
+  *
+  * @note In sbt 2.x, many helpers are unavailable until their underlying plugins support sbt 2.0.
+  *       See individual helper documentation for availability.
   */
 object OssumIncPlugin extends AutoPlugin {
 
@@ -17,12 +20,16 @@ object OssumIncPlugin extends AutoPlugin {
     val Module: com.ossuminc.sbt.Module.type = com.ossuminc.sbt.Module
     val Plugin: com.ossuminc.sbt.Plugin.type = com.ossuminc.sbt.Plugin
     val Program: com.ossuminc.sbt.Program.type = com.ossuminc.sbt.Program
+    @deprecated("CrossModule is awaiting sbt 2.0 support from cross-project plugins", "2.0.0")
     val CrossModule: com.ossuminc.sbt.CrossModule.type = com.ossuminc.sbt.CrossModule
     val DocSite: com.ossuminc.sbt.DocSite.type = com.ossuminc.sbt.DocSite
 
-    // Kinds of cross-builds supported by CrossModule
+    // Kinds of cross-builds supported by CrossModule (deprecated in sbt 2.x)
+    @deprecated("JVM target is awaiting sbt 2.0 support from cross-project plugins", "2.0.0")
     val JVM: CrossModule.Target = CrossModule.JVMTarget
+    @deprecated("JS target is awaiting sbt 2.0 support from sbt-scalajs", "2.0.0")
     val JS: CrossModule.Target = CrossModule.JSTarget
+    @deprecated("Native target is awaiting sbt 2.0 support from sbt-scala-native", "2.0.0")
     val Native: CrossModule.Target = CrossModule.NativeTarget
 
     // Clauses to customize the major declarations
@@ -49,27 +56,42 @@ object OssumIncPlugin extends AutoPlugin {
       def Git: helpers.Git.type = helpers.Git
 
       /** Configure publishing to GitHub Packages
-        * @note
-        *   Do not combine with SonatypePublishing
+        * @note Awaiting sbt 2.0 support from sbt-github-packages
         */
+      @deprecated("Awaiting sbt 2.0 support from sbt-github-packages", "2.0.0")
       def GithubPublishing: helpers.GithubPublishing.type = helpers.GithubPublishing
 
-      /** Use this to manage source file headers automatically */
+      /** Use this to manage source file headers automatically
+        * @note Awaiting sbt 2.0 support from sbt-header
+        */
+      @deprecated("Awaiting sbt 2.0 support from sbt-header", "2.0.0")
       def Header: helpers.Header.type = helpers.Header
 
-      /** Configure IntelliJ IDEA plugin development */
+      /** Configure IntelliJ IDEA plugin development
+        * @note Awaiting sbt 2.0 support from sbt-idea-plugin
+        */
+      @deprecated("Awaiting sbt 2.0 support from sbt-idea-plugin", "2.0.0")
       def IdeaPlugin: helpers.IdeaPlugin.type = helpers.IdeaPlugin
 
       /** Use this to enable compilation of Java code too */
       def Java: helpers.Java.type = helpers.Java
 
-      /** Use this to configure Laminar dependencies */
+      /** Use this to configure Laminar dependencies
+        * @note Awaiting sbt 2.0 support from sbt-platform-deps
+        */
+      @deprecated("Awaiting sbt 2.0 support from sbt-platform-deps", "2.0.0")
       def Laminar: helpers.Laminar.type = helpers.Laminar
 
-      /** Configure binary compatibility checking */
+      /** Configure binary compatibility checking
+        * @note Awaiting sbt 2.0 support from sbt-mima-plugin
+        */
+      @deprecated("Awaiting sbt 2.0 support from sbt-mima-plugin", "2.0.0")
       def MiMa: helpers.MiMa.type = helpers.MiMa
 
-      /** Use this to build native code with Scala Native */
+      /** Use this to build native code with Scala Native
+        * @note Awaiting sbt 2.0 support from sbt-scala-native
+        */
+      @deprecated("Awaiting sbt 2.0 support from sbt-scala-native", "2.0.0")
       def Native: helpers.Native.type = helpers.Native
 
       /** Configure sbt-native-packager */
@@ -83,7 +105,10 @@ object OssumIncPlugin extends AutoPlugin {
         */
       def Publishing: helpers.Publishing.type = helpers.Publishing
 
-      /** Configure the release process */
+      /** Configure the release process
+        * @note Awaiting sbt 2.0 support from sbt-release
+        */
+      @deprecated("Awaiting sbt 2.0 support from sbt-release", "2.0.0")
       def Release: helpers.Release.type = helpers.Release
 
       /** Add extra resolvers to the build */
@@ -98,31 +123,53 @@ object OssumIncPlugin extends AutoPlugin {
       /** Compile scala code as Scala 3's latest LTS release */
       def Scala3: helpers.Scala3.type = helpers.Scala3
 
-      /** Configure ScalablyTyped for TypeScript facades */
+      /** Configure ScalablyTyped for TypeScript facades
+        * @note Awaiting sbt 2.0 support from sbt-converter
+        */
+      @deprecated("Awaiting sbt 2.0 support from sbt-converter", "2.0.0")
       def ScalablyTyped: helpers.ScalablyTyped.type = helpers.ScalablyTyped
 
-      /** Configure code coverage testing */
+      /** Configure code coverage testing
+        * @note Awaiting sbt 2.0 support from sbt-scoverage
+        */
+      @deprecated("Awaiting sbt 2.0 support from sbt-scoverage", "2.0.0")
       def ScalaCoverage: helpers.ScalaCoverage.type = helpers.ScalaCoverage
 
       /** Configure standard Scalafmt formatting rules */
       def Scalafmt: helpers.Scalafmt.type = helpers.Scalafmt
 
-      /** Configure Scala.js compilation */
+      /** Configure Scala.js compilation
+        * @note Awaiting sbt 2.0 support from sbt-scalajs
+        */
+      @deprecated("Awaiting sbt 2.0 support from sbt-scalajs", "2.0.0")
       def ScalaJS: helpers.ScalaJS.type = helpers.ScalaJS
 
-      /** Add scala-java-time dependency for cross-platform java.time API */
+      /** Add scala-java-time dependency for cross-platform java.time API
+        * @note For JVM-only builds, use with nonJVM=false (default in sbt 2.x)
+        */
       def ScalaJavaTime: helpers.ScalaJavaTime.type = helpers.ScalaJavaTime
 
-      /** Add ScalaTest libraries to the libraryDependencies */
+      /** Add ScalaTest libraries to the libraryDependencies
+        * @note For JVM-only builds, use with nonJVM=false (default in sbt 2.x)
+        */
       def Scalatest: helpers.Scalatest.type = helpers.Scalatest
 
-      /** Configure publishing to Sonatype/Maven Central
-        * @note
-        *   Do not combine with GithubPublishing
+      /** Configure Scalafix automatic code rewriting
+        * @note Awaiting sbt 2.0 support from sbt-scalafix
         */
+      @deprecated("Awaiting sbt 2.0 support from sbt-scalafix", "2.0.0")
+      def Scalafix: helpers.Scalafix.type = helpers.Scalafix
+
+      /** Configure publishing to Sonatype/Maven Central
+        * @note Awaiting sbt 2.0 support from sbt-sonatype
+        */
+      @deprecated("Awaiting sbt 2.0 support from sbt-sonatype", "2.0.0")
       def SonatypePublishing: helpers.SonatypePublishing.type = helpers.SonatypePublishing
 
-      /** Configure unified API documentation */
+      /** Configure unified API documentation
+        * @note Awaiting sbt 2.0 support from sbt-unidoc
+        */
+      @deprecated("Awaiting sbt 2.0 support from sbt-unidoc", "2.0.0")
       def Unidoc: helpers.Unidoc.type = helpers.Unidoc
 
       // ===== Deprecated lowercase aliases (will be removed in 2.0) =====
@@ -174,7 +221,10 @@ object OssumIncPlugin extends AutoPlugin {
 
       // ===== Special helpers =====
 
-      /** Configure code coverage with minimum threshold */
+      /** Configure code coverage with minimum threshold
+        * @note Awaiting sbt 2.0 support from sbt-scoverage
+        */
+      @deprecated("Awaiting sbt 2.0 support from sbt-scoverage", "2.0.0")
       def coverage(percent: Double = 50.0d)(project: Project): Project =
         project
           .configure(helpers.ScalaCoverage)
@@ -213,11 +263,13 @@ object OssumIncPlugin extends AutoPlugin {
 
       // ===== Composite helpers =====
 
-      /** Configure: Aliases, DynVer, Git, Header, Resolvers */
+      /** Configure: Aliases, DynVer, Git, Resolvers
+        * @note Header removed in sbt 2.x (awaiting sbt-header support)
+        */
       def basic(project: Project): Project =
-        these(Aliases, DynVer, Git, Header, Resolvers)(project)
+        these(Aliases, DynVer, Git, Resolvers)(project)
 
-      /** Configure: basic + Scala3 + Scalatest */
+      /** Configure: basic + Scala3 + Scalatest (JVM-only) */
       def typical(project: Project): Project = {
         project
           .configure(basic)
@@ -225,17 +277,20 @@ object OssumIncPlugin extends AutoPlugin {
           .configure(Scalatest)
       }
 
-      /** Configure: typical + Java + Release */
+      /** Configure: typical + Java
+        * @note Release removed in sbt 2.x (awaiting sbt-release support)
+        */
       def everything(project: Project): Project = {
-        project.configure(typical)
-        these(Java, Release)(project)
+        project
+          .configure(typical)
+          .configure(Java)
       }
     }
   }
 
-  override def projectSettings: Seq[Setting[_]] = Nil
+  override def projectSettings: Seq[Setting[?]] = Nil
 
-  override def buildSettings: Seq[Setting[_]] = Seq(
+  override def buildSettings: Seq[Setting[?]] = Seq(
     // Provide default (sentinel) values for RootProjectInfo keys
     // These will be overridden when Root() is called
     helpers.RootProjectInfo.Keys.gitHubOrganization :=

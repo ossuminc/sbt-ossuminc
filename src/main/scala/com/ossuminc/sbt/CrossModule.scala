@@ -1,27 +1,26 @@
 package com.ossuminc.sbt
 
 import sbt.*
-import sbt.Keys.*
-import sbtcrossproject.CrossPlugin.autoImport.{JVMCrossProjectOps, JVMPlatform}
-import sbtcrossproject.{CrossProject, CrossType, Platform}
-import scalajscrossproject.ScalaJSCrossPlugin.autoImport.*
-import scalanativecrossproject.ScalaNativeCrossPlugin.autoImport.*
 
-import scala.scalanative.sbtplugin.ScalaNativePlugin
-
-/** A CrossModule is a module that can be built for JVM, ScalaJS or Native execution. Use it like:
-  * {{{val my_project = CrossModule("dir_name", "module_name")(ScalaJS + JVM +
-  * Native).configure(...).settings(...) }}}
+/** A CrossModule is a module that can be built for JVM, ScalaJS or Native execution.
+  *
+  * @deprecated This feature is awaiting sbt 2.0 support from sbt-scalajs-crossproject,
+  *             sbt-scala-native-crossproject, sbt-scalajs, and sbt-scala-native plugins.
   */
+@deprecated("Awaiting sbt 2.0 support from sbt-scalajs-crossproject plugin", "2.0.0")
 object CrossModule {
-  sealed trait Target { def platform: Platform }
-  case object JVMTarget extends Target { def platform: Platform = JVMPlatform }
-  case object JSTarget extends Target { def platform: Platform = JSPlatform }
-  case object NativeTarget extends Target { def platform: Platform = NativePlatform }
+  sealed trait Target
+  case object JVMTarget extends Target
+  case object JSTarget extends Target
+  case object NativeTarget extends Target
 
-  /** Define a subproject or module of the root project. Make sure to use the [[Root]] function
-    * before this Module is defined. No configuration is applied, but you can do that by using the
-    * various With.* functions in this plugin. `With.typical` is typical for Scala3 development
+  // Type aliases for backward compatibility
+  val JVM: Target = JVMTarget
+  val JS: Target = JSTarget
+  val Native: Target = NativeTarget
+
+  /** Define a cross-platform subproject - NOT AVAILABLE in sbt 2.x
+    *
     * @param dirName
     *   The name of the subdirectory in which the module is located.
     * @param modName
@@ -29,40 +28,11 @@ object CrossModule {
     * @return
     *   The project that was created and configured.
     */
-  def apply(dirName: String, modName: String = "")(targets: Target*): CrossProject = {
-    import org.scalajs.sbtplugin.ScalaJSPlugin
-    val mname = { if (modName.isEmpty) dirName else modName }
-    val cp2 = CrossProject(dirName, file(dirName))(targets.map(_.platform): _*)
-      .crossType(CrossType.Full)
-      .withoutSuffixFor(JVMPlatform)
-      .enablePlugins(OssumIncPlugin)
-      .settings(
-        name := dirName,
-        moduleName := mname
-      )
-
-    val cp3 =
-      if (targets.contains(CrossModule.JVMTarget)) {
-        if (targets.contains(CrossModule.JSTarget)) {
-          cp2.jvmSettings(
-            libraryDependencies += "org.scala-js" %% "scalajs-stubs" % "1.1.0" % "provided"
-          )
-        } else
-          cp2
-      } else
-        cp2
-    // Enable ScalaJS plugin for JS targets (dependencies are opt-in via helpers)
-    val cp4 =
-      if (targets.contains(CrossModule.JSTarget)) {
-        cp3.jsEnablePlugins(ScalaJSPlugin)
-      } else cp3
-    if (targets.contains(CrossModule.NativeTarget)) {
-      val cp = cp4.nativeEnablePlugins(ScalaNativePlugin)
-      if (targets.contains(CrossModule.JSTarget))
-        cp.nativeSettings(
-          libraryDependencies += "org.scala-js" %% "scalajs-stubs" % "1.1.0" % "provided"
-        )
-      else cp
-    } else cp4
+  def apply(dirName: String, modName: String = "")(targets: Target*): Nothing = {
+    throw new UnsupportedOperationException(
+      "CrossModule is not available in sbt 2.x. " +
+        "The sbt-scalajs-crossproject and sbt-scala-native-crossproject plugins do not yet support sbt 2.0. " +
+        "Please use Module for JVM-only builds or wait for plugin updates."
+    )
   }
 }

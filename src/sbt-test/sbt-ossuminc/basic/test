@@ -21,8 +21,8 @@
 # Can't use any real git commands here because it is run in not-a-git-directory
 > git --version
 
-# Make sure BuildInfo generated output
-$ exists target/scala-2.12/src_managed/main/com/ossuminc/BuildInfo.scala
+# Make sure BuildInfo generated output (sbt 2.x uses unified target directory)
+$ exists target/out/jvm/scala-3.7.4/basic-test/src_managed/main/com/ossuminc/BuildInfo.scala
 
 # Check build info is correct
 > checkBuildInfo

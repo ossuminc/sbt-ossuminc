@@ -1,11 +1,12 @@
 package com.ossuminc.sbt.helpers
+
 import sbt.*
-import sbt.Keys.*
-import scalafix.sbt.*
-import scalafix.sbt.ScalafixPlugin.autoImport.*
 
-import java.nio.file.{Files, Path}
-
+/** Scalafix automatic code rewriting support.
+  *
+  * @deprecated This helper is awaiting sbt 2.0 support from sbt-scalafix plugin.
+  */
+@deprecated("Awaiting sbt 2.0 support from sbt-scalafix plugin", "2.0.0")
 object Scalafix extends AutoPluginHelper {
 
   /** The configuration function to call for this plugin helper
@@ -17,17 +18,10 @@ object Scalafix extends AutoPluginHelper {
     *   The same project passed as an argument, post configuration
     */
   def apply(project: Project): Project = {
-    project
-      .enablePlugins(ScalafixPlugin)
-      .settings(
-        scalafixOnCompile := Files.exists(Path.of(".scalafix.conf")),
-        ThisBuild / scalafixDependencies ++= Seq[ModuleID](
-          // "com.github.xuwei-k" %% "scalafix-rules" % "0.3.3"
-          // ModuleID: "GROUP" %% "ARTIFACT" % "VERSION"
-        ),
-        ThisBuild / semanticdbEnabled := true,
-        ThisBuild / semanticdbVersion := scalafixSemanticdb.revision
-      )
-
+    throw new UnsupportedOperationException(
+      "Scalafix is not available in sbt 2.x. " +
+        "The sbt-scalafix plugin does not yet support sbt 2.0. " +
+        "Please wait for plugin updates."
+    )
   }
 }

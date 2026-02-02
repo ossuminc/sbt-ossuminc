@@ -61,7 +61,7 @@ object Scala3 extends AutoPluginHelper {
     project: Project
   ): Project = {
     val apiURLSetting = docBaseURL match {
-      case Some(url) => Seq(apiURL := Some(URI.create(url).toURL))
+      case Some(url) => Seq(apiURL := Some(URI.create(url)))
       case None      => Seq.empty
     }
 

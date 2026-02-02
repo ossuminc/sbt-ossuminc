@@ -16,15 +16,13 @@
 
 package com.ossuminc.sbt.helpers
 
-import sbt.Keys.*
 import sbt.*
-import xerial.sbt.Sonatype as SonatypePlugin
-import xerial.sbt.Sonatype.autoImport.{sonatypeProfileName, sonatypeSessionName}
 
-import com.ossuminc.sbt.helpers.Release.Keys.{publishReleasesTo, publishSnapshotsTo}
-import com.ossuminc.sbt.helpers.RootProjectInfo.Keys._
-
-/** Settings For SonatypePublishing Plugin */
+/** Sonatype publishing support.
+  *
+  * @deprecated This helper is awaiting sbt 2.0 support from sbt-sonatype plugin.
+  */
+@deprecated("Awaiting sbt 2.0 support from sbt-sonatype plugin", "2.0.0")
 object SonatypePublishing extends AutoPluginHelper {
 
   object Keys {
@@ -33,53 +31,11 @@ object SonatypePublishing extends AutoPluginHelper {
     )
   }
 
-  private val defaultSonatypeServer = "s01.oss.sonatype.org"
-
   def apply(project: Project): Project = {
-    project
-      .enablePlugins(SonatypePlugin)
-      .settings(
-        sonatypeProfileName := "ossum",
-        Keys.sonatypeServer := defaultSonatypeServer,
-        sonatypeSessionName := organization.value + "/" + name.value,
-        publishSnapshotsTo := {
-          val sonatypeOssSnapshots = s"https://${Keys.sonatypeServer.value}/content/repositories/snapshots"
-          MavenRepository("Sonatype OSS Snapshots", sonatypeOssSnapshots)
-        },
-        publishReleasesTo := {
-          val sonatypeOssStaging = s"https://${Keys.sonatypeServer.value}/service/local/staging/deploy/maven2"
-          MavenRepository("Sonatype Maven Release Staging", sonatypeOssStaging)
-        },
-        publishMavenStyle := true,
-        pomIncludeRepository := { _ => false },
-        publishTo := {
-          if (isSnapshot.value) {
-            Some(publishSnapshotsTo.value)
-          } else {
-            Some(publishReleasesTo.value)
-          }
-        },
-        Test / publishArtifact := false,
-        scmInfo := {
-          val org = RootProjectInfo.requireConfigured(
-            gitHubOrganization.value,
-            "gitHubOrganization",
-            "SonatypePublishing"
-          )
-          val repo = RootProjectInfo.requireConfigured(
-            gitHubRepository.value,
-            "gitHubRepository",
-            "SonatypePublishing"
-          )
-          val gitUrl = s"//github.com/$org/$repo"
-          Some(
-            ScmInfo(
-              url("https:" + gitUrl),
-              "scm:git:" + gitUrl + ".git",
-              Some("https:" + gitUrl)
-            )
-          )
-        }
-      )
+    throw new UnsupportedOperationException(
+      "SonatypePublishing is not available in sbt 2.x. " +
+        "The sbt-sonatype plugin does not yet support sbt 2.0. " +
+        "Please wait for plugin updates."
+    )
   }
 }

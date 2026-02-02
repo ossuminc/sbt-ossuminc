@@ -2,10 +2,58 @@
 
 ## Current Status
 
-**Version 1.2.5 released.** Fixed CI scripted tests and AKKA_REPO_TOKEN
-propagation. All 16 scripted tests now pass in CI.
+**Branch: feature/sbt2** - Migration to sbt 2.0.0-RC8 in progress.
+
+This branch is parked in a worktree at `../sbt-ossuminc-feature-sbt2` awaiting:
+- sbt 2.0.0 final release
+- Plugin updates for sbt 2.x (sbt-scalajs, sbt-scala-native, sbt-mima, etc.)
+
+The main branch continues at v1.2.5 for sbt 1.x users.
 
 ## Work Completed (Recent)
+
+### Session Feb 2, 2026 - sbt 2.0.0-RC8 Migration
+
+**Branch:** `feature/sbt2`
+
+Successfully migrated sbt-ossuminc from sbt 1.12.0/Scala 2.12.19 to sbt
+2.0.0-RC8/Scala 3.7.1. sbt 2.x requires plugins to be written in Scala 3.
+
+**Key Changes:**
+- `project/build.properties`: sbt 1.12.0 → 2.0.0-RC8
+- `build.sbt`: Scala 2.12.19 → 3.7.1, removed symlink-based self-bootstrapping
+- `project/plugins.sbt`: Updated plugin versions, commented out unavailable plugins
+- Removed symlinks in `project/` (doesn't work in sbt 2.x meta-build)
+
+**API Updates for sbt 2.x:**
+- `URL` → `URI` throughout (sbt 2.x changed this)
+- `Classpath` now uses `HashedVirtualFileRef` instead of `File`
+- Added `Def.uncached` where `JsonFormat` instances aren't available
+- Updated `BuildInfoKey` usage patterns for sbt-buildinfo 0.13.1
+- Added `FileConverter` for classpath operations
+- Added `github.token` system property support for scripted tests
+
+**Deprecated Helpers** (awaiting sbt 2.x support from upstream plugins):
+- CrossModule, GithubPublishing, Header, IdeaPlugin, Laminar, MiMa, Native,
+  Release, ScalaCoverage, ScalaJS, ScalablyTyped, Scalafix, SonatypePublishing,
+  Unidoc
+
+**Scripted Test Results:**
+- 7 passing: akka, basic, everything, multi, packaging, program, scalatest
+- 9 disabled (use deprecated features): asciidoc, cross, idea-plugin, laminar,
+  mima, native, publishing, scalably-typed, scalajs
+
+**Waiting For:**
+- sbt-scalajs 2.x support
+- sbt-scala-native 2.x support
+- sbt-mima-plugin 2.x support
+- sbt-scoverage 2.x support
+- sbt-header 2.x support
+- sbt-sonatype 2.x support
+- sbt-github-packages 2.x support (or alternative)
+- sbt-platform-deps 2.x support (for %%% syntax)
+
+
 
 ### Session Jan 28-29, 2026 - v1.2.5 Released (CI Fixes)
 
