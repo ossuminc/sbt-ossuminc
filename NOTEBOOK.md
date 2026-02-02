@@ -5,6 +5,9 @@
 **Version 1.2.5 released.** Fixed CI scripted tests and AKKA_REPO_TOKEN
 propagation. All 16 scripted tests now pass in CI.
 
+**Active branch: feature/docker-dual** - Adding dual Docker image support
+(dev/prod) for RIDDL services deployment to GKE.
+
 ## Work Completed (Recent)
 
 ### Session Jan 28-29, 2026 - v1.2.5 Released (CI Fixes)
@@ -143,6 +146,72 @@ Plus credentials in `~/.sbt/1.0/github.sbt`.
 - ~~Improve Root requirement error messages~~ ✓
 - ~~Parameterize dependency versions~~ ✓
 - ~~Add initial scripted tests for coverage~~ ✓
+
+### 🔵 ACTIVE: Docker Dual-Image Support (feature/docker-dual)
+
+**Goal:** Add `With.Packaging.dockerDual()` helper to support building separate
+dev and prod Docker images for RIDDL services (MCP, Sim, Gen).
+
+**Requirements gathered in ossum-ops session (Feb 2, 2026):**
+
+| Aspect | Dev Image | Prod Image |
+|--------|-----------|------------|
+| Base | `eclipse-temurin:25-jdk-noble` | `gcr.io/distroless/java25-debian13:nonroot` |
+| Arch | `linux/arm64` (Apple Silicon) | `linux/amd64` (GKE) |
+| Tags | `:dev-latest`, `:dev-<version>` | `:latest`, `:<version>` |
+| Tools | JDK (jcmd, jstack, jmap) | JRE only (minimal) |
+| Shell | Yes (Ubuntu bash) | No (distroless) |
+
+**Design decisions:**
+1. Two separate images (not multi-arch buildx)
+2. `docker:publishLocal` defaults to dev image
+3. Explicit `dockerPublishProd` task for production
+4. CI builds only prod images
+5. Both use staged layout (no sbt-assembly fat JAR)
+6. Custom Dockerfile for prod to handle classpath with distroless
+
+**API design:**
+```scala
+// In project's build.sbt - minimal configuration
+.configure(
+  With.Packaging.dockerDual(
+    mainClass = "com.ossuminc.riddl.mcp.Main",
+    pkgName = "riddl-mcp-server",
+    exposedPorts = Seq(8080, 8558, 9001)
+  )
+)
+
+// Optional overrides if needed
+.settings(
+  dockerRepository := Some("custom-registry.io")
+)
+```
+
+**Implementation tasks:**
+- [ ] Update `Packaging.scala` with `dockerDual()` helper
+- [ ] Add `dockerPublishProd` task definition
+- [ ] Generate custom Dockerfile for distroless (via `dockerCommands`)
+- [ ] Set default repository to `ghcr.io/ossuminc`
+- [ ] Configure non-root user for both images
+- [ ] Add architecture settings (arm64 dev, amd64 prod)
+- [ ] Add tag pattern logic (`:dev-*` vs `:<version>`)
+- [ ] Add scripted test for docker-dual
+- [ ] Update README.md with documentation
+
+**Custom Dockerfile for distroless prod:**
+```dockerfile
+FROM gcr.io/distroless/java25-debian13:nonroot
+WORKDIR /opt/docker
+COPY --chown=nonroot:nonroot opt/docker/lib lib
+ENTRYPOINT ["java", "-cp", "/opt/docker/lib/*", "<MainClass>"]
+```
+
+**References:**
+- [distroless Java README](https://github.com/GoogleContainerTools/distroless/blob/main/java/README.md)
+- [sbt-native-packager Docker](https://www.scala-sbt.org/sbt-native-packager/formats/docker.html)
+- ossum-ops/lago/ARCHITECTURE.md (for deployment context)
+
+---
 
 ### 🟡 REMAINING WORK
 
