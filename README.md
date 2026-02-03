@@ -670,6 +670,51 @@ Program("my-service", "service", Some("com.myapp.Service"))
   ))
 ```
 
+#### **`With.Packaging.dockerDual(...)`**
+Create separate Docker images for development (local) and production (GKE/cloud).
+
+**Parameters:**
+- **`mainClass`**: Fully qualified main class name (e.g., `"com.myapp.Main"`)
+- **`pkgName`**: Docker image name (e.g., `"my-service"`)
+- **`exposedPorts`**: Ports to expose in the container
+- **`pkgDescription`**: Optional image description
+
+**Dev image** (default, built with `docker:publishLocal`):
+- Base: `eclipse-temurin:25-jdk-noble` (Ubuntu 24.04 with JDK tools)
+- Architecture: Host platform (arm64 on Apple Silicon, amd64 on Intel/Linux)
+- Tags: `:dev-latest`, `:dev-<version>`
+- Includes JDK diagnostic tools (jcmd, jstack, jmap) for debugging
+
+**Prod image** (built with `dockerPublishProd`):
+- Base: `gcr.io/distroless/java25-debian13:nonroot` (minimal, secure)
+- Architecture: `linux/amd64` (for GKE/cloud deployment)
+- Tags: `:latest`, `:<version>`
+- Minimal attack surface, no shell, runs as non-root
+
+```scala
+Module("my-service", "service")
+  .configure(With.typical)
+  .configure(
+    With.Packaging.dockerDual(
+      mainClass = "com.myapp.Main",
+      pkgName = "my-service",
+      exposedPorts = Seq(8080, 9001)
+    )
+  )
+```
+
+**Building images:**
+```bash
+# Build dev image for local testing
+sbt docker:publishLocal
+
+# Build and push prod image to registry (requires docker buildx)
+sbt dockerPublishProd
+```
+
+**Default registry:** `ghcr.io/ossuminc` (override with `dockerRepository` and
+`dockerUsername` settings)
+
 #### **`With.Packaging.graalVM(...)`**
 Create GraalVM native images.
 - **`pkgName`**: Executable name

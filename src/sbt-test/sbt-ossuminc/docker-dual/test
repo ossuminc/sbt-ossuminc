@@ -1,0 +1,5 @@
+# Verify docker-dual configuration compiles and settings are correct
+> compile
+> checkDockerDual
+# Stage the Docker files (doesn't require Docker daemon)
+> Docker/stage

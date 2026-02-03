@@ -188,15 +188,20 @@ dev and prod Docker images for RIDDL services (MCP, Sim, Gen).
 ```
 
 **Implementation tasks:**
-- [ ] Update `Packaging.scala` with `dockerDual()` helper
-- [ ] Add `dockerPublishProd` task definition
-- [ ] Generate custom Dockerfile for distroless (via `dockerCommands`)
-- [ ] Set default repository to `ghcr.io/ossuminc`
-- [ ] Configure non-root user for both images
-- [ ] Add architecture settings (arm64 dev, amd64 prod)
-- [ ] Add tag pattern logic (`:dev-*` vs `:<version>`)
-- [ ] Add scripted test for docker-dual
-- [ ] Update README.md with documentation
+- [x] Update `Packaging.scala` with `dockerDual()` helper
+- [x] Add `dockerPublishProd` task definition
+- [x] Generate custom Dockerfile for distroless (via `dockerCommands`)
+- [x] Set default repository to `ghcr.io/ossuminc`
+- [x] Configure non-root user for both images
+- [x] Add architecture settings (arm64 dev, amd64 prod)
+- [x] Add tag pattern logic (`:dev-*` vs `:<version>`)
+- [x] Add scripted test for docker-dual
+- [x] Update README.md with documentation
+
+**Session Feb 2, 2026 - Implementation Complete**
+
+All implementation tasks completed. The `dockerDual()` helper is ready for use.
+Scripted test passes (17/17 tests now). PR can be created for review.
 
 **Custom Dockerfile for distroless prod:**
 ```dockerfile
