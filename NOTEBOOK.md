@@ -2,80 +2,41 @@
 
 ## Current Status
 
-**Version 1.3.0 released** (Feb 2026). Packaging infrastructure complete.
+**Version 1.3.0 released** (Feb 2026). No active work items.
 
-Previous release: v1.2.5 (Jan 2026).
+Previous releases: v1.2.5 (Jan 2026), v1.2.4 (Jan 2026).
 
-### Resolved Design Questions
-
-1. **Scala.js optimization task**: Use `fullOptJS` (applies Google Closure
-   Compiler optimization). NOT `fullLinkJS` — the plan's original
-   recommendation was incorrect; `fullOptJS` is not deprecated and produces
-   the optimized output needed for npm packaging.
-
-2. **Homebrew formula variants**: Support both JVM universal and Native
-   binary variants via a `variant` parameter (`"universal"` or `"native"`).
-
-3. **Linux tar.gz architecture**: Auto-detect host OS and architecture as
-   default (since Scala Native can only compile for the host platform),
-   with optional `arch` and `os` parameter overrides. Multi-arch
-   distribution requires CI matrix runners for each target platform.
-
-### Implementation Phases
-
-| Phase | Feature | Status |
-|-------|---------|--------|
-| 1 | NpmPackaging (`npmPrepare`, `npmPack`) | ✅ DONE |
-| 2 | NpmPublishing (`npmPublish*` tasks) | ✅ DONE |
-| 3 | Linux tar.gz packaging | ✅ DONE |
-| 4 | Homebrew formula generation | ✅ DONE |
-| 5 | Windows MSI placeholder | ✅ DONE |
-| 6 | Documentation & Release (tag 1.3.0) | ✅ DONE |
+## Work Completed (Recent)
 
 ### Session Feb 3, 2026 — v1.3.0 Released
 
-All 6 phases of the packaging plan implemented and released.
+Implemented complete packaging infrastructure across 6 phases.
 Integration-tested in riddl project (npm packaging/publishing to
-npmjs.com for ossum.ai site consumption).
+npmjs.com for ossum.ai site consumption). See `PACKAGING-PLAN.md`
+for the original design document.
 
-**New files created:**
-- `NpmPackaging.scala` — Keys, `npm()` method, `npmPrepare`/`npmPack`
-  tasks, template mode with `VERSION_PLACEHOLDER`, TypeScript defs
-  convention (`js/types/index.d.ts`), JSON generation via string builder
-- `NpmPublishing.scala` — `npmPublish`, `npmPublishNpmjs`,
-  `npmPublishGithub` tasks, auth via env vars (`NPM_TOKEN`,
-  `GITHUB_TOKEN`), extracted helper methods to avoid sbt `.value` macro
-  restrictions inside lambdas
-- `HomebrewPackaging.scala` — `homebrewGenerate` task, supports
-  `"universal"` (JVM with openjdk dep) and `"native"` (Scala Native)
-  variants, SHA256 from local artifact, Ruby class name generation,
-  uses `Def.task` variant selection at build-definition time to avoid
-  sbt macro restrictions
+**New helpers:**
+- `With.Packaging.npm()` — npm package assembly from Scala.js output
+- `With.Publishing.npm()` — publish to npmjs.com and/or GitHub Packages
+- `With.Packaging.linux()` — tar.gz archives of Scala Native binaries
+- `With.Packaging.homebrew()` — Homebrew formula generation (JVM/Native)
+- `With.Packaging.windowsMsi()` — placeholder for future implementation
 
-**Modified files:**
-- `Packaging.scala` — Added delegation methods `npm()`, `homebrew()`,
-  `linux()`, `windowsMsi()` (placeholder); added `linuxPackage`,
-  `linuxPackageArch`, `linuxPackageOs` keys; added `detectArch`,
-  `detectOs` private helpers; imported Scala Native `nativeLink`
-- `Publishing.scala` — Added `npm()` delegation method
+**New files:** `NpmPackaging.scala`, `NpmPublishing.scala`,
+`HomebrewPackaging.scala`
 
-**New scripted tests (20 total now):**
-- `npm-packaging` — Verifies `npmPrepare` produces `package.json`,
-  `main.js`, `README.md` with correct content assertions
-- `linux-packaging` — Verifies config settings (doesn't link; consistent
-  with existing `native` test pattern)
-- `homebrew` — Runs `homebrewGenerate` on a `Program`, verifies formula
-  contains class name, description, homepage, JDK dep, license, SHA256
+**Modified files:** `Packaging.scala` (added linux(), npm(), homebrew(),
+windowsMsi() delegation + linuxPackage keys), `Publishing.scala` (added
+npm() delegation)
 
-**Technical lessons learned:**
-- sbt `.value` is a macro — ALL `.value` calls in a task body are
-  resolved regardless of runtime control flow (match/if/foreach). Must
-  either extract to helper methods (NpmPublishing) or use `Def.task`
-  variant selection at build-definition time (HomebrewPackaging).
-- `fullOptJS` is NOT deprecated; it applies Google Closure Compiler
-  optimization needed for production npm packages.
+**New scripted tests:** `npm-packaging`, `linux-packaging`, `homebrew`
+(20 total, all passing)
 
-## Work Completed (Recent)
+### Session Feb 2, 2026 — Docker Dual-Image Support
+
+Added `With.Packaging.dockerDual()` for separate dev/prod Docker images.
+Dev image uses `eclipse-temurin:25-jdk-noble` (arm64), prod uses
+`gcr.io/distroless/java25-debian13:nonroot` (amd64). Scripted test added.
 
 ### Session Jan 28-29, 2026 - v1.2.5 Released (CI Fixes)
 
@@ -201,89 +162,6 @@ Plus credentials in `~/.sbt/1.0/github.sbt`.
 ---
 
 ## Next Steps (Priority Order)
-
-### ✅ COMPLETED (Jan 17, 2026)
-
-- ~~Remove hardcoded RIDDL values from Scala3.scala~~ ✓
-- ~~Refactor AutoPluginHelper to extend (Project => Project)~~ ✓
-- ~~Fix Akka test (already working)~~ ✓
-- ~~Fix IntelliJ plugin test (already working)~~ ✓
-- ~~Make CrossModule dependencies optional~~ ✓
-- ~~Add generic With.Publishing() helper~~ ✓
-- ~~Improve Root requirement error messages~~ ✓
-- ~~Parameterize dependency versions~~ ✓
-- ~~Add initial scripted tests for coverage~~ ✓
-
-### 🔵 ACTIVE: Docker Dual-Image Support (feature/docker-dual)
-
-**Goal:** Add `With.Packaging.dockerDual()` helper to support building separate
-dev and prod Docker images for RIDDL services (MCP, Sim, Gen).
-
-**Requirements gathered in ossum-ops session (Feb 2, 2026):**
-
-| Aspect | Dev Image | Prod Image |
-|--------|-----------|------------|
-| Base | `eclipse-temurin:25-jdk-noble` | `gcr.io/distroless/java25-debian13:nonroot` |
-| Arch | `linux/arm64` (Apple Silicon) | `linux/amd64` (GKE) |
-| Tags | `:dev-latest`, `:dev-<version>` | `:latest`, `:<version>` |
-| Tools | JDK (jcmd, jstack, jmap) | JRE only (minimal) |
-| Shell | Yes (Ubuntu bash) | No (distroless) |
-
-**Design decisions:**
-1. Two separate images (not multi-arch buildx)
-2. `docker:publishLocal` defaults to dev image
-3. Explicit `dockerPublishProd` task for production
-4. CI builds only prod images
-5. Both use staged layout (no sbt-assembly fat JAR)
-6. Custom Dockerfile for prod to handle classpath with distroless
-
-**API design:**
-```scala
-// In project's build.sbt - minimal configuration
-.configure(
-  With.Packaging.dockerDual(
-    mainClass = "com.ossuminc.riddl.mcp.Main",
-    pkgName = "riddl-mcp-server",
-    exposedPorts = Seq(8080, 8558, 9001)
-  )
-)
-
-// Optional overrides if needed
-.settings(
-  dockerRepository := Some("custom-registry.io")
-)
-```
-
-**Implementation tasks:**
-- [x] Update `Packaging.scala` with `dockerDual()` helper
-- [x] Add `dockerPublishProd` task definition
-- [x] Generate custom Dockerfile for distroless (via `dockerCommands`)
-- [x] Set default repository to `ghcr.io/ossuminc`
-- [x] Configure non-root user for both images
-- [x] Add architecture settings (arm64 dev, amd64 prod)
-- [x] Add tag pattern logic (`:dev-*` vs `:<version>`)
-- [x] Add scripted test for docker-dual
-- [x] Update README.md with documentation
-
-**Session Feb 2, 2026 - Implementation Complete**
-
-All implementation tasks completed. The `dockerDual()` helper is ready for use.
-Scripted test passes (17/17 tests now). PR can be created for review.
-
-**Custom Dockerfile for distroless prod:**
-```dockerfile
-FROM gcr.io/distroless/java25-debian13:nonroot
-WORKDIR /opt/docker
-COPY --chown=nonroot:nonroot opt/docker/lib lib
-ENTRYPOINT ["java", "-cp", "/opt/docker/lib/*", "<MainClass>"]
-```
-
-**References:**
-- [distroless Java README](https://github.com/GoogleContainerTools/distroless/blob/main/java/README.md)
-- [sbt-native-packager Docker](https://www.scala-sbt.org/sbt-native-packager/formats/docker.html)
-- ossum-ops/lago/ARCHITECTURE.md (for deployment context)
-
----
 
 ### 🟡 REMAINING WORK
 
