@@ -9,6 +9,7 @@ import com.typesafe.sbt.packager.graalvmnativeimage.GraalVMNativeImagePlugin
 import com.typesafe.sbt.packager.Keys.{maintainer, packageDescription, packageName, packageSummary, stage}
 import com.typesafe.sbt.packager.archetypes.JavaAppPackaging
 import com.typesafe.sbt.packager.graalvmnativeimage.GraalVMNativeImagePlugin.autoImport.graalVMNativeImageCommand
+import scala.scalanative.sbtplugin.ScalaNativePlugin.autoImport._
 import sbt._
 import sbt.Keys._
 
@@ -32,6 +33,15 @@ object Packaging extends AutoPluginHelper {
     )
     val dockerMainClass = settingKey[String](
       "Main class for Docker entrypoint"
+    )
+    val linuxPackage = taskKey[File](
+      "Create tar.gz archive of native binary for distribution"
+    )
+    val linuxPackageArch = settingKey[String](
+      "Architecture label for the archive filename (auto-detected if empty)"
+    )
+    val linuxPackageOs = settingKey[String](
+      "OS label for the archive filename (auto-detected if empty)"
     )
   }
 
@@ -204,6 +214,208 @@ object Packaging extends AutoPluginHelper {
           log.info(s"Successfully published $fullImageName:$ver and $fullImageName:latest")
         }
       )
+  }
+
+  /** Configure npm packaging for a Scala.js project.
+    *
+    * Delegates to [[NpmPackaging.npm]]. See that method for full
+    * parameter documentation.
+    *
+    * Usage:
+    * {{{
+    * .jsConfigure(
+    *   With.Packaging.npm(
+    *     scope = "@ossuminc",
+    *     pkgName = "riddl-lib",
+    *     pkgDescription = "RIDDL Language Library"
+    *   )
+    * )
+    * }}}
+    */
+  def npm(
+    scope: String = "",
+    pkgName: String,
+    pkgDescription: String = "",
+    keywords: Seq[String] = Seq.empty,
+    esModule: Boolean = true,
+    templateFile: Option[File] = None
+  )(project: Project): Project = {
+    NpmPackaging.npm(
+      scope, pkgName, pkgDescription, keywords, esModule, templateFile
+    )(project)
+  }
+
+  /** Normalize JVM os.arch to standard archive label. */
+  private def detectArch: String = {
+    System.getProperty("os.arch") match {
+      case "aarch64" => "arm64"
+      case "x86_64" | "amd64" => "amd64"
+      case other => other
+    }
+  }
+
+  /** Normalize JVM os.name to standard archive label. */
+  private def detectOs: String = {
+    val name = System.getProperty("os.name", "").toLowerCase
+    if (name.startsWith("mac") || name.startsWith("darwin")) "darwin"
+    else if (name.startsWith("linux")) "linux"
+    else if (name.startsWith("windows")) "windows"
+    else name.replaceAll("\\s+", "-").toLowerCase
+  }
+
+  /** Create a tar.gz archive of a Scala Native binary for distribution.
+    *
+    * The archive includes the native binary and optionally a README and
+    * LICENSE file from the project root. The filename follows the pattern:
+    * `<pkgName>-<version>-<os>-<arch>.tar.gz`
+    *
+    * OS and architecture are auto-detected from the build host by default,
+    * since Scala Native compiles for the host platform only. For
+    * multi-platform distribution, use CI matrix runners for each target
+    * platform.
+    *
+    * @param pkgName
+    *   Base name for the archive and binary
+    * @param pkgDescription
+    *   Package description (included in generated README)
+    * @param arch
+    *   Architecture label override (empty = auto-detect from host)
+    * @param os
+    *   OS label override (empty = auto-detect from host)
+    * @param includeReadme
+    *   Whether to include a README.md in the archive
+    * @param includeLicense
+    *   Whether to include the LICENSE file from the project root
+    */
+  def linux(
+    pkgName: String,
+    pkgDescription: String = "",
+    arch: String = "",
+    os: String = "",
+    includeReadme: Boolean = true,
+    includeLicense: Boolean = true
+  )(project: Project): Project = {
+    project.settings(
+      Keys.linuxPackageArch := {
+        if (arch.nonEmpty) arch else detectArch
+      },
+      Keys.linuxPackageOs := {
+        if (os.nonEmpty) os else detectOs
+      },
+
+      Keys.linuxPackage := {
+        val log = streams.value.log
+        val binary = (Compile / nativeLink).value
+        val ver = version.value
+        val archLabel = Keys.linuxPackageArch.value
+        val osLabel = Keys.linuxPackageOs.value
+        val baseDir = (ThisBuild / baseDirectory).value
+
+        val stagingName = s"$pkgName-$ver"
+        val staging = target.value / stagingName
+        IO.delete(staging)
+        IO.createDirectory(staging)
+
+        // Copy the native binary
+        IO.copyFile(binary, staging / pkgName)
+        // Ensure the binary is executable
+        (staging / pkgName).setExecutable(true)
+
+        log.info(s"Staged binary: ${binary.getName} -> $staging/$pkgName")
+
+        // Optionally include README
+        if (includeReadme) {
+          val readme = staging / "README.md"
+          IO.write(readme,
+            s"""# $pkgName
+               |
+               |$pkgDescription
+               |
+               |## Usage
+               |
+               |```bash
+               |./$pkgName --help
+               |```
+               |""".stripMargin
+          )
+        }
+
+        // Optionally include LICENSE from project root
+        if (includeLicense) {
+          val licenseFile = baseDir / "LICENSE"
+          if (licenseFile.exists()) {
+            IO.copyFile(licenseFile, staging / "LICENSE")
+          }
+        }
+
+        // Create tar.gz archive
+        val archiveName =
+          s"$pkgName-$ver-$osLabel-$archLabel.tar.gz"
+        val tarball = target.value / archiveName
+
+        val cmd = Seq(
+          "tar", "czf", tarball.getAbsolutePath,
+          "-C", target.value.getAbsolutePath,
+          stagingName
+        )
+        log.info(s"Creating archive: $archiveName")
+        val exitCode = sys.process.Process(cmd).!
+        if (exitCode != 0) {
+          sys.error(s"tar failed with exit code $exitCode")
+        }
+
+        log.info(s"Archive created: $tarball")
+        tarball
+      }
+    )
+  }
+
+  /** Generate a Homebrew formula for the project.
+    *
+    * Delegates to [[HomebrewPackaging.homebrew]]. See that method for
+    * full parameter documentation.
+    *
+    * Usage:
+    * {{{
+    * .jvmConfigure(
+    *   With.Packaging.homebrew(
+    *     formulaName = "riddlc",
+    *     binaryName = "riddlc",
+    *     pkgDescription = "Compiler for the RIDDL language",
+    *     homepage = "https://ossum.tech/riddl/"
+    *   )
+    * )
+    * }}}
+    */
+  def homebrew(
+    formulaName: String,
+    binaryName: String,
+    pkgDescription: String = "",
+    homepage: String = "",
+    javaVersion: String = "25",
+    tapRepo: String = "",
+    variant: String = "universal"
+  )(project: Project): Project = {
+    HomebrewPackaging.homebrew(
+      formulaName, binaryName, pkgDescription, homepage,
+      javaVersion, tapRepo, variant
+    )(project)
+  }
+
+  /** Placeholder for Windows MSI packaging — not yet implemented.
+    *
+    * Logs a warning and returns the project unchanged. This reserves
+    * the API shape for future implementation.
+    */
+  def windowsMsi(
+    pkgName: String,
+    pkgDescription: String = ""
+  )(project: Project): Project = {
+    println(
+      s"[warn] With.Packaging.windowsMsi() is not yet implemented. " +
+      s"Package '$pkgName' will not produce an MSI installer."
+    )
+    project
   }
 
   def graalVM(pkgName: String, pkgSummary: String, native_image_path: File)(

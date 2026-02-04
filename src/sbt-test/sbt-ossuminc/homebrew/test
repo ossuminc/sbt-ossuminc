@@ -1,0 +1,5 @@
+# Verify Homebrew formula generation
+> compile
+> app/homebrewGenerate
+$ exists app/target/homebrew/Formula/test-app.rb
+> app/checkFormula

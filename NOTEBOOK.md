@@ -2,11 +2,78 @@
 
 ## Current Status
 
-**Version 1.2.5 released.** Fixed CI scripted tests and AKKA_REPO_TOKEN
-propagation. All 16 scripted tests now pass in CI.
+**Version 1.3.0 released** (Feb 2026). Packaging infrastructure complete.
 
-**Active branch: feature/docker-dual** - Adding dual Docker image support
-(dev/prod) for RIDDL services deployment to GKE.
+Previous release: v1.2.5 (Jan 2026).
+
+### Resolved Design Questions
+
+1. **Scala.js optimization task**: Use `fullOptJS` (applies Google Closure
+   Compiler optimization). NOT `fullLinkJS` — the plan's original
+   recommendation was incorrect; `fullOptJS` is not deprecated and produces
+   the optimized output needed for npm packaging.
+
+2. **Homebrew formula variants**: Support both JVM universal and Native
+   binary variants via a `variant` parameter (`"universal"` or `"native"`).
+
+3. **Linux tar.gz architecture**: Auto-detect host OS and architecture as
+   default (since Scala Native can only compile for the host platform),
+   with optional `arch` and `os` parameter overrides. Multi-arch
+   distribution requires CI matrix runners for each target platform.
+
+### Implementation Phases
+
+| Phase | Feature | Status |
+|-------|---------|--------|
+| 1 | NpmPackaging (`npmPrepare`, `npmPack`) | ✅ DONE |
+| 2 | NpmPublishing (`npmPublish*` tasks) | ✅ DONE |
+| 3 | Linux tar.gz packaging | ✅ DONE |
+| 4 | Homebrew formula generation | ✅ DONE |
+| 5 | Windows MSI placeholder | ✅ DONE |
+| 6 | Documentation & Release (tag 1.3.0) | ✅ DONE |
+
+### Session Feb 3, 2026 — v1.3.0 Released
+
+All 6 phases of the packaging plan implemented and released.
+Integration-tested in riddl project (npm packaging/publishing to
+npmjs.com for ossum.ai site consumption).
+
+**New files created:**
+- `NpmPackaging.scala` — Keys, `npm()` method, `npmPrepare`/`npmPack`
+  tasks, template mode with `VERSION_PLACEHOLDER`, TypeScript defs
+  convention (`js/types/index.d.ts`), JSON generation via string builder
+- `NpmPublishing.scala` — `npmPublish`, `npmPublishNpmjs`,
+  `npmPublishGithub` tasks, auth via env vars (`NPM_TOKEN`,
+  `GITHUB_TOKEN`), extracted helper methods to avoid sbt `.value` macro
+  restrictions inside lambdas
+- `HomebrewPackaging.scala` — `homebrewGenerate` task, supports
+  `"universal"` (JVM with openjdk dep) and `"native"` (Scala Native)
+  variants, SHA256 from local artifact, Ruby class name generation,
+  uses `Def.task` variant selection at build-definition time to avoid
+  sbt macro restrictions
+
+**Modified files:**
+- `Packaging.scala` — Added delegation methods `npm()`, `homebrew()`,
+  `linux()`, `windowsMsi()` (placeholder); added `linuxPackage`,
+  `linuxPackageArch`, `linuxPackageOs` keys; added `detectArch`,
+  `detectOs` private helpers; imported Scala Native `nativeLink`
+- `Publishing.scala` — Added `npm()` delegation method
+
+**New scripted tests (20 total now):**
+- `npm-packaging` — Verifies `npmPrepare` produces `package.json`,
+  `main.js`, `README.md` with correct content assertions
+- `linux-packaging` — Verifies config settings (doesn't link; consistent
+  with existing `native` test pattern)
+- `homebrew` — Runs `homebrewGenerate` on a `Program`, verifies formula
+  contains class name, description, homepage, JDK dep, license, SHA256
+
+**Technical lessons learned:**
+- sbt `.value` is a macro — ALL `.value` calls in a task body are
+  resolved regardless of runtime control flow (match/if/foreach). Must
+  either extract to helper methods (NpmPublishing) or use `Def.task`
+  variant selection at build-definition time (HomebrewPackaging).
+- `fullOptJS` is NOT deprecated; it applies Google Closure Compiler
+  optimization needed for production npm packages.
 
 ## Work Completed (Recent)
 
@@ -268,28 +335,32 @@ Run scripted tests on every PR. Skip Akka test in CI (requires credentials).
 
 ## Test Coverage Status
 
-### Current Test Results (Jan 29, 2026)
+### Current Test Results (Feb 3, 2026)
 
-| Test Scenario  | Purpose                       | Status                    |
-|----------------|-------------------------------|---------------------------|
-| akka           | Akka dependencies             | ✅ PASS                   |
-| asciidoc       | AsciiDoc document generation  | ✅ PASS                   |
-| basic          | Basic module configuration    | ✅ PASS                   |
-| cross          | Cross-platform (JVM/JS/Native)| ✅ PASS                   |
-| everything     | Full feature set              | ✅ PASS                   |
-| idea-plugin    | IntelliJ plugin development   | ✅ PASS                   |
-| laminar        | Laminar UI dependencies       | ✅ PASS                   |
-| mima           | Binary compatibility checking | ✅ PASS                   |
-| multi          | Multi-module projects         | ✅ PASS                   |
-| native         | Scala Native compilation      | ✅ PASS                   |
-| packaging      | Universal packaging           | ✅ PASS                   |
-| program        | Executable programs           | ✅ PASS                   |
-| publishing     | Publishing helper (new)       | ✅ PASS                   |
-| scalably-typed | TypeScript facades            | ✅ PASS                   |
-| scalajs        | Scala.js compilation          | ✅ PASS                   |
-| scalatest      | Scalatest helper (new)        | ✅ PASS                   |
+| Test Scenario    | Purpose                        | Status   |
+|------------------|--------------------------------|----------|
+| akka             | Akka dependencies              | ✅ PASS  |
+| asciidoc         | AsciiDoc document generation   | ✅ PASS  |
+| basic            | Basic module configuration     | ✅ PASS  |
+| cross            | Cross-platform (JVM/JS/Native) | ✅ PASS  |
+| docker-dual      | Dev/prod Docker images         | ✅ PASS  |
+| everything       | Full feature set               | ✅ PASS  |
+| homebrew         | Homebrew formula generation    | ✅ PASS  |
+| idea-plugin      | IntelliJ plugin development    | ✅ PASS  |
+| laminar          | Laminar UI dependencies        | ✅ PASS  |
+| linux-packaging  | Native binary tar.gz archive   | ✅ PASS  |
+| mima             | Binary compatibility checking  | ✅ PASS  |
+| multi            | Multi-module projects          | ✅ PASS  |
+| native           | Scala Native compilation       | ✅ PASS  |
+| npm-packaging    | npm package assembly           | ✅ PASS  |
+| packaging        | Universal packaging            | ✅ PASS  |
+| program          | Executable programs            | ✅ PASS  |
+| publishing       | Publishing helper              | ✅ PASS  |
+| scalably-typed   | TypeScript facades             | ✅ PASS  |
+| scalajs          | Scala.js compilation           | ✅ PASS  |
+| scalatest        | Scalatest helper               | ✅ PASS  |
 
-**Pass rate:** 16/16 (100%)
+**Pass rate:** 20/20 (100%)
 
 ### Missing Test Coverage
 
@@ -351,6 +422,11 @@ Create `examples/` with working `build.sbt` files:
 
 | Decision | Rationale | Date |
 |----------|-----------|------|
+| Delegation pattern for new helpers | Keeps API at `With.Packaging.npm()` not `With.NpmPackaging` | 2026-02-03 |
+| `fullOptJS` for npm packaging | Closure Compiler optimization needed; not deprecated | 2026-02-03 |
+| `Def.task` for variant selection | sbt `.value` macro resolves all refs in task body | 2026-02-03 |
+| Auto-detect OS/arch for linux() | Scala Native compiles for host only; CI matrix for multi-arch | 2026-02-03 |
+| No JSON library for package.json | Avoids dependency; string builder sufficient for Scala 2.12 | 2026-02-03 |
 | Switch Sonatype → GitHub Packages | Simpler auth for ossuminc org | 2026-01-15 |
 | Use symlink approach | Consistent with project/ pattern | 2026-01-15 |
 | Rename With.Javascript → With.ScalaJS | Clearer naming | 2026-01-15 |

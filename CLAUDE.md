@@ -14,7 +14,7 @@ SBT plugin providing build infrastructure and configuration helpers for Ossum
 Inc. projects. Defines declarative project types and configuration options
 used across all Scala projects in the organization.
 
-**Current version: 1.2.5** (released Jan 2026)
+**Current version: 1.3.0** (released Feb 2026)
 
 ## Project Types Provided
 
@@ -98,10 +98,37 @@ provided transitively. Only use `With.Akka.forRelease()` if you need modules
 beyond what the server infrastructure provides (e.g., Kafka, Insights,
 Management, Projections).
 
+**`With.Packaging.npm(...)`** - npm package assembly (v1.3.0+)
+- For Scala.js projects, assembles output into npm-publishable package
+- Signature: `(scope, pkgName, pkgDescription, keywords, esModule,
+  templateFile)(project)`
+- Tasks: `npmPrepare` (pure sbt), `npmPack` (requires npm on PATH)
+- Template mode: set `templateFile` with `VERSION_PLACEHOLDER`
+- TypeScript defs auto-discovered from `<module>/types/index.d.ts`
+
+**`With.Publishing.npm(...)`** - npm registry publishing (v1.3.0+)
+- Signature: `(registries)(project)` where registries is
+  `Seq("npmjs")` and/or `Seq("github")`
+- Auth via `NPM_TOKEN` / `GITHUB_TOKEN` env vars
+
+**`With.Packaging.homebrew(...)`** - Homebrew formula generation (v1.3.0+)
+- Signature: `(formulaName, binaryName, pkgDescription, homepage,
+  javaVersion, tapRepo, variant)(project)`
+- Variants: `"universal"` (JVM with openjdk dep) or `"native"`
+- Task: `homebrewGenerate` produces `.rb` file with SHA256
+
+**`With.Packaging.linux(...)`** - Native binary tar.gz archive (v1.3.0+)
+- Signature: `(pkgName, pkgDescription, arch, os, includeReadme,
+  includeLicense)(project)`
+- Auto-detects host OS/arch (Scala Native compiles for host only)
+- Task: `linuxPackage` produces `<name>-<ver>-<os>-<arch>.tar.gz`
+
 **Other parameterized options:**
 - `With.Laminar(...)` - Laminar + DOM dependencies
 - `With.MiMa(...)` - Binary compatibility checking
 - `With.Packaging.universal(...)` - Universal packaging
+- `With.Packaging.dockerDual(...)` - Dev/prod Docker images
+- `With.Packaging.windowsMsi(...)` - Placeholder (not yet implemented)
 - `With.GithubPublishing` - GitHub Packages publishing
 
 **For all configuration options, examples, and migration notes, refer to
@@ -135,7 +162,7 @@ sbt scalafmt
 All Scala projects in ossuminc use this plugin. Add to `project/plugins.sbt`:
 
 ```scala
-addSbtPlugin("com.ossuminc" % "sbt-ossuminc" % "1.2.5")
+addSbtPlugin("com.ossuminc" % "sbt-ossuminc" % "1.3.0")
 ```
 
 ### Example CrossModule Definition

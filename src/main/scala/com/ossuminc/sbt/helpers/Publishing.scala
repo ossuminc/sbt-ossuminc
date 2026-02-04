@@ -37,4 +37,20 @@ object Publishing extends AutoPluginHelper {
     * @see [[SonatypePublishing]] for full configuration details
     */
   def sonatype(project: Project): Project = SonatypePublishing(project)
+
+  /** Configure npm package publishing to registries.
+    *
+    * Delegates to [[NpmPublishing.npm]]. The project must also be
+    * configured with `With.Packaging.npm(...)` to provide the
+    * `npmPrepare` task.
+    *
+    * @param registries
+    *   Target registries: `"npmjs"` and/or `"github"`
+    * @see [[NpmPublishing]] for full configuration details
+    */
+  def npm(
+    registries: Seq[String] = Seq("npmjs")
+  )(project: Project): Project = {
+    NpmPublishing.npm(registries)(project)
+  }
 }

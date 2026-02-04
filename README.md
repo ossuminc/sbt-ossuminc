@@ -82,7 +82,7 @@ In your `project/plugins.sbt` file, add the GitHub Packages resolver and the plu
 // GitHub Packages resolver for sbt-ossuminc
 resolvers += "GitHub Packages" at "https://maven.pkg.github.com/ossuminc/sbt-ossuminc"
 
-addSbtPlugin("com.ossuminc" % "sbt-ossuminc" % "1.2.5")
+addSbtPlugin("com.ossuminc" % "sbt-ossuminc" % "1.3.0")
 ```
 
 ### ~/sbt/1.0/github.sbt
@@ -430,6 +430,8 @@ These helpers take no parameters (or use all defaults):
 * **`With.Publishing.sonatype`** - Configure publishing to Sonatype/Maven Central
 * **`With.GithubPublishing`** - Alias for `With.Publishing.github`
 * **`With.SonatypePublishing`** - Alias for `With.Publishing.sonatype`
+* **`With.Publishing.npm(...)`** - Publish npm packages to registries (see
+  [npm Publishing](#withpublishingnpm) below)
 
 > **Note**: Do not combine GitHub and Sonatype publishing in the same project.
 
@@ -715,6 +717,183 @@ sbt dockerPublishProd
 **Default registry:** `ghcr.io/ossuminc` (override with `dockerRepository` and
 `dockerUsername` settings)
 
+#### **`With.Packaging.npm(...)`**
+Assemble Scala.js output into an npm-publishable package. Requires the project
+to be configured with Scala.js (`With.ScalaJS(...)` or a `CrossModule` with JS
+target).
+
+**Parameters:**
+- **`scope`**: npm scope (e.g., `"@ossuminc"`), empty string for unscoped
+- **`pkgName`**: npm package name (without scope)
+- **`pkgDescription`**: Description for package.json
+- **`keywords`**: npm keywords for package discovery
+- **`esModule`**: Whether to set `"type": "module"` in package.json (default: `true`)
+- **`templateFile`**: Optional `package.json` template with `VERSION_PLACEHOLDER`
+
+**Tasks provided:**
+- **`npmPrepare`**: Assembles the npm package directory (pure sbt, no npm
+  binary required). Runs `fullOptJS`, copies JS output, generates
+  `package.json`, and includes TypeScript definitions if found.
+- **`npmPack`**: Shells out to `npm pack` to create a `.tgz` archive.
+
+**TypeScript definitions** are discovered by convention: if
+`<project-base>/types/index.d.ts` exists, it is copied into the package and
+referenced in `package.json`.
+
+```scala
+CrossModule("my-lib", "my-lib")(JVM, JS)
+  .jsConfigure(
+    With.ScalaJS("My Lib", hasMain = false, forProd = true,
+      withCommonJSModule = true),
+    With.Packaging.npm(
+      scope = "@myorg",
+      pkgName = "my-lib",
+      pkgDescription = "My library for JavaScript",
+      keywords = Seq("scala", "library"),
+      esModule = true
+    )
+  )
+```
+
+**Template mode**: Instead of generating `package.json` from settings, you
+can provide a template file containing `VERSION_PLACEHOLDER` which will be
+replaced with the project version at build time:
+
+```scala
+With.Packaging.npm(
+  scope = "@myorg",
+  pkgName = "my-lib",
+  templateFile = Some(file("npm/package.json.template"))
+)
+```
+
+#### **`With.Publishing.npm(...)`**
+Publish assembled npm packages to registries. Must be used together with
+`With.Packaging.npm(...)` which provides the `npmPrepare` task.
+
+**Parameters:**
+- **`registries`**: Target registries — `Seq("npmjs")`, `Seq("github")`,
+  or `Seq("npmjs", "github")` to publish to both.
+
+**Tasks provided:**
+- **`npmPublish`**: Publish to all configured registries.
+- **`npmPublishNpmjs`**: Publish to npmjs.com only.
+- **`npmPublishGithub`**: Publish to GitHub Packages only.
+
+**Authentication** via environment variables:
+- **`NPM_TOKEN`**: Access token for npmjs.com (required for `"npmjs"` registry)
+- **`GITHUB_TOKEN`**: Token with `write:packages` scope (required for
+  `"github"` registry)
+
+> **Note**: GitHub Packages requires the npm scope to be set (e.g.,
+> `@ossuminc`). The scope is read from `With.Packaging.npm(scope = ...)`.
+
+```scala
+CrossModule("my-lib", "my-lib")(JVM, JS)
+  .jsConfigure(
+    With.Packaging.npm(
+      scope = "@myorg",
+      pkgName = "my-lib",
+      pkgDescription = "My library"
+    ),
+    With.Publishing.npm(
+      registries = Seq("npmjs", "github")
+    )
+  )
+```
+
+**Typical workflow:**
+```bash
+# Build and assemble npm package (pure sbt, no npm needed)
+sbt my-libJS/npmPrepare
+
+# Publish to configured registries
+NPM_TOKEN=<token> GITHUB_TOKEN=<token> sbt my-libJS/npmPublish
+```
+
+#### **`With.Packaging.linux(...)`**
+Create a tar.gz archive of a Scala Native binary for distribution. The
+archive includes the binary and optionally README and LICENSE files.
+
+**Parameters:**
+- **`pkgName`**: Base name for the archive and binary
+- **`pkgDescription`**: Package description (included in generated README)
+- **`arch`**: Architecture label override (empty = auto-detect from host)
+- **`os`**: OS label override (empty = auto-detect from host)
+- **`includeReadme`**: Whether to include a README.md (default: `true`)
+- **`includeLicense`**: Whether to include LICENSE from project root
+  (default: `true`)
+
+**Task provided:**
+- **`linuxPackage`**: Compiles via `nativeLink`, stages binary + docs,
+  creates `<pkgName>-<version>-<os>-<arch>.tar.gz`.
+
+OS and architecture are auto-detected from the build host since Scala Native
+compiles for the host platform only. For multi-platform distribution, use CI
+matrix runners for each target.
+
+```scala
+Program("my-tool", "my-tool", Some("com.myapp.Main"))
+  .nativeConfigure(With.Native(mode = "release"))
+  .configure(
+    With.Packaging.linux(
+      pkgName = "my-tool",
+      pkgDescription = "A useful CLI tool"
+    )
+  )
+```
+
+#### **`With.Packaging.homebrew(...)`**
+Generate a Homebrew formula `.rb` file for inclusion in a tap repository.
+
+**Parameters:**
+- **`formulaName`**: Formula name (used as Ruby class name)
+- **`binaryName`**: Binary executable name
+- **`pkgDescription`**: Description shown in `brew info`
+- **`homepage`**: Project homepage URL
+- **`javaVersion`**: Required JDK version, universal variant only
+  (default: `"25"`)
+- **`tapRepo`**: Tap repo path (documentation only, publishing is not
+  automated)
+- **`variant`**: `"universal"` (JVM, default) or `"native"` (Scala Native)
+
+**Task provided:**
+- **`homebrewGenerate`**: Produces a `.rb` formula file at
+  `target/homebrew/Formula/<formulaName>.rb` with SHA256 hash computed
+  from the build artifact.
+
+**Variants:**
+- `"universal"`: Depends on `Universal/packageBin` (`.zip`). Formula includes
+  `depends_on "openjdk@<version>"`.
+- `"native"`: Depends on `linuxPackage` (`.tar.gz` from
+  `With.Packaging.linux(...)`). No JDK dependency.
+
+```scala
+// JVM universal variant
+Program("my-tool", "my-tool", Some("com.myapp.Main"))
+  .configure(
+    With.Packaging.universal(
+      maintainerEmail = "dev@example.com",
+      pkgName = "my-tool",
+      pkgSummary = "My Tool",
+      pkgDescription = "A useful tool"
+    ),
+    With.Packaging.homebrew(
+      formulaName = "my-tool",
+      binaryName = "my-tool",
+      pkgDescription = "A useful tool",
+      homepage = "https://example.com"
+    )
+  )
+```
+
+Publishing the generated formula to a tap is a separate operation — copy the
+`.rb` file to your tap repository (e.g., `ossuminc/homebrew-tap`).
+
+#### **`With.Packaging.windowsMsi(...)`** *(placeholder)*
+Reserved for future Windows MSI installer packaging. Currently logs a warning
+and returns the project unchanged. Not yet implemented.
+
 #### **`With.Packaging.graalVM(...)`**
 Create GraalVM native images.
 - **`pkgName`**: Executable name
@@ -822,5 +1001,29 @@ CrossModule("foo", "bar")(JVM, JS)
 
 * **`Root()` project ID is now configurable** - Use `projectId` parameter to customize (default: `"root"`)
 * **Parameterized versions** - `With.ScalaJS()` and `With.Native()` now accept version parameters to override defaults
+
+### New in 1.3.0
+
+#### Packaging Helpers
+
+* **`With.Packaging.npm(...)`** - Assemble Scala.js output into npm packages.
+  Tasks: `npmPrepare` (pure sbt) and `npmPack` (shells out to npm).
+  Supports template mode and TypeScript definition auto-discovery.
+
+* **`With.Packaging.linux(...)`** - Create tar.gz archives of Scala Native
+  binaries. Auto-detects host OS and architecture. Task: `linuxPackage`.
+
+* **`With.Packaging.homebrew(...)`** - Generate Homebrew formula `.rb` files.
+  Supports `"universal"` (JVM) and `"native"` (Scala Native) variants.
+  Task: `homebrewGenerate`.
+
+* **`With.Packaging.windowsMsi(...)`** - Placeholder for future Windows MSI
+  support (not yet implemented).
+
+#### Publishing Helpers
+
+* **`With.Publishing.npm(...)`** - Publish npm packages to npmjs.com and/or
+  GitHub Packages. Auth via `NPM_TOKEN` and `GITHUB_TOKEN` env vars.
+  Tasks: `npmPublish`, `npmPublishNpmjs`, `npmPublishGithub`.
 
 

@@ -1,0 +1,9 @@
+# Verify npm package assembly (pure sbt, no npm binary needed)
+> compile
+> npmPrepare
+$ exists target/npm-package/package.json
+$ exists target/npm-package/main.js
+$ exists target/npm-package/README.md
+> checkPackageJson
+# Verify publishing configuration loads correctly
+> checkPublishingConfig

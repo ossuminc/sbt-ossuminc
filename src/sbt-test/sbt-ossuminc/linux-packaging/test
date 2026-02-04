@@ -1,0 +1,3 @@
+# Verify linux packaging configuration (don't link - requires toolchain)
+> compile
+> hello / checkLinuxSettings
