@@ -164,6 +164,29 @@ object Packaging extends AutoPluginHelper {
           // First run the normal staging to get lib/ directory
           (Docker / stage).value
 
+          // sbt-native-packager stages files under numbered directories
+          // (e.g., 2/opt/docker/lib/, 4/opt/docker/bin/). Flatten them
+          // into opt/docker/ so the distroless Dockerfile can COPY them.
+          val flatTarget = stageDir / "opt" / "docker"
+          IO.createDirectory(flatTarget)
+          val numberedDirs = stageDir.listFiles().filter { f =>
+            f.isDirectory && f.getName.forall(_.isDigit)
+          }
+          for {
+            numDir <- numberedDirs
+            source = numDir / "opt" / "docker"
+            if source.isDirectory
+            child <- source.listFiles()
+          } {
+            val dest = flatTarget / child.getName
+            if (child.isDirectory) {
+              IO.copyDirectory(child, dest)
+            } else {
+              IO.copyFile(child, dest)
+            }
+            log.info(s"Staged: ${numDir.getName}/opt/docker/${child.getName} -> opt/docker/${child.getName}")
+          }
+
           // Generate distroless Dockerfile with EXPOSE directives
           val dockerfile = stageDir / "Dockerfile"
           val exposeLines = ports.map(p => s"EXPOSE $p").mkString("\n")
