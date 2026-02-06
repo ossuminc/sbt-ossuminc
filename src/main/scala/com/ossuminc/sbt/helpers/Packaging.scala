@@ -45,12 +45,12 @@ object Packaging extends AutoPluginHelper {
     )
   }
 
-  /** Default base images for dual Docker builds */
+  /** Default base images and registry for dual Docker builds */
   object Defaults {
     val devBaseImage = "eclipse-temurin:25-jdk-noble"
     val prodBaseImage = "gcr.io/distroless/java25-debian13:nonroot"
-    val repository = "ghcr.io"
-    val username = "ossuminc"
+    val repository = "us-central1-docker.pkg.dev"
+    val username = "ossuminc-production/ossum-images"
   }
 
   override def apply(project: Project) = none(project)
@@ -113,6 +113,10 @@ object Packaging extends AutoPluginHelper {
     *   Docker image name (e.g., "riddl-mcp-server")
     * @param exposedPorts
     *   Ports to expose in the container
+    * @param repository
+    *   Docker registry host (default: Artifact Registry)
+    * @param registryPath
+    *   Registry path after the host (default: ossuminc-production/ossum-images)
     * @param pkgDescription
     *   Optional description for the package
     */
@@ -120,6 +124,8 @@ object Packaging extends AutoPluginHelper {
     mainClass: String,
     pkgName: String,
     exposedPorts: Seq[Int],
+    repository: String = Defaults.repository,
+    registryPath: String = Defaults.username,
     pkgDescription: String = ""
   )(project: Project): Project = {
     project
@@ -132,8 +138,8 @@ object Packaging extends AutoPluginHelper {
 
         // Default Docker settings (dev image - what docker:publishLocal uses)
         dockerBaseImage := Keys.dockerDevBaseImage.value,
-        dockerRepository := Some(Defaults.repository),
-        dockerUsername := Some(Defaults.username),
+        dockerRepository := Some(repository),
+        dockerUsername := Some(registryPath),
         Docker / packageName := pkgName,
         Docker / packageDescription := pkgDescription,
         Docker / daemonUser := "ossum",
