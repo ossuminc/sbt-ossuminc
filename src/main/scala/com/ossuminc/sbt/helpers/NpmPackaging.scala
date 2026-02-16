@@ -64,6 +64,9 @@ object NpmPackaging {
     val npmPack = taskKey[File](
       "Run npm pack to create .tgz (requires npm on PATH)"
     )
+    val npmPublishLocal = taskKey[File](
+      "Pack and install npm package locally to ~/.ivy2/local/npm/"
+    )
   }
 
   /** Configure npm packaging for a Scala.js project.
@@ -221,6 +224,35 @@ object NpmPackaging {
         val result = tgzFiles.head
         log.info(s"npm package created: $result")
         result
+      },
+      Keys.npmPublishLocal := {
+        val log = streams.value.log
+        val tgz = Keys.npmPack.value
+        val scope = Keys.npmScope.value
+        val name = Keys.npmPackageName.value
+        val ver = version.value
+
+        // Mirror ivy2 local convention: ~/.ivy2/local/npm/<scope>/<name>/<version>/
+        val scopeDir = if (scope.nonEmpty) scope.stripPrefix("@") else "_unscoped"
+        val localDir = Path.userHome / ".ivy2" / "local" / "npm" / scopeDir / name / ver
+        IO.createDirectory(localDir)
+
+        val dest = localDir / tgz.getName
+        IO.copyFile(tgz, dest)
+
+        // Also write a latest-version marker for convenience
+        val latestFile = Path.userHome / ".ivy2" / "local" / "npm" / scopeDir / name / "latest.txt"
+        IO.write(latestFile, ver + "\n")
+
+        log.info(s"npm package published locally: $dest")
+        log.info(s"  Install with: npm install $dest")
+        dest
+      },
+      // Hook into publishLocal so npm .tgz is also produced
+      publishLocal := {
+        publishLocal.value
+        Keys.npmPublishLocal.value
+        ()
       }
     )
   }
