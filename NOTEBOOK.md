@@ -2,11 +2,19 @@
 
 ## Current Status
 
-**Version 1.3.0 released** (Feb 2026). No active work items.
+**Version 1.3.2 released** (Feb 2026). No active work items.
 
-Previous releases: v1.2.5 (Jan 2026), v1.2.4 (Jan 2026).
+Previous releases: v1.3.0 (Feb 2026), v1.2.5 (Jan 2026).
 
 ## Work Completed (Recent)
+
+### Session Feb 16, 2026 — Release Workflow
+
+Added `.github/workflows/release.yml` to automate GitHub Releases
+with artifact attachment. Triggers on tag pushes matching `[0-9]*`.
+Runs `sbt clean test publish` (JDK 25 Temurin), collects the plugin
+JAR, and creates a GitHub Release with auto-generated release notes
+and the JAR attached for download.
 
 ### Session Feb 3, 2026 — v1.3.0 Released
 
@@ -206,8 +214,9 @@ or remove.
 #### 6. Remove `project/SonatypePublishing.scala`
 No longer used after switching to GitHub Packages.
 
-#### 7. Add CI/CD workflow for GitHub Actions
-Run scripted tests on every PR. Skip Akka test in CI (requires credentials).
+#### 7. Update CI workflow to use JDK 25
+Release workflow uses JDK 25 Temurin; CI still uses JDK 21
+adopt-hotspot. Consider aligning.
 
 ---
 

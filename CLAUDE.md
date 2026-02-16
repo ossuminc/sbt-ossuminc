@@ -14,7 +14,21 @@ SBT plugin providing build infrastructure and configuration helpers for Ossum
 Inc. projects. Defines declarative project types and configuration options
 used across all Scala projects in the organization.
 
-**Current version: 1.3.0** (released Feb 2026)
+**Current version: 1.3.2** (released Feb 2026)
+
+## Release Process
+
+Releases are triggered by pushing a git tag:
+
+```bash
+git tag X.Y.Z && git push origin X.Y.Z
+```
+
+The `.github/workflows/release.yml` workflow then:
+1. Builds and tests with JDK 25 Temurin
+2. Publishes to GitHub Packages via `sbt clean test publish`
+3. Creates a GitHub Release with auto-generated notes
+4. Attaches the plugin JAR for direct download
 
 ## Project Types Provided
 

@@ -1,0 +1,61 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - '[0-9]*'
+
+permissions:
+  contents: write
+  packages: write
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    env:
+      GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      AKKA_REPO_TOKEN: ${{ secrets.AKKA_REPO_TOKEN }}
+    steps:
+
+      - name: Checkout Source Code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup JDK 25
+        uses: actions/setup-java@v4
+        with:
+          java-version: '25'
+          distribution: 'temurin'
+
+      - name: Set Up SBT
+        uses: sbt/setup-sbt@v1
+
+      - name: Coursier Caching
+        uses: coursier/cache-action@v6
+
+      - name: Build, Test, and Publish
+        run: sbt -v clean test publish
+
+      - name: Collect Artifacts
+        run: |
+          mkdir -p staging
+          cp target/scala-2.12/sbt-1.0/sbt-ossuminc-*.jar staging/
+          ls -la staging/
+
+      - name: Create GitHub Release
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          gh release create "${{ github.ref_name }}" \
+            --title "v${{ github.ref_name }}" \
+            --generate-notes \
+            staging/*.jar
+
+      - name: Cleanup Before Caching
+        shell: bash
+        run: |
+          rm -rf "$HOME/.ivy2/local" || true
+          find $HOME/.cache/coursier/v1 -name "ivydata-*.properties" -delete || true
+          find $HOME/.ivy2/cache -name "ivydata-*.properties" -delete || true
+          find $HOME/.sbt -name "*.lock" -delete || true
