@@ -9,3 +9,4 @@ hs_err_pid*
 # Apple stuff
 .DS_Store
 /project/Scalafmt.scala
+/task/
