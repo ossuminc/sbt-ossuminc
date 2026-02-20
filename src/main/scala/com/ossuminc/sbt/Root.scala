@@ -36,7 +36,7 @@ object Root {
     ghRepoName: String = "",
     ghOrgName: String = "ossuminc",
     orgPackage: String = "com.ossuminc",
-    orgName: String = "Ossum, Inc.",
+    orgName: String = "Ossum Inc.",
     orgPage: URL = url("https://ossuminc.com/"),
     startYr: Int = 2023,
     devs: List[Developer] = List.empty,

@@ -95,7 +95,7 @@ object RootProjectInfo {
     ghOrgName: String = "ossuminc",
     startYr: Int = Calendar.getInstance().get(Calendar.YEAR),
     orgPackage: String = "com.ossuminc",
-    orgName: String = "Ossum, Inc.",
+    orgName: String = "Ossum Inc.",
     orgPage: URL = url("https://ossuminc.com/"),
     devs: List[Developer] = defaultDevs,
     spdxLicenseName: String = "Apache-2.0"
