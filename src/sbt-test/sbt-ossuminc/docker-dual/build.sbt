@@ -47,8 +47,8 @@ lazy val root = Root(
       
       // Assertions
       assert(baseImg == "eclipse-temurin:25-jdk-noble", s"Expected dev base image, got: $baseImg")
-      assert(repo == Some("ghcr.io"), s"Expected ghcr.io repository, got: $repo")
-      assert(user == Some("ossuminc"), s"Expected ossuminc username, got: $user")
+      assert(repo == Some("us-central1-docker.pkg.dev"), s"Expected Artifact Registry repository, got: $repo")
+      assert(user == Some("ossuminc-production/ossum-images"), s"Expected Artifact Registry project/repo path, got: $user")
       assert(ports == Seq(8080, 9001), s"Expected ports 8080,9001, got: $ports")
       assert(mainCls == "Main", s"Expected Main class, got: $mainCls")
       assert(devBase == "eclipse-temurin:25-jdk-noble", s"Unexpected dev base: $devBase")
