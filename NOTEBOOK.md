@@ -2,11 +2,35 @@
 
 ## Current Status
 
-**Version 1.3.2 released** (Feb 2026). No active work items.
+**Version 1.3.5 released** (Feb 20, 2026). No active work items.
 
-Previous releases: v1.3.0 (Feb 2026), v1.2.5 (Jan 2026).
+Previous releases: v1.3.4, v1.3.3, v1.3.2, v1.3.0, v1.2.5.
 
 ## Work Completed (Recent)
+
+### Session Feb 20, 2026 — Corporate Name Fix & Release Improvements
+
+**Released:** v1.3.4 and v1.3.5 to GitHub Packages.
+
+**v1.3.4 — orgName fix:**
+- Changed default `orgName` from `"Ossum, Inc."` to `"Ossum Inc."`
+  (no comma) in `Root.scala`, `RootProjectInfo.scala`, and test
+  build files. Fixed typo `"Ossumin, Inc."` in program test.
+- Cross-project task from riddl Claude instance (`task/fix-orgname-comma.md`).
+
+**v1.3.5 — Copyright, tests, and workflow:**
+- Updated all source file copyright dates to `2015-2026` (were
+  stale at `2015-2017` in most files).
+- Fixed `docker-dual` scripted test assertions to expect Artifact
+  Registry defaults (`us-central1-docker.pkg.dev` and
+  `ossuminc-production/ossum-images`) instead of old `ghcr.io`.
+- Changed release workflow trigger from tag push to release
+  creation (`on: release: types: [created]`), matching the riddl
+  project pattern. Added `workflow_dispatch` for manual triggering.
+
+**All 20 scripted tests passing** (docker-dual was previously
+broken due to stale assertions from the Artifact Registry default
+change).
 
 ### Session Feb 16, 2026 — Release Workflow
 
