@@ -1,5 +1,5 @@
 /*
- * Copyright 2015-2023 Ossum Inc. & Ossum Inc.
+ * Copyright 2015-2026 Ossum Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
