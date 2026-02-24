@@ -98,9 +98,6 @@ object OssumIncPlugin extends AutoPlugin {
       /** Compile scala code as Scala 3's latest LTS release */
       def Scala3: helpers.Scala3.type = helpers.Scala3
 
-      /** Configure ScalablyTyped for TypeScript facades */
-      def ScalablyTyped: helpers.ScalablyTyped.type = helpers.ScalablyTyped
-
       /** Configure code coverage testing */
       def ScalaCoverage: helpers.ScalaCoverage.type = helpers.ScalaCoverage
 

@@ -178,7 +178,6 @@ addSbtPlugin("org.portable-scala" % "sbt-scala-native-crossproject" % "1.3.2")
 addSbtPlugin("org.portable-scala" % "sbt-platform-deps" % "1.0.2")
 addSbtPlugin("com.typesafe" % "sbt-mima-plugin" % "1.1.4")
 addSbtPlugin("ch.epfl.scala" % "sbt-tasty-mima" % "1.2.0")
-addSbtPlugin("org.scalablytyped.converter" % "sbt-converter" % "1.0.0-beta44")
 addSbtPlugin("org.jetbrains.scala" % "sbt-idea-plugin" % "5.0.4")
 ```
 * [sbt-scalafix](https://github.com/scalacenter/sbt-scalafix) - Code refactoring and linting
@@ -192,7 +191,6 @@ addSbtPlugin("org.jetbrains.scala" % "sbt-idea-plugin" % "5.0.4")
 * [sbt-platform-deps](https://github.com/portable-scala/sbt-platform-deps) - Platform-specific dependencies
 * [sbt-mima-plugin](https://github.com/lightbend-labs/mima) - Binary compatibility checking
 * [sbt-tasty-mima](https://github.com/scalacenter/tasty-mima) - TASTy compatibility checking
-* [sbt-converter](https://github.com/ScalablyTyped/Converter) - Generate Scala.js facades from TypeScript
 * [sbt-idea-plugin](https://github.com/JetBrains/sbt-idea-plugin) - IntelliJ IDEA plugin development
 
 
@@ -933,9 +931,6 @@ Module("my-lib")
     docBaseURL = Some("https://myproject.org/api")
   ))
 ```
-
-#### **`With.ScalablyTyped(...)`**
-Generate Scala.js facades from TypeScript definitions.
 
 #### **`With.Scalatest(...)`**
 Add ScalaTest dependencies with custom version.
