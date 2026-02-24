@@ -10,3 +10,8 @@ hs_err_pid*
 .DS_Store
 /project/Scalafmt.scala
 /task/
+
+# Claude Code transient files
+.claude/*
+!.claude/skills/
+!.claude/skills/**
