@@ -7,7 +7,7 @@ import java.net.URI
 
 object Scala3 extends AutoPluginHelper {
 
-  private lazy val scala_3_options: Seq[String] =
+  lazy val scala_3_options: Seq[String] =
     Seq(
       "-deprecation",
       "-feature",
@@ -68,7 +68,7 @@ object Scala3 extends AutoPluginHelper {
     project
       .settings(
         scalaVersion := version.getOrElse("3.3.7"),
-        scalacOptions := scala_3_options ++ scala3Options,
+        scalacOptions ++= scala_3_options ++ scala3Options,
         Compile / doc / scalacOptions := scala_3_doc_options(
           (Compile / scalaVersion).value,
           projectName,
