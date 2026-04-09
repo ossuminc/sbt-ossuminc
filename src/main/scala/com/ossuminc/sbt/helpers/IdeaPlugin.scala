@@ -4,6 +4,7 @@ import org.jetbrains.sbtidea.SbtIdeaPlugin
 import sbt.*
 import sbt.Keys.*
 import org.jetbrains.sbtidea.SbtIdeaPlugin.autoImport.*
+import org.jetbrains.sbtidea.runIdea.CustomIntellijVMOptions
 import org.jetbrains.sbtidea.verifier.FailureLevel
 
 object IdeaPlugin extends AutoPluginHelper {
@@ -59,7 +60,7 @@ object IdeaPlugin extends AutoPluginHelper {
           xml.sinceBuild = (ThisBuild / intellijBuild).value
           xml.untilBuild = "351.*"
         },
-        ThisBuild / intellijVMOptions := intellijVMOptions.value.copy(xmx = maxMem, xms = 256),
+        ThisBuild / customIntellijVMOptions := CustomIntellijVMOptions(xmx = Some(maxMem), xms = Some(256)),
         ThisBuild / pluginVerifierOptions := pluginVerifierOptions.value.copy(
           offline = true, // forbid the verifier from reaching the internet
           failureLevels = Set(
