@@ -70,28 +70,31 @@ object HandyAliases extends AutoPluginHelper {
       }
   }
 
-  private def printAClasspath(name: String, out: File, cp: Classpath): Unit = {
+  private def printAClasspath(name: String, out: File, files: Seq[File]): Unit = {
     println(s"----- $name: " + out.getCanonicalPath + ": FILES:")
-    println(cp.files.map(_.getCanonicalPath).mkString("\n"))
+    println(files.map(_.getCanonicalPath).mkString("\n"))
     println(s"----- $name: END")
   }
 
   private def printClassPath: Def.Initialize[Task[Unit]] = Def.task[Unit] {
+    given xsbti.FileConverter = fileConverter.value
     val out = (Compile / target).value
     val cp = (Compile / fullClasspath).value
-    printAClasspath(Compile.name, out, cp)
+    printAClasspath(Compile.name, out, cp.files.map(_.toFile))
   }
 
   private def printTestClassPath: Def.Initialize[Task[Unit]] = Def.task[Unit] {
+    given xsbti.FileConverter = fileConverter.value
     val out = (Test / target).value
     val cp = (Test / fullClasspath).value
-    printAClasspath(Test.name, out, cp)
+    printAClasspath(Test.name, out, cp.files.map(_.toFile))
   }
 
   private def printRuntimeClassPath: Def.Initialize[Task[Unit]] = Def.task[Unit] {
+    given xsbti.FileConverter = fileConverter.value
     val out = (Runtime / target).value
     val cp = (Runtime / fullClasspath).value
-    printAClasspath(Runtime.name, out, cp)
+    printAClasspath(Runtime.name, out, cp.files.map(_.toFile))
   }
 
   private val handyPL = new ProcessLogger {

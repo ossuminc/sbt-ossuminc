@@ -17,11 +17,10 @@
 package com.ossuminc.sbt.helpers
 
 import com.ossuminc.sbt.helpers.RootProjectInfo.Keys.*
-import de.heikoseeberger.sbtheader
-import de.heikoseeberger.sbtheader.HeaderPlugin.autoImport.headerLicense
-import de.heikoseeberger.sbtheader.License.*
-import de.heikoseeberger.sbtheader.LicenseStyle.SpdxSyntax
-import de.heikoseeberger.sbtheader.{AutomateHeaderPlugin, HeaderPlugin, License}
+import sbtheader.HeaderPlugin.autoImport.headerLicense
+import sbtheader.License.*
+import sbtheader.LicenseStyle.SpdxSyntax
+import sbtheader.{AutomateHeaderPlugin, HeaderPlugin, License}
 import sbt.*
 import sbt.Keys.*
 

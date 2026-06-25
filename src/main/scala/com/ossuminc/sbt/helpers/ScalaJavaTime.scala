@@ -1,6 +1,5 @@
 package com.ossuminc.sbt.helpers
 
-import org.portablescala.sbtplatformdeps.PlatformDepsPlugin.autoImport.*
 import sbt.*
 import sbt.Keys.libraryDependencies
 
@@ -30,7 +29,7 @@ object ScalaJavaTime extends AutoPluginHelper {
   )(project: Project): Project = {
     project.settings(
       libraryDependencies += {
-        if (nonJVM) "io.github.cquiroz" %%% "scala-java-time" % version
+        if (nonJVM) "io.github.cquiroz" %% "scala-java-time" % version
         else "io.github.cquiroz" %% "scala-java-time" % version
       }
     )

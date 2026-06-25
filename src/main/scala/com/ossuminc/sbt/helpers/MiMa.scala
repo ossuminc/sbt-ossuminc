@@ -7,11 +7,14 @@ import sbt.Project
 import com.typesafe.tools.mima.plugin.MimaKeys.*
 import com.typesafe.tools.mima.plugin.MimaKeys.{mimaFailOnNoPrevious, mimaPreviousArtifacts}
 import com.typesafe.tools.mima.plugin.MimaPlugin
-import sbttastymima.TastyMiMaPlugin
-import sbttastymima.TastyMiMaPlugin.autoImport.*
 
 /** LightbendLabs Migration Manager support. This includes the sbt-mima-plugin to check for backwards binary
   * compatibility in Scala libraries.
+  *
+  * @note
+  *   TASTy-level compatibility checking (sbt-tasty-mima) is omitted on sbt 2.x:
+  *   that plugin has no sbt 2.0 release yet. Binary compatibility checking via
+  *   sbt-mima-plugin is fully supported.
   * @see
   *   https://index.scala-lang.org/lightbend-labs/mima
   */
@@ -22,7 +25,7 @@ object MiMa extends AutoPluginHelper {
   /** Mark a project as not processed by MiMa */
   def without(project: Project): Project = {
     project
-      .disablePlugins(MimaPlugin, TastyMiMaPlugin)
+      .disablePlugins(MimaPlugin)
       .settings(
         mimaPreviousArtifacts := Set.empty,
         mimaFailOnNoPrevious := false
@@ -48,12 +51,9 @@ object MiMa extends AutoPluginHelper {
     reportSignatureIssues: Boolean = false
   )(project: Project): Project = {
     project
-      .enablePlugins(TastyMiMaPlugin)
       .enablePlugins(MimaPlugin)
-      .enablePlugins()
       .settings(
         mimaPreviousArtifacts := Set[ModuleID](organization.value %% moduleName.value % previousVersion),
-        tastyMiMaPreviousArtifacts += { organization.value %% moduleName.value % previousVersion },
         mimaReportSignatureProblems := reportSignatureIssues,
         mimaBinaryIssueFilters ++= excludedClasses.map { className =>
           ProblemFilters.exclude[Problem](className)

@@ -80,32 +80,12 @@ object Unidoc extends AutoPluginHelper {
             }
           )
         },
-        autoAPIMappings := true,
-        apiMappings ++= {
-          val cp: Seq[Attributed[File]] = (Compile / fullClasspath).value
-          def findManagedDependency(
-            organization: String,
-            name: String
-          ): Option[File] = {
-            (for {
-              entry <- cp
-              module <- entry.get(moduleID.key)
-              if module.organization == organization
-              if module.name.startsWith(name)
-              jarFile = entry.data
-            } yield jarFile).headOption
-          }
-          val knownApiMappings: Map[(String, String), URL] = Map(
-            ("org.scala-lang", "scala-library") -> url(s"http://www.scala-lang.org/api/${scalaVersion.value}/"),
-            ("org.scalatest", "scalatest") -> url(s"http://https://www.scalatest.org/scaladoc/3.2.19/")
-          )
-          for {
-            ((org, lib), url) <- knownApiMappings
-            dep = findManagedDependency(org, lib) if dep.isDefined
-          } yield {
-            dep.get -> url
-          }
-        }
+        // NOTE: external apiMappings (scanning the managed classpath to link
+        // scaladoc to library docs) was dropped during the sbt 2 migration: it
+        // relied on `fullClasspath` being Seq[Attributed[File]], now
+        // Seq[Attributed[HashedVirtualFileRef]]. Can be reinstated via a
+        // FileConverter if external doc links are needed again.
+        autoAPIMappings := true
       )
   }
 }

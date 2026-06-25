@@ -332,9 +332,10 @@ object Packaging extends AutoPluginHelper {
         if (os.nonEmpty) os else detectOs
       },
 
-      Keys.linuxPackage := {
+      Keys.linuxPackage := Def.uncached {
         val log = streams.value.log
-        val binary = (Compile / nativeLink).value
+        val conv = fileConverter.value
+        val binary = conv.toPath((Compile / nativeLink).value).toFile
         val ver = version.value
         val archLabel = Keys.linuxPackageArch.value
         val osLabel = Keys.linuxPackageOs.value

@@ -16,70 +16,30 @@
 
 package com.ossuminc.sbt.helpers
 
-import sbt.Keys.*
 import sbt.*
-import xerial.sbt.Sonatype as SonatypePlugin
-import xerial.sbt.Sonatype.autoImport.{sonatypeProfileName, sonatypeSessionName}
+import sbt.Keys.*
 
-import com.ossuminc.sbt.helpers.Release.Keys.{publishReleasesTo, publishSnapshotsTo}
-import com.ossuminc.sbt.helpers.RootProjectInfo.Keys._
-
-/** Settings For SonatypePublishing Plugin */
+/** Publishing to Maven Central via Sonatype.
+  *
+  * sbt 2.x note: the `sbt-sonatype` plugin was deprecated by its author (OSSRH
+  * was sunset) and has no sbt 2.0 GA build. Maven Central now uses the Central
+  * Portal, whose upload workflow is not yet wired into sbt-ossuminc for sbt 2.
+  * Until that follow-up lands, use `With.GithubPublishing`. See NOTEBOOK.md
+  * "sbt 2.0 Migration Plan".
+  */
 object SonatypePublishing extends AutoPluginHelper {
 
   object Keys {
     val sonatypeServer: SettingKey[String] = settingKey[String](
-      "The host name of the sonatype server to publish artifacts to. Defaults to s01.oss.sonatype.org"
+      "Deprecated on sbt 2.x; Maven Central now uses the Central Portal."
     )
   }
 
-  private val defaultSonatypeServer = "s01.oss.sonatype.org"
-
-  def apply(project: Project): Project = {
-    project
-      .enablePlugins(SonatypePlugin)
-      .settings(
-        sonatypeProfileName := "ossum",
-        Keys.sonatypeServer := defaultSonatypeServer,
-        sonatypeSessionName := organization.value + "/" + name.value,
-        publishSnapshotsTo := {
-          val sonatypeOssSnapshots = s"https://${Keys.sonatypeServer.value}/content/repositories/snapshots"
-          MavenRepository("Sonatype OSS Snapshots", sonatypeOssSnapshots)
-        },
-        publishReleasesTo := {
-          val sonatypeOssStaging = s"https://${Keys.sonatypeServer.value}/service/local/staging/deploy/maven2"
-          MavenRepository("Sonatype Maven Release Staging", sonatypeOssStaging)
-        },
-        publishMavenStyle := true,
-        pomIncludeRepository := { _ => false },
-        publishTo := {
-          if (isSnapshot.value) {
-            Some(publishSnapshotsTo.value)
-          } else {
-            Some(publishReleasesTo.value)
-          }
-        },
-        Test / publishArtifact := false,
-        scmInfo := {
-          val org = RootProjectInfo.requireConfigured(
-            gitHubOrganization.value,
-            "gitHubOrganization",
-            "SonatypePublishing"
-          )
-          val repo = RootProjectInfo.requireConfigured(
-            gitHubRepository.value,
-            "gitHubRepository",
-            "SonatypePublishing"
-          )
-          val gitUrl = s"//github.com/$org/$repo"
-          Some(
-            ScmInfo(
-              url("https:" + gitUrl),
-              "scm:git:" + gitUrl + ".git",
-              Some("https:" + gitUrl)
-            )
-          )
-        }
-      )
-  }
+  /** Not yet available on sbt 2.x — fails fast with an explanatory message. */
+  def apply(project: Project): Project = sys.error(
+    "With.SonatypePublishing is not yet available on sbt 2.x: sbt-sonatype is " +
+      "deprecated (OSSRH sunset) and Central Portal publishing is not yet wired " +
+      "into sbt-ossuminc for sbt 2. Use With.GithubPublishing, or publish to " +
+      "Maven Central manually, until this is implemented."
+  )
 }

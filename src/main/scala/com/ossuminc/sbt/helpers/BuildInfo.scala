@@ -8,6 +8,7 @@ import sbtbuildinfo.BuildInfoPlugin.autoImport.*
 import sbtbuildinfo.{BuildInfoKey, BuildInfoPlugin}
 
 import java.util.Calendar
+import scala.language.implicitConversions // SettingKey/TaskKey -> BuildInfoKey (Scala 3)
 
 object BuildInfo extends AutoPluginHelper {
 
@@ -32,37 +33,37 @@ object BuildInfo extends AutoPluginHelper {
         buildInfoOptions ++= Seq(ToMap, ToJson, BuildTime, ConstantValue),
         buildInfoUsePackageAsPath := true,
         buildInfoKeys ++= Seq[BuildInfoKey](
-          normalizedName,
-          moduleName,
-          description,
-          organization,
-          organizationName,
-          RootProjectInfo.Keys.gitHubOrganization,
-          RootProjectInfo.Keys.gitHubRepository,
-          RootProjectInfo.Keys.copyrightHolder,
-          BuildInfoKey.map(organizationHomepage) { case (k, v) =>
+          BuildInfoKey(normalizedName),
+          BuildInfoKey(moduleName),
+          BuildInfoKey(description),
+          BuildInfoKey(organization),
+          BuildInfoKey(organizationName),
+          BuildInfoKey(RootProjectInfo.Keys.gitHubOrganization),
+          BuildInfoKey(RootProjectInfo.Keys.gitHubRepository),
+          BuildInfoKey(RootProjectInfo.Keys.copyrightHolder),
+          BuildInfoKey.map(BuildInfoKey(organizationHomepage)) { case (k, v) =>
             k -> v.get.toString
           },
-          BuildInfoKey.map(homepage) { case (_, v) =>
+          BuildInfoKey.map(BuildInfoKey(homepage)) { case (_, v) =>
             "projectHomepage" -> v
               .map(_.toString)
-              .getOrElse(RootProjectInfo.Keys.projectHomePage.value)
+              .getOrElse(RootProjectInfo.Keys.projectHomePage.value.toString)
           },
-          BuildInfoKey.map(licenses) { case (k, v) =>
-            k -> v.map(_._1).mkString(", ")
+          BuildInfoKey.map(BuildInfoKey(licenses)) { case (k, v) =>
+            k -> v.map(_.toString).mkString(", ")
           },
-          isSnapshot,
-          buildInfoPackage,
-          buildInfoObject,
-          BuildInfoKey.map(startYear) { case (k, v) =>
+          BuildInfoKey(isSnapshot),
+          BuildInfoKey(buildInfoPackage),
+          BuildInfoKey(buildInfoObject),
+          BuildInfoKey.map(BuildInfoKey(startYear)) { case (k, v) =>
             k -> v.map(_.toString).getOrElse(RootProjectInfo.Keys.projectStartYear.value.toString)
           },
-          BuildInfoKey.map(startYear) { case (_, v) =>
+          BuildInfoKey.map(BuildInfoKey(startYear)) { case (_, v) =>
             "copyright" -> s"© ${v.map(_.toString).getOrElse(RootProjectInfo.Keys.projectStartYear.value.toString)}-${Calendar
                 .getInstance()
                 .get(Calendar.YEAR)} ${organizationName.value}"
           },
-          BuildInfoKey.map(scalaVersion) { case (_, v) =>
+          BuildInfoKey.map(BuildInfoKey(scalaVersion)) { case (_, v) =>
             val version = if (v.head == '2') {
               v.substring(0, v.lastIndexOf('.'))
             } else v

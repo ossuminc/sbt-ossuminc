@@ -19,7 +19,8 @@ package com.ossuminc.sbt.helpers
 import com.ossuminc.sbt.helpers.Miscellaneous.buildShellPrompt
 import sbt.*
 import sbt.Keys.*
-import sbt.plugins.MiniDependencyTreePlugin
+import sbt.given // (String, URI) -> License conversion for `licenses` (Scala 3)
+import java.net.URI
 import java.util.Calendar
 
 object RootProjectInfo {
@@ -56,7 +57,7 @@ object RootProjectInfo {
   }
 
   object Keys {
-    val projectHomePage: SettingKey[URL] = settingKey[URL](
+    val projectHomePage: SettingKey[URI] = settingKey[URI](
       "The url of the project's home page"
     )
 
@@ -96,12 +97,11 @@ object RootProjectInfo {
     startYr: Int = Calendar.getInstance().get(Calendar.YEAR),
     orgPackage: String = "com.ossuminc",
     orgName: String = "Ossum Inc.",
-    orgPage: URL = url("https://ossuminc.com/"),
+    orgPage: URI = url("https://ossuminc.com/"),
     devs: List[Developer] = defaultDevs,
     spdxLicenseName: String = "Apache-2.0"
   )(project: Project): Project = {
     project
-      .enablePlugins(MiniDependencyTreePlugin)
       .settings(
         ThisBuild / Keys.copyrightHolder := orgName,
         ThisBuild / Keys.gitHubOrganization := ghOrgName,

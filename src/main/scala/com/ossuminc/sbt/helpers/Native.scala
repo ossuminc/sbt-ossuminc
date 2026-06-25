@@ -1,5 +1,4 @@
 package com.ossuminc.sbt.helpers
-import org.portablescala.sbtplatformdeps.PlatformDepsPlugin.autoImport.*
 import sbt.*
 import sbt.Keys.*
 
@@ -102,8 +101,8 @@ object Native extends AutoPluginHelper {
         Test / nativeConfig ~= { c => c.withBuildTarget(BuildTarget.application) },
         concurrentRestrictions += Tags.limit(NativeTags.Link, 1),
         libraryDependencies ++= Seq(
-          "org.scalactic" %%% "scalactic" % scalatestVersion % Test,
-          "org.scalatest" %%% "scalatest" % scalatestVersion % Test
+          "org.scalactic" %% "scalactic" % scalatestVersion % Test,
+          "org.scalatest" %% "scalatest" % scalatestVersion % Test
         )
       )
   }

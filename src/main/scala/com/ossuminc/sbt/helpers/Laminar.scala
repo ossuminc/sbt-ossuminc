@@ -1,6 +1,5 @@
 package com.ossuminc.sbt.helpers
 
-import org.portablescala.sbtplatformdeps.PlatformDepsPlugin.autoImport.*
 import sbt.*
 import sbt.Keys.libraryDependencies
 
@@ -18,7 +17,7 @@ object Laminar extends AutoPluginHelper {
     project.settings(
       libraryDependencies ++= {
         val waypoint: Seq[ModuleID] =
-          waypoint_version.map(v => "com.raquo" %%% "waypoint" % v).toSeq
+          waypoint_version.map(v => "com.raquo" %% "waypoint" % v).toSeq
         val v_laminext = laminextVersion.getOrElse("0.17.1")
         val org = v_laminext match {
           case s: String if s.startsWith("0.") =>
@@ -36,19 +35,19 @@ object Laminar extends AutoPluginHelper {
         }
         val laminext: Seq[ModuleID] = {
           laminextModules.map {
-            case "core"       => org %%% "core" % v_laminext
-            case "fetch"      => org %%% "fetch" % v_laminext
-            case "websocket"  => org %%% "websocket" % v_laminext
-            case "ui"         => org %%% "ui" % v_laminext
-            case "validation" => org %%% "validation" % v_laminext
-            case "util"       => org %%% "util" % v_laminext
+            case "core"       => org %% "core" % v_laminext
+            case "fetch"      => org %% "fetch" % v_laminext
+            case "websocket"  => org %% "websocket" % v_laminext
+            case "ui"         => org %% "ui" % v_laminext
+            case "validation" => org %% "validation" % v_laminext
+            case "util"       => org %% "util" % v_laminext
             case s: String =>
               throw new IllegalArgumentException(s"Unsupported laminar module $s")
           }
         }
         Seq(
-          "org.scala-js" %%% "scalajs-dom" % dom_version,
-          "com.raquo" %%% "laminar" % laminar_version
+          "org.scala-js" %% "scalajs-dom" % dom_version,
+          "com.raquo" %% "laminar" % laminar_version
         ) ++ waypoint ++ laminext
       }
     )

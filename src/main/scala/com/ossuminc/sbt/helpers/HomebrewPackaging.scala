@@ -166,7 +166,8 @@ object HomebrewPackaging {
           val ghOrg = RootProjectInfo.Keys.gitHubOrganization.value
           val ghRepo = RootProjectInfo.Keys.gitHubRepository.value
           val lic = RootProjectInfo.Keys.spdxLicense.value
-          val artifact = (Universal / sbt.Keys.packageBin).value
+          val conv = fileConverter.value
+          val artifact = conv.toPath((Universal / sbt.Keys.packageBin).value).toFile
           val sha = sha256(artifact)
 
           log.info(s"Computed SHA256 for ${artifact.getName}: $sha")
@@ -212,7 +213,7 @@ object HomebrewPackaging {
 
     project.settings(
       Keys.homebrewFormulaName := formulaName,
-      Keys.homebrewGenerate := taskDef.value
+      Keys.homebrewGenerate := Def.uncached(taskDef.value)
     )
   }
 

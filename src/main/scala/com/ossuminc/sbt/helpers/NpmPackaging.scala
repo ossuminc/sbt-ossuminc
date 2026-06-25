@@ -106,7 +106,7 @@ object NpmPackaging {
         if (typesDir.exists()) Some(typesDir) else None
       },
       Keys.npmOutputDir := target.value / "npm-package",
-      Keys.npmPrepare := {
+      Keys.npmPrepare := Def.uncached {
         val log = streams.value.log
         val jsOutput = (Compile / fullOptJS).value.data
         val outputDir = Keys.npmOutputDir.value
@@ -195,7 +195,7 @@ object NpmPackaging {
         log.info(s"npm package assembled: $outputDir")
         outputDir
       },
-      Keys.npmPack := {
+      Keys.npmPack := Def.uncached {
         val log = streams.value.log
         val prepDir = Keys.npmPrepare.value
         val targetDir = target.value / "npm-packages"
@@ -214,7 +214,7 @@ object NpmPackaging {
         }
 
         // Find the produced .tgz file
-        val tgzFiles = (targetDir * "*.tgz").get
+        val tgzFiles = (targetDir * "*.tgz").get()
         if (tgzFiles.isEmpty) {
           sys.error(
             s"npm pack did not produce a .tgz file in $targetDir"
@@ -225,7 +225,7 @@ object NpmPackaging {
         log.info(s"npm package created: $result")
         result
       },
-      Keys.npmPublishLocal := {
+      Keys.npmPublishLocal := Def.uncached {
         val log = streams.value.log
         val tgz = Keys.npmPack.value
         val scope = Keys.npmScope.value

@@ -48,7 +48,7 @@ object Akka extends AutoPluginHelper {
     * require Ivy-style patterns.
     */
   private def akkaIvyResolver: URLRepository =
-    Resolver.url("akka-secure-ivy", url(akkaRepoUrl))(Resolver.ivyStylePatterns)
+    Resolver.url("akka-secure-ivy", url(akkaRepoUrl).toURL)(Resolver.ivyStylePatterns)
 
   /** Both Akka resolvers (Maven and Ivy style) */
   private def akkaResolvers: Seq[Resolver] = Seq(akkaMavenResolver, akkaIvyResolver)

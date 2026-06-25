@@ -16,53 +16,42 @@
 
 package com.ossuminc.sbt.helpers
 
-import com.typesafe.sbt.SbtNativePackager.Universal
-import com.typesafe.sbt.packager.Keys.scriptClasspath
-import sbt.Keys._
-import sbt.{IO, _}
+import sbt.*
+import sbt.Keys.*
 
 import java.io.File
 
 /** General settings for the project */
 object Miscellaneous {
 
+  /** STUB on sbt 2.x: the classpath-jar helper relied on sbt-native-packager's
+    * `scriptClasspathOrdering` plus `IO.jar`, which need migration to the sbt 2
+    * virtual-file APIs. Deferred with the rest of the packaging work (see
+    * NOTEBOOK.md "sbt 2.0 Migration Plan", Group D). Returns the project
+    * unchanged after warning, rather than silently dropping the setting.
+    */
   def useClassPathJar(project: Project): Project = {
-    project.settings(
-      Seq[Def.SettingsDefinition](
-        scriptClasspath := {
-          import com.typesafe.sbt.SbtNativePackager._
-          import com.typesafe.sbt.packager.Keys._
-          Miscellaneous.makeClasspathJar(
-            scriptClasspathOrdering
-              .map(Miscellaneous.makeRelativeClasspathNames)
-              .value,
-            (Universal / target).value
-          )
-        },
-        Universal / mappings += {
-          (Universal / target).value / "lib" / "classpath.jar" -> "lib/classpath.jar"
-        }
-      ): _*
+    println(
+      "[warn] With.ClassPathJar is not yet available on sbt 2.x (packaging " +
+        "migration pending); proceeding without a classpath jar."
     )
+    project
   }
 
   def useUnmanagedJarLibs(project: Project): Project = {
     project
       .settings(
-        Compile / unmanagedJars := {
-          baseDirectory.map { base =>
-            (base / "libs" ** "*.jar").classpath
-          }.value
+        Compile / unmanagedJars := Def.uncached {
+          given xsbti.FileConverter = fileConverter.value
+          (baseDirectory.value / "libs" ** "*.jar").classpath
         },
-        Runtime / unmanagedJars := {
-          baseDirectory.map { base =>
-            (base / "libs" ** "*.jar").classpath
-          }.value
+        Runtime / unmanagedJars := Def.uncached {
+          given xsbti.FileConverter = fileConverter.value
+          (baseDirectory.value / "libs" ** "*.jar").classpath
         },
-        Test / unmanagedJars := {
-          baseDirectory.map { base =>
-            (base / "libs" ** "*.jar").classpath
-          }.value
+        Test / unmanagedJars := Def.uncached {
+          given xsbti.FileConverter = fileConverter.value
+          (baseDirectory.value / "libs" ** "*.jar").classpath
         },
         Compile / packageBin / mappings ~= filter,
         Compile / packageSrc / mappings ~= filter,
@@ -83,38 +72,15 @@ object Miscellaneous {
     jgit.branch
   }
 
-  private def filter(ms: Seq[(File, String)]): Seq[(File, String)] = {
+  /** Generic over the file-reference type so it works with sbt 2 mappings,
+    * whose first element is now a `HashedVirtualFileRef` rather than a `File`.
+    */
+  private def filter[A](ms: Seq[(A, String)]): Seq[(A, String)] = {
     ms.filter { case (_, path) =>
       path != "logback.xml" &&
       !path.startsWith("toignore") &&
       !path.startsWith("samples")
     }
-  }
-
-  private val classpath_jar = "classpath.jar"
-
-  private def makeRelativeClasspathNames(
-    mappings: Seq[(File, String)]
-  ): Seq[String] = {
-    for {
-      (_, name) <- mappings
-    } yield {
-      // Here we want the name relative to the lib/ folder...
-      // For now we just cheat...
-      if (name.startsWith("lib/")) name.drop(4) else "../" + name
-    }
-  }
-
-  private def makeClasspathJar(
-    classPath: Seq[String],
-    target: File
-  ): Seq[String] = {
-    val manifest = new java.util.jar.Manifest()
-    manifest.getMainAttributes
-      .putValue("Class-Path", classPath.mkString(" "))
-    val classpathJar = target / "lib" / classpath_jar
-    IO.jar(Seq.empty, classpathJar, manifest, None)
-    Seq(classpath_jar)
   }
 
 }

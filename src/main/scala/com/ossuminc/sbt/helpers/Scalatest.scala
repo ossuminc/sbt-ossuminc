@@ -3,13 +3,12 @@ import sbt.*
 import sbt.Keys.libraryDependencies
 import sbt.Project
 import sbt.librarymanagement.ModuleID
-import org.portablescala.sbtplatformdeps.PlatformDepsPlugin.autoImport.*
 
 object Scalatest extends AutoPluginHelper {
 
   val latest_version = "3.2.19"
 
-  override def apply(project: Project) = apply()(project)
+  override def apply(project: Project): Project = apply()(project)
 
   def apply(
     version: String = "3.2.19",
@@ -19,15 +18,15 @@ object Scalatest extends AutoPluginHelper {
     project.settings(
       libraryDependencies ++= {
         def scalactic(version: String, nonJVM: Boolean): ModuleID = {
-          if (nonJVM) "org.scalactic" %%% "scalactic" % version % Test
+          if (nonJVM) "org.scalactic" %% "scalactic" % version % Test
           else "org.scalactic" %% "scalactic" % version % Test
         }
         def scalatest(version: String, nonJVM: Boolean): ModuleID = {
-          if (nonJVM) "org.scalatest" %%% "scalatest" % version % Test
+          if (nonJVM) "org.scalatest" %% "scalatest" % version % Test
           else "org.scalatest" %% "scalatest" % version % Test
         }
         def scalacheck(version: String, nonJVM: Boolean): ModuleID = {
-          if (nonJVM) "org.scalacheck" %%% "scalacheck" % version % Test
+          if (nonJVM) "org.scalacheck" %% "scalacheck" % version % Test
           else "org.scalacheck" %% "scalacheck" % version % Test
         }
 

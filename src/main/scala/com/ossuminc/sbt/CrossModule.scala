@@ -1,68 +1,35 @@
 package com.ossuminc.sbt
 
-import sbt.*
-import sbt.Keys.*
-import sbtcrossproject.CrossPlugin.autoImport.{JVMCrossProjectOps, JVMPlatform}
-import sbtcrossproject.{CrossProject, CrossType, Platform}
-import scalajscrossproject.ScalaJSCrossPlugin.autoImport.*
-import scalanativecrossproject.ScalaNativeCrossPlugin.autoImport.*
-
-import scala.scalanative.sbtplugin.ScalaNativePlugin
-
-/** A CrossModule is a module that can be built for JVM, ScalaJS or Native execution. Use it like:
-  * {{{val my_project = CrossModule("dir_name", "module_name")(ScalaJS + JVM +
-  * Native).configure(...).settings(...) }}}
+/** STUB: cross-platform (JVM/JS/Native) modules are not yet wired on sbt 2.x.
+  *
+  * sbt 2 replaces the sbt-crossproject `crossProject` builder (and the
+  * portable-scala plugins) with the built-in `projectMatrix`. CrossModule will
+  * be reimplemented on `projectMatrix` in a follow-up — see NOTEBOOK.md
+  * "sbt 2.0 Migration Plan", Phase 1b. Until then, use `Module(...)` for
+  * JVM-only modules.
+  *
+  * The `Target` ADT and `JVM`/`JS`/`Native` values are kept so that
+  * `OssumIncPlugin.autoImport` and consumer build files still type-check.
   */
 object CrossModule {
-  sealed trait Target { def platform: Platform }
-  case object JVMTarget extends Target { def platform: Platform = JVMPlatform }
-  case object JSTarget extends Target { def platform: Platform = JSPlatform }
-  case object NativeTarget extends Target { def platform: Platform = NativePlatform }
+  sealed trait Target
+  case object JVMTarget extends Target
+  case object JSTarget extends Target
+  case object NativeTarget extends Target
 
-  /** Define a subproject or module of the root project. Make sure to use the [[Root]] function
-    * before this Module is defined. No configuration is applied, but you can do that by using the
-    * various With.* functions in this plugin. `With.typical` is typical for Scala3 development
-    * @param dirName
-    *   The name of the subdirectory in which the module is located.
-    * @param modName
-    *   The name of the artifact to be published. If blank, it will default to the dirName
-    * @return
-    *   The project that was created and configured.
+  // Backward-compatible aliases used via OssumIncPlugin.autoImport
+  val JVM: Target = JVMTarget
+  val JS: Target = JSTarget
+  val Native: Target = NativeTarget
+
+  /** Not yet available on sbt 2.x — fails fast with an explanatory message
+    * rather than producing a broken cross-build. Reimplementation tracked in
+    * NOTEBOOK Phase 1b (projectMatrix).
     */
-  def apply(dirName: String, modName: String = "")(targets: Target*): CrossProject = {
-    import org.scalajs.sbtplugin.ScalaJSPlugin
-    val mname = { if (modName.isEmpty) dirName else modName }
-    val cp2 = CrossProject(dirName, file(dirName))(targets.map(_.platform): _*)
-      .crossType(CrossType.Full)
-      .withoutSuffixFor(JVMPlatform)
-      .enablePlugins(OssumIncPlugin)
-      .settings(
-        name := dirName,
-        moduleName := mname
-      )
-
-    val cp3 =
-      if (targets.contains(CrossModule.JVMTarget)) {
-        if (targets.contains(CrossModule.JSTarget)) {
-          cp2.jvmSettings(
-            libraryDependencies += "org.scala-js" %% "scalajs-stubs" % "1.1.0" % "provided"
-          )
-        } else
-          cp2
-      } else
-        cp2
-    // Enable ScalaJS plugin for JS targets (dependencies are opt-in via helpers)
-    val cp4 =
-      if (targets.contains(CrossModule.JSTarget)) {
-        cp3.jsEnablePlugins(ScalaJSPlugin)
-      } else cp3
-    if (targets.contains(CrossModule.NativeTarget)) {
-      val cp = cp4.nativeEnablePlugins(ScalaNativePlugin)
-      if (targets.contains(CrossModule.JSTarget))
-        cp.nativeSettings(
-          libraryDependencies += "org.scala-js" %% "scalajs-stubs" % "1.1.0" % "provided"
-        )
-      else cp
-    } else cp4
-  }
+  def apply(dirName: String, modName: String = "")(targets: Target*): Nothing =
+    sys.error(
+      "CrossModule is not yet available on sbt 2.x: it is being reimplemented on " +
+        "the built-in projectMatrix (see NOTEBOOK 'sbt 2.0 Migration Plan', " +
+        "Phase 1b). Use Module(...) for JVM-only modules in the meantime."
+    )
 }

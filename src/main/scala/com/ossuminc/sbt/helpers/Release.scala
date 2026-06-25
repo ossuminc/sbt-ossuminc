@@ -144,14 +144,14 @@ object Release extends AutoPluginHelper {
   }
 
   def packagingSteps(artifactKinds: Seq[Keys.ArtifactKind]): Seq[ReleaseStep] = {
-    artifactKinds.map[ReleaseStep, Seq[ReleaseStep]] {
-      case Keys.ZipFileArtifact ⇒
+    artifactKinds.map[ReleaseStep] {
+      case Keys.ZipFileArtifact =>
         releaseStepCommand("Universal:packageBin")
-      case Keys.DebianServerArtifact ⇒
+      case Keys.DebianServerArtifact =>
         releaseStepCommand("deb:packageBin")
-      case Keys.RPMScalaServerArtifact ⇒
+      case Keys.RPMScalaServerArtifact =>
         releaseStepCommand("rpm:packageBin")
-      case Keys.DockerServerArtifact ⇒
+      case Keys.DockerServerArtifact =>
         releaseStepCommand("docker:stage")
       case Keys.WindowsArtifact =>
         releaseStepCommand("Windows:")

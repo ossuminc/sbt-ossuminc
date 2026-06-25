@@ -1,6 +1,5 @@
 package com.ossuminc.sbt.helpers
 
-import org.portablescala.sbtplatformdeps.PlatformDepsPlugin.autoImport.*
 import sbt.*
 import sbt.Keys.libraryDependencies
 
@@ -18,7 +17,7 @@ object Riddl extends AutoPluginHelper {
       libraryDependencies ++= {
         if (nonJVMDependency) {
           Seq(
-            "com.ossuminc" %%% "riddl-lib" % version
+            "com.ossuminc" %% "riddl-lib" % version
           )
         } else {
           Seq(
@@ -36,7 +35,7 @@ object Riddl extends AutoPluginHelper {
       libraryDependencies ++= {
         if (nonJVMDependency) {
           Seq(
-            "com.ossuminc" %%% "riddl-testkit" % version % Test
+            "com.ossuminc" %% "riddl-testkit" % version % Test
           )
         } else {
           Seq(

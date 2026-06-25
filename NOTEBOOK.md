@@ -116,16 +116,67 @@ sbt-scalajs-crossproject & sbt-scala-native-crossproject
       fix: exclude `scala-collection-compat_2.13` (a re-export plugin
       drags in 2.13 copies) — mirrors the existing scala-xml handling.
 
-**Phase 1 — Helper API migration (NEXT):**
-- [ ] Migrate ~15 helpers to Scala 3 + sbt 2 APIs (URL->URI,
-      HashedVirtualFileRef, Def.uncached).
-- [ ] Rewrite CrossModule -> projectMatrix; `%%%` -> `%%` in the 4
-      helpers above.
-- [ ] Replace GithubPublishing -> plain publishTo+Credentials;
-      SonatypePublishing -> native Central Portal.
-- [ ] Migrate v1.3/v1.4 packaging task code (caching/JsonFormat).
-- [ ] Re-enable scripted tests: cross, native, scalajs, laminar,
-      mima, publishing.
+**Phase 1a — Helper API migration: DONE (2026-06-25).**
+`sbt compile` is GREEN — all 42 sources build on sbt 2.0.0 / Scala
+3.8.4. Started at 69 errors, drove to 0.
+- [x] `%%%` -> `%%` in ScalaJS/Native/Laminar/Riddl/Scalatest/
+      ScalaJavaTime; dropped platform-deps imports.
+- [x] `URL` -> `URI` (RootProjectInfo/Root/Scala3); `import sbt.given`
+      for the (String,URI)->License conversion on `licenses`.
+- [x] sbt-header package `de.heikoseeberger.sbtheader` -> `sbtheader`.
+- [x] Classpath/file APIs (Miscellaneous, HandyAliases, Unidoc,
+      Packaging, Homebrew): FileConverter + HashedVirtualFileRef.
+- [x] BuildInfo: wrap bare keys with `BuildInfoKey(...)` (no implicit
+      conversion in 0.13.1 sbt2_3).
+- [x] `Def.uncached` for side-effecting / File-output tasks
+      (Scalafmt.update, unmanagedJars, externalResolvers, npm*,
+      linuxPackage, homebrewGenerate, ScalaJS scalacOptions).
+- [x] GithubPublishing -> plain publishTo+resolver+Credentials.
+- [x] MiMa: dropped tasty-mima, kept binary check.
+- [x] Release: unicode `⇒` -> `=>`, `.map[A]` arity.
+- [x] Removed apiMappings managed-dep scan from Unidoc (fragile under
+      virtual-file classpath; reinstate later if needed).
+
+Stubbed (with fail-fast/warn messages), deferred to later phases:
+- CrossModule -> throws (Phase 1b: projectMatrix rewrite).
+- IdeaPlugin -> fail-fast (sbt-idea-plugin blocked upstream).
+- SonatypePublishing -> fail-fast (Central Portal wiring TBD; verify
+      sona API — `localStaging`/`sonaRelease` not found in scanned jars).
+- Miscellaneous.useClassPathJar -> warn no-op (native-packager + IO.jar).
+
+**Phase 1b — CrossModule -> projectMatrix (NEXT, design pending):**
+- [ ] Design + implement projectMatrix-based CrossModule.
+- [ ] Re-enable/validate scripted tests: cross, native, scalajs, laminar.
+
+**Phase 1c — remaining validation & follow-ups:**
+- [ ] Run scripted tests; disable cross-platform ones until 1b.
+- [ ] Packaging runtime validation (npm/homebrew/linux) — compiles via
+      Def.uncached but not yet run on sbt 2.
+- [ ] SonatypePublishing: wire native Central Portal (sonaUpload/Release).
+- [ ] Reinstate Unidoc external apiMappings if wanted.
+
+### sbt 1.x -> 2.x migration learnings (reusable for riddl et al.)
+
+- Plugin artifacts: `_sbt2_3` suffix on Maven Central is the GA marker.
+- `url(...)` now returns `java.net.URI`. `homepage`/`organizationHomepage`/
+  `apiURL`/`licenses` take URI; `Resolver.url` still wants URL (`.toURL`).
+- `licenses` is `Seq[License]`; need `import sbt.given` for the
+  `(String, URI) -> License` conversion (wildcard `*` does NOT import givens).
+- `fullClasspath` is `Seq[Attributed[HashedVirtualFileRef]]`. `cp.files`
+  needs a `given xsbti.FileConverter = fileConverter.value` and returns
+  `Seq[Path]` (`.map(_.toFile)` for File). `PathFinder.classpath` likewise.
+  Convert a single ref via `fileConverter.value.toPath(ref).toFile`.
+- Tasks are cached by default: results need `sjsonnew.JsonFormat`/`HashWriter`
+  or wrap in `Def.uncached(...)`. `File`/`Path` are invalid cached-task
+  outputs entirely — use Def.uncached (or HashedVirtualFileRef).
+- sbt-buildinfo 0.13.1: no implicit SettingKey->BuildInfoKey; wrap with
+  `BuildInfoKey(key)` (also inside `BuildInfoKey.map(...)`).
+- sbt-header moved org `de.heikoseeberger` -> `com.github.sbt`; package
+  is now `sbtheader`.
+- Scala 3.8: unicode `⇒`/`←` removed; `x: _*` -> `x*`; `_` wildcard type
+  -> `?`; overloaded `apply` needs explicit return types (cyclic errors).
+- dependency-tree (MiniDependencyTreePlugin) and scripted are in core.
+- PathFinder `.get` -> `.get()`.
 
 **Phase 2 — Degrade blocked features gracefully:**
 - [ ] IdeaPlugin: documented stub (riddl-idea-plugin stays sbt 1.x).

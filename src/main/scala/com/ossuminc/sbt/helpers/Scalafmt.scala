@@ -32,7 +32,7 @@ object Scalafmt extends AutoPluginHelper {
       .enablePlugins(ScalafmtPlugin)
       .settings(
         Keys.putScalafmtConfETagsIn := scalafmt_config_etag_path,
-        update := {
+        update := Def.uncached {
           val log = streams.value.log
           updateFromPublicRepository(
             scalafmt_conf,

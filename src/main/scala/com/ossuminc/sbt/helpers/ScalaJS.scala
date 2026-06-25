@@ -4,7 +4,6 @@ import sbt.*
 import sbt.Keys.*
 import org.scalajs.sbtplugin.ScalaJSPlugin
 import org.scalajs.sbtplugin.ScalaJSPlugin.autoImport.*
-import org.portablescala.sbtplatformdeps.PlatformDepsPlugin.autoImport.*
 import org.scalajs.linker.interface.ModuleSplitStyle
 import com.github.sbt.git.GitPlugin.autoImport.git
 
@@ -42,7 +41,7 @@ object ScalaJS extends AutoPluginHelper {
       // .settings(ScalaJSPlugin.testConfigSettings) <-- generates undefined settings
       .settings(
         // For source maps in Scala - only if git commit and scmInfo are available
-        scalacOptions ++= {
+        scalacOptions ++= Def.uncached {
           (git.gitHeadCommit.value, scmInfo.value) match {
             case (Some(headCommit), Some(info)) =>
               // Map the sourcemaps to github paths instead of local directories
@@ -77,10 +76,10 @@ object ScalaJS extends AutoPluginHelper {
             .withJSHeader("// " + header + "\n")
         },
         libraryDependencies ++= Seq(
-          "io.github.cquiroz" %%% "scala-java-time" % scalaJavaTimeVersion,
-          "org.scalactic" %%% "scalactic" % scalatestVersion % "test",
-          "org.scalatest" %%% "scalatest" % scalatestVersion % "test",
-          "org.scalatest" %%% "scalatest-funspec" % scalatestVersion % "test"
+          "io.github.cquiroz" %% "scala-java-time" % scalaJavaTimeVersion,
+          "org.scalactic" %% "scalactic" % scalatestVersion % "test",
+          "org.scalatest" %% "scalatest" % scalatestVersion % "test",
+          "org.scalatest" %% "scalatest-funspec" % scalatestVersion % "test"
         )
       )
 
