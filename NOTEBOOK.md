@@ -149,11 +149,27 @@ Stubbed (with fail-fast/warn messages), deferred to later phases:
 - [ ] Re-enable/validate scripted tests: cross, native, scalajs, laminar.
 
 **Phase 1c — remaining validation & follow-ups:**
-- [ ] Run scripted tests; disable cross-platform ones until 1b.
+- [x] Scripted plumbing: all tests -> sbt.version 2.0.0; added the
+      scala-xml/scala-collection-compat _2.13 exclusion to each test
+      meta-build. `basic` PASSES under sbt 2 — validates publishLocal +
+      plugin load + Root/With.basic/With.BuildInfo + HandyAliases +
+      BuildInfo generation end-to-end.
+- [ ] Fix remaining JVM scripted tests' sbt-2 target-path assertions
+      (multi, program, scalatest, everything, mima, publishing,
+      packaging, asciidoc, docker-dual, homebrew). Pattern: replace
+      hardcoded `target/scala-2.12/...` with version-agnostic checks.
 - [ ] Packaging runtime validation (npm/homebrew/linux) — compiles via
       Def.uncached but not yet run on sbt 2.
 - [ ] SonatypePublishing: wire native Central Portal (sonaUpload/Release).
 - [ ] Reinstate Unidoc external apiMappings if wanted.
+
+**CONSUMER-FACING follow-up (important):** adding sbt-ossuminc to an
+sbt 2 build hits a transitive scala-xml/scala-collection-compat
+`_2.13` vs `_3` cross-version clash (a re-exported plugin drags in the
+2.13 copies). Today each consumer must add the exclusion. Fix at source:
+identify the culprit plugin(s) and `.exclude(...)` the 2.13 artifacts in
+the `addSbtPlugin` declarations so the published POM doesn't propagate
+them. Otherwise document the required exclusion in README.
 
 ### sbt 1.x -> 2.x migration learnings (reusable for riddl et al.)
 
