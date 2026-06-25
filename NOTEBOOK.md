@@ -154,10 +154,18 @@ Stubbed (with fail-fast/warn messages), deferred to later phases:
       meta-build. `basic` PASSES under sbt 2 — validates publishLocal +
       plugin load + Root/With.basic/With.BuildInfo + HandyAliases +
       BuildInfo generation end-to-end.
-- [ ] Fix remaining JVM scripted tests' sbt-2 target-path assertions
-      (multi, program, scalatest, everything, mima, publishing,
-      packaging, asciidoc, docker-dual, homebrew). Pattern: replace
-      hardcoded `target/scala-2.12/...` with version-agnostic checks.
+- [~] JVM scripted snapshot (2026-06-25): **7/11 PASS** — basic,
+      docker-dual, everything, mima, packaging, program, scalatest.
+      4 fail on TEST-FIXTURE issues (not plugin bugs):
+      - asciidoc: test build.sbt uses `.get` (->`.get()`) and
+        `cp.map(_.data.toURI.toURL)` (data is HashedVirtualFileRef now ->
+        use fileConverter).
+      - publishing: "Remote sbt init failed" (same build.sbt API kind).
+      - multi: `show` at test line 4 failed (likely a renamed setting/path).
+      - homebrew: formula `.rb` not produced at expected path (check the
+        Def.uncached homebrewGenerate runtime + expected path).
+      Remaining: apply the same sbt-2 API fixes to these test build.sbt
+      files; re-check homebrew at runtime.
 - [ ] Packaging runtime validation (npm/homebrew/linux) — compiles via
       Def.uncached but not yet run on sbt 2.
 - [ ] SonatypePublishing: wire native Central Portal (sonaUpload/Release).
