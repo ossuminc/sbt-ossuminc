@@ -14,63 +14,17 @@
  * limitations under the License.
  */
 
-// Generic plugins from github.sbt project
+// Plugins used to BUILD sbt-ossuminc itself (the meta-build). The full set
+// of plugins RE-EXPORTED to consumers is declared in build.sbt. Keep this
+// list minimal. See NOTEBOOK.md "sbt 2.0 Migration Plan" for rationale.
+//
+// sbt 2.x note: scripted-plugin and dependency-tree are now built into sbt
+// core, so no explicit dependency/addDependencyTreePlugin is required.
+
 addSbtPlugin("com.github.sbt" % "sbt-dynver" % "5.1.1")
-
-addSbtPlugin("com.github.sbt" % "sbt-native-packager" % "1.11.7")
-
-addSbtPlugin("com.github.sbt" % "sbt-git" % "2.1.0")
-
-addSbtPlugin("com.github.sbt" % "sbt-pgp" % "2.3.1")
-
-addSbtPlugin("com.github.sbt" % "sbt-release" % "1.4.0")
-
-addSbtPlugin("com.github.sbt" % "sbt-unidoc" % "0.6.1")
-
-addDependencyTreePlugin
-
-// Helpers from other sources
-addSbtPlugin("com.eed3si9n" % "sbt-buildinfo" % "0.13.1")
-
-addSbtPlugin("de.heikoseeberger" % "sbt-header" % "5.10.0")
-
-addSbtPlugin("com.timushev.sbt" % "sbt-updates" % "0.6.4")
-
-addSbtPlugin("org.xerial.sbt" % "sbt-sonatype" % "3.11.2")
-
-addSbtPlugin("com.codecommit" % "sbt-github-packages" % "0.5.3")
-
-addSbtPlugin("com.lightbend.paradox" % "sbt-paradox" % "0.10.7")
-
-// Scala specific from various places
-addSbtPlugin("ch.epfl.scala" % "sbt-scalafix" % "0.14.6")
-
 addSbtPlugin("org.scalameta" % "sbt-scalafmt" % "2.5.6")
 
-addSbtPlugin("org.scoverage" % "sbt-scoverage" % "2.4.4")
-
-addSbtPlugin("org.scoverage" % "sbt-coveralls" % "1.3.15")
-
-addSbtPlugin("org.scala-native" % "sbt-scala-native" % "0.5.11")
-
-addSbtPlugin("org.scala-js" % "sbt-scalajs" % "1.21.0")
-
-addSbtPlugin("org.portable-scala" % "sbt-scalajs-crossproject" % "1.3.2")
-
-addSbtPlugin("org.portable-scala" % "sbt-scala-native-crossproject" % "1.3.2")
-
-addSbtPlugin("org.portable-scala" % "sbt-platform-deps" % "1.0.2")
-
-addSbtPlugin("com.typesafe" % "sbt-mima-plugin" % "1.1.5")
-
-addSbtPlugin("ch.epfl.scala" % "sbt-tasty-mima" % "1.4.0")
-
-addSbtPlugin("org.jetbrains.scala" % "sbt-idea-plugin" % "5.1.0")
-
-libraryDependencies ++= Seq(
-  "org.scala-sbt" %% "scripted-plugin" % sbtVersion.value
-)
-
-// This removes a version conflict
+// Resolve a transitive scala-xml version conflict in the meta-build.
 ThisBuild / libraryDependencySchemes +=
   "org.scala-lang.modules" %% "scala-xml" % VersionScheme.Always
+ThisBuild / excludeDependencies += "org.scala-lang.modules" % "scala-xml_2.13"

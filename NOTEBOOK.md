@@ -13,9 +13,151 @@ to the task file and note completion in this notebook.
 
 ## Current Status
 
-**Version 1.3.5 released** (Feb 20, 2026). No active work items.
+**Active work: sbt 2.0 migration** on branch `feature/sbt2`
+(redo-fresh from `main` @ v1.4.0). Targeting **sbt 2.0.0 final**
+(released 2026-06-14) + Scala 3 (sbt-managed).
 
-Previous releases: v1.3.4, v1.3.3, v1.3.2, v1.3.0, v1.2.5.
+The released line v1.4.0 on `main` (sbt 1.x / Scala 2.12) keeps
+serving consumers that cannot move yet — notably riddl-idea-plugin,
+blocked on sbt-idea-plugin (see Blockers below).
+
+---
+
+## sbt 2.0 Migration Plan (feature/sbt2)
+
+### Reconciliation decision (2026-06-25)
+
+The original `feature/sbt2` branch (single commit `6043e4f`,
+"Migrate to sbt 2.0.0-RC8", forked from v1.2.5) was **deleted**.
+It predated the v1.3.x/v1.4.0 packaging features on `main` and was
+mostly *subtractive* — commenting out plugins that have since
+shipped sbt 2 builds. Rather than merge/rebase that stale work, we
+**redo the migration fresh on top of current `main`**, using
+`6043e4f` only as a reference.
+
+- Reference (Feb migration) saved to scratchpad:
+  `scratchpad/sbt2-reference/feb-migration-6043e4f.patch` + the full
+  migrated `src/main/scala` tree. Scratchpad is session-scoped; the
+  durable salvage list is below.
+- **Salvage** from `6043e4f` (still-valid sbt 2 API changes): remove
+  project/ symlink self-bootstrapping; add
+  `project/project/build.properties`; inline project metadata +
+  dynver + scriptedLaunchOpts in build.sbt; `URL`->`URI`; `Classpath`
+  -> `HashedVirtualFileRef` + `FileConverter`; `Def.uncached` where
+  no JsonFormat; sbt-buildinfo 0.13.1 key patterns.
+- **Discard** from `6043e4f`: the plugin comment-outs, the
+  CrossModule throw-stub, and the 9 disabled scripted tests (obsolete
+  now that the plugins ship for sbt 2).
+
+### Plugin categorization (vs Maven Central `_sbt2_3`, 2026-06)
+
+**A. Compatible — keep (some bumped):** sbt-dynver 5.1.1, sbt-git
+2.1.0, sbt-pgp 2.3.1, sbt-buildinfo 0.13.1, sbt-scalafmt 2.5.6,
+sbt-native-packager 1.11.7, sbt-scoverage 2.4.4, sbt-mima-plugin
+1.1.5->1.1.6, sbt-release 1.4.0->1.5.0, sbt-unidoc 0.6.1,
+sbt-scalafix 0.14.6->0.14.7, sbt-updates 0.6.4->0.7.0, sbt-scalajs
+1.21.0->1.22.0, sbt-scala-native 0.5.11->0.5.12.
+
+**B. Coordinate change:** sbt-header `de.heikoseeberger` ->
+`com.github.sbt` 5.11.0 (sbt org adopted it; old "5.11.0 breaks
+imports" note is moot under the new coordinate).
+
+**C. Removed — absorbed/obsoleted by sbt 2 core:**
+addDependencyTreePlugin (dependency-tree built in), scripted-plugin
+dep (bundled with SbtPlugin), sbt-projectmatrix (in core),
+sbt-platform-deps (core `%%` + `platform`, no more `%%%`),
+sbt-scalajs-crossproject & sbt-scala-native-crossproject
+(projectMatrix replaces crossProject).
+
+**C2. Removed — superseded (no sbt 2 build):** sbt-sonatype
+(deprecated; OSSRH sunset) -> native Central Portal
+(`sonaUpload`/`sonaRelease` + sbt-pgp); sbt-github-packages
+(abandoned) -> plain `publishTo` + Credentials.
+
+**D. BLOCKED — no sbt 2.0 artifact yet:** sbt-idea-plugin
+(JetBrains SCL-23480), sbt-coveralls, sbt-tasty-mima, sbt-paradox
+(only 0.11.0-M4 milestone).
+
+### Architecture changes
+
+- **Cross-building**: `projectMatrix` is now in sbt 2 core and
+  replaces `crossProject`. `CrossModule` must be rewritten from the
+  portable-scala crossProject builder to projectMatrix.
+- **Cross deps**: `%%%` is gone; core `%%` + a `platform` setting
+  cross-build JVM/JS/Native. Convert `%%%` -> `%%` in Riddl, Laminar,
+  Scalatest, ScalaJavaTime helpers.
+- **Backends still plugins**: sbt-scalajs / sbt-scala-native are
+  still required (now available for sbt 2).
+- Built into core now: dependency-tree, scripted.
+
+### Plugin-author code gotchas (sbt 1 -> sbt 2)
+
+1. Scala 3 mandatory; `import X._` -> `import X.given`.
+2. Virtual file APIs: `Classpath` is
+   `Seq[Attributed[HashedVirtualFileRef]]`; convert via
+   `toNioPaths`/`toFiles`.
+3. Task caching on by default: task results need an
+   `sjsonnew.JsonFormat` or must be wrapped in `Def.uncached(...)`
+   (will bite the npm/homebrew/linux/docker packaging tasks).
+4. Slash syntax only; bare settings apply to all subprojects;
+   `exportJars` defaults true; target/ layout changes.
+
+### Roadmap / status
+
+**Phase 0 — Reconcile branch (DONE 2026-06-25):**
+- [x] Delete stale branch+worktree; fresh feature/sbt2 from main.
+- [x] build.properties -> 2.0.0; add project/project/build.properties.
+- [x] Remove project/ symlinks (no self-bootstrap).
+- [x] Rewrite build.sbt (inline metadata) + re-export plugin list.
+- [x] Rewrite project/plugins.sbt (minimal meta-build).
+- [x] Pin scalaVersion := "3.8.4" (Scala version sbt 2.0.0 ships).
+- [x] VERIFIED: `sbt update` green (exit 0). sbt 2.0.0 boots, metabuild
+      loads, all 15 re-exported plugins resolve for sbt 2. Needed one
+      fix: exclude `scala-collection-compat_2.13` (a re-export plugin
+      drags in 2.13 copies) — mirrors the existing scala-xml handling.
+
+**Phase 1 — Helper API migration (NEXT):**
+- [ ] Migrate ~15 helpers to Scala 3 + sbt 2 APIs (URL->URI,
+      HashedVirtualFileRef, Def.uncached).
+- [ ] Rewrite CrossModule -> projectMatrix; `%%%` -> `%%` in the 4
+      helpers above.
+- [ ] Replace GithubPublishing -> plain publishTo+Credentials;
+      SonatypePublishing -> native Central Portal.
+- [ ] Migrate v1.3/v1.4 packaging task code (caching/JsonFormat).
+- [ ] Re-enable scripted tests: cross, native, scalajs, laminar,
+      mima, publishing.
+
+**Phase 2 — Degrade blocked features gracefully:**
+- [ ] IdeaPlugin: documented stub (riddl-idea-plugin stays sbt 1.x).
+- [ ] ScalaCoverage: keep scoverage, drop coveralls upload.
+- [ ] MiMa: keep binary check, drop tasty-mima.
+- [ ] DocSite/paradox: use 0.11.0-M4 milestone or defer.
+
+**Phase 3 — Watch upstream:** sbt-idea-plugin (SCL-23480),
+sbt-coveralls, sbt-tasty-mima, stable sbt-paradox.
+
+### Blockers
+
+- **sbt-idea-plugin** (hard): no sbt 2 artifact; blocks the
+  `IdeaPlugin` helper and the **riddl-idea-plugin** consumer
+  entirely. Track JetBrains SCL-23480.
+- sbt-coveralls, sbt-tasty-mima: no sbt 2 build (graceful degrade).
+- sbt-paradox: only milestone 0.11.0-M4.
+
+### Strategic decision (2026-06-25): sbt-2-only (new major)
+
+feature/sbt2 ships as a **clean sbt-2-only** new major version.
+Consumers migrate to sbt 2 or pin the last sbt 1.x release (v1.4.0 on
+`main`). riddl-idea-plugin stays on v1.4.0 until sbt-idea-plugin ships
+an sbt 2 build (SCL-23480). This frees the helper code to use sbt 2
+APIs directly — no sbt2-compat dual-compilation layer.
+
+---
+
+### Prior release status
+
+**v1.4.0** latest tag on `main`. Previous: v1.3.5 (Feb 20, 2026),
+v1.3.4, v1.3.3, v1.3.2, v1.3.0, v1.2.5.
 
 ## Work Completed (Recent)
 
@@ -344,6 +486,11 @@ Create `examples/` with working `build.sbt` files:
 
 | Decision | Rationale | Date |
 |----------|-----------|------|
+| sbt-2-only new major (not dual-publish) | Simpler code; consumers pin v1.4.0 if not ready; idea-plugin blocked anyway | 2026-06-25 |
+| Redo sbt 2 migration fresh on main (not merge old branch) | Feb branch was subtractive + predated v1.3/v1.4 features | 2026-06-25 |
+| Drop sbt-sonatype + sbt-github-packages for sbt 2 | No sbt 2 builds; use native Central Portal + plain publishTo | 2026-06-25 |
+| CrossModule -> projectMatrix (sbt 2 core) | crossProject/portable-scala plugins have no sbt 2 builds | 2026-06-25 |
+| No project/ symlink self-bootstrap in sbt 2 build | Scala 3 metabuild + new file APIs make it impractical | 2026-06-25 |
 | Delegation pattern for new helpers | Keeps API at `With.Packaging.npm()` not `With.NpmPackaging` | 2026-02-03 |
 | `fullOptJS` for npm packaging | Closure Compiler optimization needed; not deprecated | 2026-02-03 |
 | `Def.task` for variant selection | sbt `.value` macro resolves all refs in task body | 2026-02-03 |
