@@ -31,11 +31,13 @@ object Plugin {
       .apply(dirName, file(dirName))
       .enablePlugins(OssumIncPlugin, SbtPlugin, JavaAppPackaging)
       .disablePlugins(ScoverageSbtPlugin)
-      .configure(With.basic, With.Scala2, helpers.Scalafmt, With.SonatypePublishing)
+      // sbt 2.x: plugins compile with Scala 3 (managed by SbtPlugin, not 2.12),
+      // and publish to GitHub Packages (SonatypePublishing is not yet wired for
+      // sbt 2 — see SonatypePublishing).
+      .configure(With.basic, helpers.Scalafmt, With.GithubPublishing)
       .settings(
         name := dirName,
         moduleName := { if (modName.isEmpty) dirName else modName },
-        scalaVersion := "2.12.19",
         sbtPlugin := true,
         scriptedLaunchOpts := {
           scriptedLaunchOpts.value ++ Seq("-Xmx1024M", "-Dplugin.version=" + version.value)

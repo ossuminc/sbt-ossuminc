@@ -1,5 +1,6 @@
 # Test Publishing helper configuration
-# Verify GitHub publishing is configured (default)
+# Verify GitHub publishing is configured (default).
+# sbt 2.x: GithubPublishing uses plain publishTo (the old sbt-github-packages
+# githubOwner/githubRepository keys no longer exist).
 > show publishTo
-> show githubOwner
-> show githubRepository
+> show resolvers

@@ -154,18 +154,20 @@ Stubbed (with fail-fast/warn messages), deferred to later phases:
       meta-build. `basic` PASSES under sbt 2 — validates publishLocal +
       plugin load + Root/With.basic/With.BuildInfo + HandyAliases +
       BuildInfo generation end-to-end.
-- [~] JVM scripted snapshot (2026-06-25): **7/11 PASS** — basic,
-      docker-dual, everything, mima, packaging, program, scalatest.
-      4 fail on TEST-FIXTURE issues (not plugin bugs):
-      - asciidoc: test build.sbt uses `.get` (->`.get()`) and
-        `cp.map(_.data.toURI.toURL)` (data is HashedVirtualFileRef now ->
-        use fileConverter).
-      - publishing: "Remote sbt init failed" (same build.sbt API kind).
-      - multi: `show` at test line 4 failed (likely a renamed setting/path).
-      - homebrew: formula `.rb` not produced at expected path (check the
-        Def.uncached homebrewGenerate runtime + expected path).
-      Remaining: apply the same sbt-2 API fixes to these test build.sbt
-      files; re-check homebrew at runtime.
+- [x] JVM scripted suite: **11/11 PASS** on sbt 2.0.0 (2026-06-25).
+      First snapshot was 7/11; the 4 failures were fixed:
+      - asciidoc (fixture): `.get`->`.get()`; `cp.map(_.data.toURI.toURL)`
+        -> `cp.files.map(_.toUri.toURL)` with a given FileConverter; the two
+        reflection tasks wrapped in Def.uncached.
+      - publishing (fixture): test referenced removed sbt-github-packages
+        keys githubOwner/githubRepository -> now `show publishTo`/`resolvers`.
+      - homebrew (fixture): dropped the hardcoded `$ exists app/target/...`
+        (sbt 2 layout is target/out/jvm/...); checkFormula uses target.value.
+      - **multi (REAL plugin bug)**: `Plugin()` helper forced With.Scala2 +
+        scalaVersion 2.12.19 + With.SonatypePublishing. Fixed -> Scala 3
+        (SbtPlugin-managed) + With.GithubPublishing. sbt 2 plugins are Scala 3.
+      Passing JVM tests: basic, asciidoc, docker-dual, everything, homebrew,
+      mima, multi, packaging, program, publishing, scalatest.
 - [ ] Packaging runtime validation (npm/homebrew/linux) — compiles via
       Def.uncached but not yet run on sbt 2.
 - [ ] SonatypePublishing: wire native Central Portal (sonaUpload/Release).

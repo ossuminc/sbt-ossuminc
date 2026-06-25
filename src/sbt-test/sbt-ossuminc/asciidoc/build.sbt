@@ -20,7 +20,8 @@ lazy val root = Root("asciidoc-test", startYr = 2024)
       println("AsciiDoc dependencies verified successfully")
     },
     // Custom task to generate PDF from AsciiDoc using AsciidoctorJ
-    TaskKey[Unit]("generatePdf") := {
+    TaskKey[Unit]("generatePdf") := Def.uncached {
+      given xsbti.FileConverter = fileConverter.value
       val cp = (Compile / dependencyClasspath).value
       val log = streams.value.log
       val srcDir = baseDirectory.value / "src" / "asciidoc"
@@ -28,11 +29,11 @@ lazy val root = Root("asciidoc-test", startYr = 2024)
 
       if (!outDir.exists()) Files.createDirectories(outDir.toPath)
 
-      val adocFiles = (srcDir ** "*.adoc").get
+      val adocFiles = (srcDir ** "*.adoc").get()
       require(adocFiles.nonEmpty, s"No .adoc files found in $srcDir")
 
       val asciidoctor = Class.forName("org.asciidoctor.Asciidoctor$Factory", true,
-        new java.net.URLClassLoader(cp.map(_.data.toURI.toURL).toArray, null))
+        new java.net.URLClassLoader(cp.files.map(_.toUri.toURL).toArray, null))
         .getMethod("create")
         .invoke(null)
 
@@ -59,7 +60,8 @@ lazy val root = Root("asciidoc-test", startYr = 2024)
       log.success(s"PDF generation complete. Output in: $outDir")
     },
     // Custom task to generate HTML from AsciiDoc
-    TaskKey[Unit]("generateSite") := {
+    TaskKey[Unit]("generateSite") := Def.uncached {
+      given xsbti.FileConverter = fileConverter.value
       val cp = (Compile / dependencyClasspath).value
       val log = streams.value.log
       val srcDir = baseDirectory.value / "src" / "asciidoc"
@@ -67,11 +69,11 @@ lazy val root = Root("asciidoc-test", startYr = 2024)
 
       if (!outDir.exists()) Files.createDirectories(outDir.toPath)
 
-      val adocFiles = (srcDir ** "*.adoc").get
+      val adocFiles = (srcDir ** "*.adoc").get()
       require(adocFiles.nonEmpty, s"No .adoc files found in $srcDir")
 
       val asciidoctor = Class.forName("org.asciidoctor.Asciidoctor$Factory", true,
-        new java.net.URLClassLoader(cp.map(_.data.toURI.toURL).toArray, null))
+        new java.net.URLClassLoader(cp.files.map(_.toUri.toURL).toArray, null))
         .getMethod("create")
         .invoke(null)
 
@@ -100,7 +102,7 @@ lazy val root = Root("asciidoc-test", startYr = 2024)
     // Task to verify PDF output exists
     TaskKey[Unit]("checkPdfOutput") := {
       val outDir = target.value / "asciidoc-pdf"
-      val pdfFiles = (outDir ** "*.pdf").get
+      val pdfFiles = (outDir ** "*.pdf").get()
       require(pdfFiles.nonEmpty, s"No PDF files found in $outDir")
       pdfFiles.foreach { f =>
         println(s"Found PDF: ${f.getName} (${f.length()} bytes)")
@@ -110,7 +112,7 @@ lazy val root = Root("asciidoc-test", startYr = 2024)
     // Task to verify HTML output exists
     TaskKey[Unit]("checkSiteOutput") := {
       val outDir = target.value / "asciidoc-site"
-      val htmlFiles = (outDir ** "*.html").get
+      val htmlFiles = (outDir ** "*.html").get()
       require(htmlFiles.nonEmpty, s"No HTML files found in $outDir")
       htmlFiles.foreach { f =>
         println(s"Found HTML: ${f.getName} (${f.length()} bytes)")
