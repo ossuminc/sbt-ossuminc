@@ -51,9 +51,12 @@ lazy val `sbt-ossuminc` = project
     sbtPlugin := true,
     scalaVersion := "3.8.4", // matches the Scala version sbt 2.0.0 ships
 
-    // Dynamic versioning (was DynamicVersioning helper)
-    dynverSeparator := "-",
-    dynverVTagPrefix := false,
+    // Dynamic versioning (was DynamicVersioning helper). These MUST be at
+    // ThisBuild scope: sbt-dynver computes ThisBuild/version using the ThisBuild
+    // values. At project scope they are ignored, dynver defaults to expecting a
+    // "v" tag prefix, and a tag like "2.0.0" is not matched (-> 0.0.0+<n> fallback).
+    ThisBuild / dynverSeparator := "-",
+    ThisBuild / dynverVTagPrefix := false,
 
     // Scripted == sbt plugin tests
     scriptedLaunchOpts := {
