@@ -21,6 +21,15 @@ The released line v1.4.0 on `main` (sbt 1.x / Scala 2.12) keeps
 serving consumers that cannot move yet — notably riddl-idea-plugin,
 blocked on sbt-idea-plugin (see Blockers below).
 
+**MILESTONE (2026-06-26): the plugin compiles AND the entire scripted
+suite passes on sbt 2.0.0 — 18 tests green, 1 disabled.**
+Green: akka, asciidoc, basic, cross, docker-dual, everything, homebrew,
+laminar, linux-packaging, mima, multi, native, npm-packaging, packaging,
+program, publishing, scalajs, scalatest. Disabled: idea-plugin (blocked
+on sbt-idea-plugin; `test` renamed to `test.disabled`). Phases 0, 1a, 1b
+and scripted validation are complete; remaining work is finalization
+(Central Portal publishing, README refresh, release).
+
 ---
 
 ## sbt 2.0 Migration Plan (feature/sbt2)
