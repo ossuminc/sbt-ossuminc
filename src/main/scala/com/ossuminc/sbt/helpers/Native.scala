@@ -48,6 +48,10 @@ object Native extends AutoPluginHelper {
     project
       .enablePlugins(ScalaNativePlugin)
       .settings(
+        // scalatest-core_native (3.2.19) pins an older scala-native test-interface
+        // than the active scala-native; downgrade strict eviction to a warning so
+        // the newer, compatible test-interface is selected.
+        evictionErrorLevel := Level.Warn,
         // set to Debug for compilation details (Info is default)
         logLevel := {
           if (debugLog) { Level.Debug }

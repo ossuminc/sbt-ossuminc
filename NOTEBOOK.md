@@ -144,9 +144,22 @@ Stubbed (with fail-fast/warn messages), deferred to later phases:
       sona API — `localStaging`/`sonaRelease` not found in scanned jars).
 - Miscellaneous.useClassPathJar -> warn no-op (native-packager + IO.jar).
 
-**Phase 1b — CrossModule -> projectMatrix (NEXT, design pending):**
-- [ ] Design + implement projectMatrix-based CrossModule.
-- [ ] Re-enable/validate scripted tests: cross, native, scalajs, laminar.
+**Phase 1b — CrossModule -> projectMatrix: DONE (2026-06-26).**
+- [x] CrossModule reimplemented on sbt 2's built-in `projectMatrix` as an
+      immutable lazy builder: `CrossModule(dir, mod, scalaVersion=3.3.7)(targets*)`
+      with `.configure`/`.settings` (all platforms), `.jvmConfigure`/`.jsConfigure`/
+      `.nativeConfigure` (per platform), and `.jvm`/`.js`/`.native` accessors
+      (resolve `matrix.jvm.apply(scalaVersion)`). scalaVersion is an apply() arg
+      (projectMatrix needs it at platform-declaration time + to resolve rows).
+      Consumer API is unchanged from the sbt 1.x cross test — no edits needed.
+- [x] Native eviction fix: scalatest-core_native (3.2.19) pins an older
+      scala-native test-interface than scala-native 0.5.12 -> strict eviction
+      error. Set `evictionErrorLevel := Level.Warn` in BOTH the Native helper
+      (standalone With.Native) and CrossModule's native platform (cross modules
+      using With.typical, which don't apply With.Native).
+- [x] Validated: cross, scalajs, native, laminar scripted tests PASS on sbt 2.
+      (scalajs/native/laminar use single-platform Module/Root/Program +
+      With.ScalaJS/Native/Laminar, not CrossModule.)
 
 **Phase 1c — remaining validation & follow-ups:**
 - [x] Scripted plumbing: all tests -> sbt.version 2.0.0; added the
