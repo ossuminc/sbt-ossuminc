@@ -173,13 +173,15 @@ Stubbed (with fail-fast/warn messages), deferred to later phases:
 - [ ] SonatypePublishing: wire native Central Portal (sonaUpload/Release).
 - [ ] Reinstate Unidoc external apiMappings if wanted.
 
-**CONSUMER-FACING follow-up (important):** adding sbt-ossuminc to an
-sbt 2 build hits a transitive scala-xml/scala-collection-compat
-`_2.13` vs `_3` cross-version clash (a re-exported plugin drags in the
-2.13 copies). Today each consumer must add the exclusion. Fix at source:
-identify the culprit plugin(s) and `.exclude(...)` the 2.13 artifacts in
-the `addSbtPlugin` declarations so the published POM doesn't propagate
-them. Otherwise document the required exclusion in README.
+**CONSUMER-FACING clash — RESOLVED (2026-06-25).** Adding sbt-ossuminc
+to an sbt 2 build hit a transitive scala-xml/scala-collection-compat
+`_2.13` vs `_3` cross-version clash. The plugin's own direct deps are
+clean (`_3` only); the `_2.13` came from a deep transitive that only
+surfaces in a consumer meta-build. Fix at source: a `reexport(m)` helper
+in build.sbt `.exclude`s `scala-xml_2.13` + `scala-collection-compat_2.13`
+from every re-exported `addSbtPlugin`, so sbt-ossuminc's published POM
+carries the exclusions and consumers inherit them automatically. Verified:
+all 11 JVM scripted tests pass with NO per-consumer exclusion.
 
 ### sbt 1.x -> 2.x migration learnings (reusable for riddl et al.)
 

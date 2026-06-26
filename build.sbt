@@ -87,21 +87,31 @@ lazy val `sbt-ossuminc` = project
 // Versions verified to have sbt 2.0 (_sbt2_3) artifacts on Maven Central as of
 // 2026-06. See NOTEBOOK.md "sbt 2.0 Migration Plan" for the full categorization.
 // ============================================================================
-addSbtPlugin("com.github.sbt" % "sbt-dynver" % "5.1.1")
-addSbtPlugin("com.github.sbt" % "sbt-native-packager" % "1.11.7")
-addSbtPlugin("com.github.sbt" % "sbt-git" % "2.1.0")
-addSbtPlugin("com.github.sbt" % "sbt-pgp" % "2.3.1")
-addSbtPlugin("com.github.sbt" % "sbt-release" % "1.5.0")
-addSbtPlugin("com.github.sbt" % "sbt-unidoc" % "0.6.1")
-addSbtPlugin("com.eed3si9n" % "sbt-buildinfo" % "0.13.1")
-addSbtPlugin("com.github.sbt" % "sbt-header" % "5.11.0") // org moved from de.heikoseeberger
-addSbtPlugin("com.timushev.sbt" % "sbt-updates" % "0.7.0")
-addSbtPlugin("ch.epfl.scala" % "sbt-scalafix" % "0.14.7")
-addSbtPlugin("org.scalameta" % "sbt-scalafmt" % "2.5.6")
-addSbtPlugin("org.scoverage" % "sbt-scoverage" % "2.4.4")
-addSbtPlugin("org.scala-native" % "sbt-scala-native" % "0.5.12")
-addSbtPlugin("org.scala-js" % "sbt-scalajs" % "1.22.0")
-addSbtPlugin("com.typesafe" % "sbt-mima-plugin" % "1.1.6")
+// sbt 2 transition shield: a few re-exported plugins still drag in the Scala
+// 2.13 copies of scala-xml / scala-collection-compat via deep transitives,
+// which clash with the Scala 3 metabuild ("Conflicting cross-version suffixes").
+// Excluding the _2.13 variants here bakes the exclusions into sbt-ossuminc's
+// published POM, so CONSUMERS inherit them and don't each have to add the
+// exclusion to their own project/plugins.sbt. (The _3 variants still resolve.)
+def reexport(m: ModuleID): ModuleID =
+  m.exclude("org.scala-lang.modules", "scala-xml_2.13")
+    .exclude("org.scala-lang.modules", "scala-collection-compat_2.13")
+
+addSbtPlugin(reexport("com.github.sbt" % "sbt-dynver" % "5.1.1"))
+addSbtPlugin(reexport("com.github.sbt" % "sbt-native-packager" % "1.11.7"))
+addSbtPlugin(reexport("com.github.sbt" % "sbt-git" % "2.1.0"))
+addSbtPlugin(reexport("com.github.sbt" % "sbt-pgp" % "2.3.1"))
+addSbtPlugin(reexport("com.github.sbt" % "sbt-release" % "1.5.0"))
+addSbtPlugin(reexport("com.github.sbt" % "sbt-unidoc" % "0.6.1"))
+addSbtPlugin(reexport("com.eed3si9n" % "sbt-buildinfo" % "0.13.1"))
+addSbtPlugin(reexport("com.github.sbt" % "sbt-header" % "5.11.0")) // org moved from de.heikoseeberger
+addSbtPlugin(reexport("com.timushev.sbt" % "sbt-updates" % "0.7.0"))
+addSbtPlugin(reexport("ch.epfl.scala" % "sbt-scalafix" % "0.14.7"))
+addSbtPlugin(reexport("org.scalameta" % "sbt-scalafmt" % "2.5.6"))
+addSbtPlugin(reexport("org.scoverage" % "sbt-scoverage" % "2.4.4"))
+addSbtPlugin(reexport("org.scala-native" % "sbt-scala-native" % "0.5.12"))
+addSbtPlugin(reexport("org.scala-js" % "sbt-scalajs" % "1.22.0"))
+addSbtPlugin(reexport("com.typesafe" % "sbt-mima-plugin" % "1.1.6"))
 
 // ----------------------------------------------------------------------------
 // Dropped for sbt 2.0 (see NOTEBOOK.md "sbt 2.0 Migration Plan"):
