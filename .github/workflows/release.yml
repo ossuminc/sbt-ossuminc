@@ -45,7 +45,8 @@ jobs:
       - name: Collect Artifacts
         run: |
           mkdir -p staging
-          cp target/scala-2.12/sbt-1.0/sbt-ossuminc-*.jar staging/
+          # sbt 2 target layout: target/out/jvm/scala-<v>/sbt-ossuminc/sbt-ossuminc_sbt2_3-*.jar
+          cp target/out/jvm/scala-*/sbt-ossuminc/sbt-ossuminc_sbt2_3-*.jar staging/
           ls -la staging/
 
       - name: Upload Artifacts to Release

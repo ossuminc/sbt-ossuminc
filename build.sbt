@@ -78,7 +78,23 @@ lazy val `sbt-ossuminc` = project
     excludeDependencies ++= Seq(
       "org.scala-lang.modules" % "scala-xml_2.13",
       "org.scala-lang.modules" % "scala-collection-compat_2.13"
-    )
+    ),
+
+    // Publish to GitHub Packages. On sbt 1.x this was done via
+    // .configure(GithubPublishing) through project/ self-bootstrapping, which is
+    // removed on sbt 2, so it is inlined here. Credentials come from GITHUB_TOKEN
+    // (CI) or the global ~/.sbt/2/github.sbt file (local).
+    publishMavenStyle := true,
+    publishTo := Some(
+      "GitHub Packages" at "https://maven.pkg.github.com/ossuminc/sbt-ossuminc"
+    ),
+    credentials ++= {
+      val token = sys.env.get("GITHUB_TOKEN").orElse(sys.props.get("github.token"))
+      val user = sys.env.getOrElse("GITHUB_ACTOR", "_")
+      token
+        .map(t => Credentials("GitHub Package Registry", "maven.pkg.github.com", user, t))
+        .toSeq
+    }
   )
 
 // ============================================================================
