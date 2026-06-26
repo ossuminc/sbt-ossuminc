@@ -165,7 +165,14 @@ object Release extends AutoPluginHelper {
       commitNextVersion
     ) ++ {
       if (releaseOSS) {
-        Seq[ReleaseStep](releaseStepCommand("sonatypeReleaseAll"))
+        // sbt 2 native Central Portal replaces the old sbt-sonatype
+        // `sonatypeReleaseAll`: upload the staged bundle, then release it.
+        // NOTE: for Central Portal the publish step must produce signed
+        // artifacts (publishSigned) — configure signing when releasing to OSS.
+        Seq[ReleaseStep](
+          releaseStepCommand("sonaUpload"),
+          releaseStepCommand("sonaRelease")
+        )
       } else {
         Seq.empty[ReleaseStep]
       }

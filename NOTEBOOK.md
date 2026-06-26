@@ -22,13 +22,13 @@ serving consumers that cannot move yet — notably riddl-idea-plugin,
 blocked on sbt-idea-plugin (see Blockers below).
 
 **MILESTONE (2026-06-26): the plugin compiles AND the entire scripted
-suite passes on sbt 2.0.0 — 18 tests green, 1 disabled.**
-Green: akka, asciidoc, basic, cross, docker-dual, everything, homebrew,
-laminar, linux-packaging, mima, multi, native, npm-packaging, packaging,
-program, publishing, scalajs, scalatest. Disabled: idea-plugin (blocked
-on sbt-idea-plugin; `test` renamed to `test.disabled`). Phases 0, 1a, 1b
-and scripted validation are complete; remaining work is finalization
-(Central Portal publishing, README refresh, release).
+suite passes on sbt 2.0.0 — 20 tests green, 1 disabled.**
+Green: akka, asciidoc, basic, cross, docker-dual, everything,
+github-publishing, homebrew, laminar, linux-packaging, mima, multi, native,
+npm-packaging, packaging, program, publishing, scalajs, scalatest, sonatype.
+Disabled: idea-plugin (blocked on sbt-idea-plugin; `test` -> `test.disabled`).
+Phases 0, 1a, 1b, scripted validation, and Central Portal publishing are
+complete; remaining finalization is README refresh + release.
 
 ---
 
@@ -192,7 +192,14 @@ Stubbed (with fail-fast/warn messages), deferred to later phases:
       mima, multi, packaging, program, publishing, scalatest.
 - [ ] Packaging runtime validation (npm/homebrew/linux) — compiles via
       Def.uncached but not yet run on sbt 2.
-- [ ] SonatypePublishing: wire native Central Portal (sonaUpload/Release).
+- [x] SonatypePublishing: wired to sbt 2 native Central Portal (2026-06-26).
+      publishTo -> central-snapshots repo (snapshots) / `localStaging` (releases).
+      Release flow: `publishSigned ; sonaUpload ; sonaRelease`. Credentials from
+      SONATYPE_USERNAME/PASSWORD env (CI) or ~/.sbt/sonatype_central_credentials
+      (local), read natively by sbt 2. Release helper's OSS step now uses
+      sonaUpload+sonaRelease (was the removed sbt-sonatype `sonatypeReleaseAll`).
+      New scripted tests added: `sonatype` (release+snapshot publishTo) and
+      `github-publishing` (the default path for all ossuminc projects).
 - [ ] Reinstate Unidoc external apiMappings if wanted.
 
 **CONSUMER-FACING clash — RESOLVED (2026-06-25).** Adding sbt-ossuminc

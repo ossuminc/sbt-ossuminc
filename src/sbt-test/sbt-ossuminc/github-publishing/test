@@ -1,0 +1,3 @@
+# Verify GitHub Packages publishing configuration.
+# (GitHub Packages is the default publishing path for all ossuminc projects.)
+> checkGithubPublishing

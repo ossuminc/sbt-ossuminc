@@ -1,0 +1,4 @@
+# Verify Sonatype Central Portal publishing configuration (sbt 2 native).
+> compile
+> rel/checkSonatypeRelease
+> snap/checkSonatypeSnapshot

@@ -18,28 +18,62 @@ package com.ossuminc.sbt.helpers
 
 import sbt.*
 import sbt.Keys.*
+import com.ossuminc.sbt.helpers.RootProjectInfo.Keys.{gitHubOrganization, gitHubRepository}
 
-/** Publishing to Maven Central via Sonatype.
+/** Configure publishing to Maven Central via the Sonatype **Central Portal**.
   *
-  * sbt 2.x note: the `sbt-sonatype` plugin was deprecated by its author (OSSRH
-  * was sunset) and has no sbt 2.0 GA build. Maven Central now uses the Central
-  * Portal, whose upload workflow is not yet wired into sbt-ossuminc for sbt 2.
-  * Until that follow-up lands, use `With.GithubPublishing`. See NOTEBOOK.md
-  * "sbt 2.0 Migration Plan".
+  * sbt 2.x ships native Central Portal support, so this helper does not use the
+  * (deprecated) `sbt-sonatype` plugin. The legacy OSSRH host was sunset; Central
+  * Portal is the current path:
+  *
+  *   - **snapshots** (`-SNAPSHOT` versions) publish to the Central snapshots repo;
+  *   - **releases** publish to the built-in `localStaging` resolver, which stages
+  *     a deployment bundle that `sonaUpload` then sends to the Central Portal.
+  *
+  * Release flow once configured (and after PGP signing is set up):
+  * {{{
+  *   sbt publishSigned sonaUpload sonaRelease
+  * }}}
+  * `publishSigned` comes from sbt-pgp (re-exported by this plugin). `sonaUpload`
+  * and `sonaRelease` are sbt 2 built-in commands.
+  *
+  * Credentials are read by sbt 2 natively from either the `SONATYPE_USERNAME` /
+  * `SONATYPE_PASSWORD` environment variables (CI) or
+  * `~/.sbt/sonatype_central_credentials` (local), so this helper does not set
+  * `credentials` itself. PGP signing keys come from `PGP_SECRET` /
+  * `PGP_PASSPHRASE` (CI) or the local GPG keyring.
+  *
+  * @note Do not combine with [[GithubPublishing]].
   */
 object SonatypePublishing extends AutoPluginHelper {
 
-  object Keys {
-    val sonatypeServer: SettingKey[String] = settingKey[String](
-      "Deprecated on sbt 2.x; Maven Central now uses the Central Portal."
+  /** The Central Portal snapshots repository. */
+  private val centralSnapshots =
+    "https://central.sonatype.com/repository/maven-snapshots/"
+
+  def apply(project: Project): Project = {
+    project.settings(
+      publishMavenStyle := true,
+      pomIncludeRepository := { _ => false },
+      Test / publishArtifact := false,
+      publishTo := {
+        if (isSnapshot.value) Some("central-snapshots" at centralSnapshots)
+        else localStaging.value
+      },
+      scmInfo := {
+        val org = RootProjectInfo.requireConfigured(
+          gitHubOrganization.value, "gitHubOrganization", "SonatypePublishing"
+        )
+        val repo = RootProjectInfo.requireConfigured(
+          gitHubRepository.value, "gitHubRepository", "SonatypePublishing"
+        )
+        Some(
+          ScmInfo(
+            url(s"https://github.com/$org/$repo"),
+            s"scm:git:https://github.com/$org/$repo.git"
+          )
+        )
+      }
     )
   }
-
-  /** Not yet available on sbt 2.x — fails fast with an explanatory message. */
-  def apply(project: Project): Project = sys.error(
-    "With.SonatypePublishing is not yet available on sbt 2.x: sbt-sonatype is " +
-      "deprecated (OSSRH sunset) and Central Portal publishing is not yet wired " +
-      "into sbt-ossuminc for sbt 2. Use With.GithubPublishing, or publish to " +
-      "Maven Central manually, until this is implemented."
-  )
 }
