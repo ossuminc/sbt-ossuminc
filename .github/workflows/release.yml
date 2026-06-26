@@ -40,7 +40,8 @@ jobs:
         uses: coursier/cache-action@v6
 
       - name: Build, Test, and Publish
-        run: sbt -v clean test publish
+        # sbt 2 parses CLI args as one command line; use ;-separated commands.
+        run: sbt -v "; clean; test; publish"
 
       - name: Collect Artifacts
         run: |
