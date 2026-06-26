@@ -30,7 +30,12 @@ publishing, scalajs, scalatest, sonatype. The idea-plugin scripted test was
 **removed** (the feature is unavailable on sbt 2; restore from git history
 when JetBrains ships sbt-idea-plugin for sbt 2 — SCL-23480). Phases 0/1a/1b,
 scripted validation, Central Portal publishing, and the README refresh are
-all complete. Merged feature/sbt2 -> main and tagged 2.0.0.
+all complete. Merged feature/sbt2 -> main, tagged 2.0.0, and **published
+`sbt-ossuminc_sbt2_3` 2.0.0 to GitHub Packages** via the release workflow.
+
+NOTE: two junk versions (`0.0.0+225-...`, `0.0.0+226-...`) from the initial
+broken release runs remain in GitHub Packages — the local gh token lacks
+`delete:packages` scope. Delete them via the GitHub UI when convenient.
 
 ---
 
@@ -236,6 +241,27 @@ all 11 JVM scripted tests pass with NO per-consumer exclusion.
   -> `?`; overloaded `apply` needs explicit return types (cyclic errors).
 - dependency-tree (MiniDependencyTreePlugin) and scripted are in core.
 - PathFinder `.get` -> `.get()`.
+
+### sbt 2 CI / release gotchas (hard-won during the 2.0.0 release)
+
+- **CLI multi-command**: sbt 2 parses CLI args as ONE command line. `sbt clean
+  test publish` fails ("Expected '/'" etc.). Use `;`-separation in one arg:
+  `sbt "; clean; test; publish"`. Same for `clean Test/compile scripted`.
+- **scripted needs the group glob**: bare `sbt scripted` -> "no test scripts
+  found". Use `sbt "scripted sbt-ossuminc/*"`. A disabled test dir (no `test`
+  file) BREAKS the `*` glob — remove the dir instead of leaving it half-disabled.
+- **dynver settings MUST be ThisBuild-scoped**: `ThisBuild / dynverVTagPrefix`
+  / `ThisBuild / dynverSeparator`. At project scope they're ignored, dynver
+  defaults to expecting a `v` prefix, and a tag like `2.0.0` is not matched ->
+  `0.0.0+<n>-<sha>` fallback version gets published.
+- **Release checkout must fetch tags**: actions/checkout with `ref: <tag>` does
+  NOT populate the tag ref for `git describe`; add `fetch-tags: true` (with
+  `fetch-depth: 0`) or dynver can't see the tag.
+- **Plugin self-publishing**: build.sbt must set `publishTo` itself (sbt 1.x did
+  this via `.configure(GithubPublishing)` through project/ symlinks, removed on
+  sbt 2). Release artifact path is `target/out/jvm/scala-<v>/<id>/<artifact>.jar`.
+- dynver computes the version at sbt LOAD — a running session won't see a new
+  tag; restart sbt (CI is fine, each run is a fresh session).
 
 **Phase 2 — Degrade blocked features gracefully:**
 - [ ] IdeaPlugin: documented stub (riddl-idea-plugin stays sbt 1.x).
