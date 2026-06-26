@@ -1,7 +1,11 @@
 # sbt-ossuminc
 
-[![Scala.js](https://www.scala-js.org/assets/badges/scalajs-1.20.1.svg)](https://www.scala-js.org)
-[![scala-native](https://www.scala-native.org/assets/badges/scala-native-0.5.9.svg)](https://www.scala-native.org)
+[![sbt](https://img.shields.io/badge/sbt-2.0.0-blue.svg)](https://www.scala-sbt.org)
+[![Scala.js](https://www.scala-js.org/assets/badges/scalajs-1.22.0.svg)](https://www.scala-js.org)
+[![scala-native](https://www.scala-native.org/assets/badges/scala-native-0.5.12.svg)](https://www.scala-native.org)
+
+> **sbt 2.x:** `sbt-ossuminc` 2.0.0+ targets **sbt 2.0.0** and **Scala 3**.
+> For sbt 1.x builds, use the 1.x line (last release **v1.4.0**).
 
 ## Purpose
 
@@ -74,6 +78,16 @@ lazy val moduleC = Module("module-c").configure(standardModule)
 
 ## Easy Setup
 
+**Requirements:** sbt **2.0.0**+, JDK **17+** (Temurin 25 recommended), Scala **3**.
+
+### project/build.properties
+
+Pin sbt 2.0.0 (or newer) in your `project/build.properties`:
+
+```properties
+sbt.version=2.0.0
+```
+
 ### project/plugins.sbt
 
 In your `project/plugins.sbt` file, add the GitHub Packages resolver and the plugin:
@@ -82,16 +96,17 @@ In your `project/plugins.sbt` file, add the GitHub Packages resolver and the plu
 // GitHub Packages resolver for sbt-ossuminc
 resolvers += "GitHub Packages" at "https://maven.pkg.github.com/ossuminc/sbt-ossuminc"
 
-addSbtPlugin("com.ossuminc" % "sbt-ossuminc" % "1.3.0")
+addSbtPlugin("com.ossuminc" % "sbt-ossuminc" % "2.0.0")
 ```
 
-### ~/sbt/1.0/github.sbt
+### ~/.sbt/2/github.sbt
 
 You must also set up your credentials file as a global .sbt file. This file permits you
 to read public repositories from GitHub Package Repository (such as those published by
-Ossum Inc.) and managing private repositories in your organization(s). 
+Ossum Inc.) and managing private repositories in your organization(s).
 
-We recommend placing the credentials in your private home directory at `~/.sbt/1.0/github.sbt`.
+We recommend placing the credentials in your private home directory at `~/.sbt/2/github.sbt`
+(sbt 2 reads global configuration from `~/.sbt/2/`, not `~/.sbt/1.0/`).
 It should have content like:
 
 ```text
@@ -132,66 +147,61 @@ can also help you within your project.
 ### Generic SBT Plugins
 
 ```scala
-// Generic plugins from github.sbt project
-addSbtPlugin("com.github.sbt" % "sbt-dynver" % "5.0.1")
-addSbtPlugin("com.github.sbt" % "sbt-native-packager" % "1.10.4")
-addSbtPlugin("com.github.sbt" % "sbt-git" % "2.0.1")
-addSbtPlugin("com.github.sbt" % "sbt-pgp" % "2.2.1")
-addSbtPlugin("com.github.sbt" % "sbt-release" % "1.4.0")
-addSbtPlugin("com.github.sbt" % "sbt-unidoc" % "0.5.0")
-addDependencyTreePlugin
+// Generic plugins from the github.sbt project
+addSbtPlugin("com.github.sbt" % "sbt-dynver" % "5.1.1")
+addSbtPlugin("com.github.sbt" % "sbt-native-packager" % "1.11.7")
+addSbtPlugin("com.github.sbt" % "sbt-git" % "2.1.0")
+addSbtPlugin("com.github.sbt" % "sbt-pgp" % "2.3.1")
+addSbtPlugin("com.github.sbt" % "sbt-release" % "1.5.0")
+addSbtPlugin("com.github.sbt" % "sbt-unidoc" % "0.6.1")
+// dependency-tree is built into sbt 2 — no addDependencyTreePlugin needed
 ```
 * [sbt-dynver](https://github.com/sbt/sbt-dynver) - dynamic versioning based on git tags, commits, and date stamp
 * [sbt-native-packager](https://github.com/sbt/sbt-native-packager) - packaging your compilation results into a package for various platforms
 * [sbt-git](https://github.com/sbt/sbt-git) - git commands from the sbt prompt
-* [sbt-pgp](https://github.com/sbt/sbt-pgp) - artifact signing for publishing to Sonatype
+* [sbt-pgp](https://github.com/sbt/sbt-pgp) - artifact signing (`publishSigned`) for Maven Central via the Central Portal
 * [sbt-release](https://github.com/sbt/sbt-release) - full control of the release process for your project
 * [sbt-unidoc](https://github.com/sbt/sbt-unidoc) - unifying the documentation output from your programming language from several sub-projects
-* `addDependencyTreePlugin` - adds a plugin so you can use the dependency commands at sbt prompt
+* dependency-tree commands (`dependencyTree`, etc.) are **built into sbt 2** — the old `addDependencyTreePlugin` is no longer required
 
 ### Plugins from other sources
 ```scala
 addSbtPlugin("com.eed3si9n" % "sbt-buildinfo" % "0.13.1")
-addSbtPlugin("de.heikoseeberger" % "sbt-header" % "5.10.0")
-addSbtPlugin("com.timushev.sbt" % "sbt-updates" % "0.6.4")
-addSbtPlugin("org.xerial.sbt" % "sbt-sonatype" % "3.11.1")
-addSbtPlugin("com.codecommit" % "sbt-github-packages" % "0.5.3")
-addSbtPlugin("com.lightbend.paradox" % "sbt-paradox" % "0.9.2")
+addSbtPlugin("com.github.sbt" % "sbt-header" % "5.11.0")
+addSbtPlugin("com.timushev.sbt" % "sbt-updates" % "0.7.0")
 ```
 * [sbt-buildinfo](https://github.com/sbt/sbt-buildinfo) - Your program can know all kinds of things about your build
-* [sbt-header](https://github.com/sbt/sbt-header) - Keep those file headers up to date with your project license
+* [sbt-header](https://github.com/sbt/sbt-header) - Keep those file headers up to date with your project license (now published under `com.github.sbt`)
 * [sbt-updates](https://github.com/rtimush/sbt-updates) - Check for dependency updates
-* [sbt-sonatype](https://github.com/xerial/sbt-sonatype) - Publishing to Sonatype and Maven Central
-* [sbt-github-packages](https://github.com/djspiewak/sbt-github-packages) - Publishing to Github Package Repository
-* [sbt-paradox](https://github.com/lightbend/paradox) - Markdown documentation generator
+
+> **Dropped on sbt 2:** `sbt-sonatype` (deprecated — Maven Central publishing is
+> built into sbt 2 via the Central Portal), `sbt-github-packages` (abandoned —
+> GitHub Packages is configured directly via `publishTo`/`Credentials`), and
+> `sbt-paradox` (no stable sbt 2 release yet). See Publishing helpers and the
+> Migration Notes below.
 
 ### Scala Specific Plugins
 ```scala
-addSbtPlugin("ch.epfl.scala" % "sbt-scalafix" % "0.14.5")
+addSbtPlugin("ch.epfl.scala" % "sbt-scalafix" % "0.14.7")
 addSbtPlugin("org.scalameta" % "sbt-scalafmt" % "2.5.6")
-addSbtPlugin("org.scoverage" % "sbt-scoverage" % "2.4.1")
-addSbtPlugin("org.scoverage" % "sbt-coveralls" % "1.3.15")
-addSbtPlugin("org.scala-native" % "sbt-scala-native" % "0.5.9")
-addSbtPlugin("org.scala-js" % "sbt-scalajs" % "1.20.1")
-addSbtPlugin("org.portable-scala" % "sbt-scalajs-crossproject" % "1.3.2")
-addSbtPlugin("org.portable-scala" % "sbt-scala-native-crossproject" % "1.3.2")
-addSbtPlugin("org.portable-scala" % "sbt-platform-deps" % "1.0.2")
-addSbtPlugin("com.typesafe" % "sbt-mima-plugin" % "1.1.4")
-addSbtPlugin("ch.epfl.scala" % "sbt-tasty-mima" % "1.2.0")
-addSbtPlugin("org.jetbrains.scala" % "sbt-idea-plugin" % "5.0.4")
+addSbtPlugin("org.scoverage" % "sbt-scoverage" % "2.4.4")
+addSbtPlugin("org.scala-native" % "sbt-scala-native" % "0.5.12")
+addSbtPlugin("org.scala-js" % "sbt-scalajs" % "1.22.0")
+addSbtPlugin("com.typesafe" % "sbt-mima-plugin" % "1.1.6")
 ```
 * [sbt-scalafix](https://github.com/scalacenter/sbt-scalafix) - Code refactoring and linting
 * [sbt-scalafmt](https://github.com/scalameta/sbt-scalafmt) - Code formatting
 * [sbt-scoverage](https://github.com/scoverage/sbt-scoverage) - Code coverage measurement
-* [sbt-coveralls](https://github.com/scoverage/sbt-coveralls) - Upload coverage to Coveralls.io
 * [sbt-scala-native](https://github.com/scala-native/scala-native) - Compile Scala to native code
 * [sbt-scalajs](https://github.com/scala-js/scala-js) - Compile Scala to JavaScript
-* [sbt-scalajs-crossproject](https://github.com/portable-scala/sbt-crossproject) - Cross-platform builds (JVM/JS)
-* [sbt-scala-native-crossproject](https://github.com/portable-scala/sbt-crossproject) - Cross-platform builds (JVM/Native)
-* [sbt-platform-deps](https://github.com/portable-scala/sbt-platform-deps) - Platform-specific dependencies
 * [sbt-mima-plugin](https://github.com/lightbend-labs/mima) - Binary compatibility checking
-* [sbt-tasty-mima](https://github.com/scalacenter/tasty-mima) - TASTy compatibility checking
-* [sbt-idea-plugin](https://github.com/JetBrains/sbt-idea-plugin) - IntelliJ IDEA plugin development
+
+> **Obsolete / unavailable on sbt 2:** the `org.portable-scala` cross-project
+> plugins and `sbt-platform-deps` are replaced by sbt 2's built-in `projectMatrix`
+> and the `%%` operator (the `%%%` operator is gone). `sbt-coveralls`,
+> `sbt-tasty-mima`, and `sbt-idea-plugin` have no sbt 2 release yet:
+> `With.coverage`/`With.MiMa` work without them, but `With.IdeaPlugin` is
+> unavailable until JetBrains ships sbt 2 support.
 
 
 ## Standard Features Provided
@@ -206,8 +216,8 @@ various features that we like at Ossum Inc.:
 * Automatic updates of dependencies with sbt-updates
 * sbt-unidoc for collation of sub-project documentation into a single site
 * sbt-native-packager for output packaging
-* sbt-sonatype for publishing signed artifacts to Sonatype/Maven
-* sbt-scoverage and sbt-coveralls for code coverage tracking
+* Native sbt 2 Maven Central publishing via the Sonatype Central Portal
+* sbt-scoverage for code coverage measurement
 
 ## Module Kinds
 
@@ -283,47 +293,45 @@ If you want to build your module for more than just the JVM, you can use the
 CrossModule object in a pattern like this:
 
 ```scala
-lazy val foo_cp: CrossProject = CrossModule(dirName = "foo", modName = "foo")(JVM, JS, Native)
-  .dependsOn(other_cp)
-  .configure(With.typical, With.publishing)
-  .settings(
-    scalacOptions ++= Seq("-explain", "--explain-types", "--explain-cyclic"),
-    description := "The fooness of existence"
-  )
-  .jvmConfigure(With.coverage(30))
-  .jvmSettings(
-    coverageExcludedPackages := "<empty>;$anon",
-  )
-  .jsConfigure(With.ScalaJS("RIDDL: passes", withCommonJSModule = true))
-  .jsSettings(
-    libraryDependencies += "com.foo" %%% "fooness" % "0.1.0"
-  )
-val passes = passes_cp.jvm
-val passesJS = passes_cp.js
-val passesNAT = passes_cp.native
+lazy val foo_cp: CrossModule =
+  CrossModule(dirName = "foo", modName = "foo", scalaVersion = "3.3.7")(JVM, JS, Native)
+    .configure(With.typical, With.publishing)
+    .settings(
+      scalacOptions ++= Seq("-explain", "-explain-cyclic"),
+      description := "The fooness of existence"
+    )
+    .jvmConfigure(With.coverage(30))
+    .jvmSettings(
+      coverageExcludedPackages := "<empty>;$anon"
+    )
+    .jsConfigure(With.ScalaJS("foo: js", withCommonJSModule = true))
+    .jsSettings(
+      libraryDependencies += "com.foo" %% "fooness" % "0.1.0"
+    )
+val foo       = foo_cp.jvm
+val fooJS     = foo_cp.js
+val fooNative = foo_cp.native
 ```
 
-There's a lot going on in this example. Most of it is based on `org.portable.scala`s plugins
-`sbt-scalajs-crossproject`" and `sbt-scala-native-crossproject` which are used to implement
-the `CrossModule` object. From top to bottom, we see that:
+On **sbt 2**, `CrossModule` is implemented on sbt's built-in **`projectMatrix`** (which
+replaces the sbt 1.x `org.portable-scala` cross-project plugins). From top to bottom:
 
-* a lazy val named `foo_cp` is defined as a `CrossProject` defined by those org.portable.scala plugins.
-  It is named with the `_cp` suffix to distinguish it as the CrossProject (thing that can build any
-  of the variants)
-* The `CrossModule` object is invoked. The first set of arguments are just like for a module. The
-  module lives in the "foo" directory and its published artifact names will start with "foo". The
-  second argument list provides the kinds of targets to build. In this case all three: `JVM`, `JS`,
-  and `Native`.
-* The `.dependsOn`, `.configure` and `.settings` calls in the call chain are the typical ones for
-  any sbt project but in this context they apply to all variants of what is to be built. Doing
-  something specific to one, like a JS libraryDepenedency, will break your JVM build.
-* The `.jvmConfigure` and `.jvmSettings` are analogous to the `.configure` and `.settings` call chain
-  options, but they only apply to the JVM build.
-* Similarly, the `.jsConfigure` and `.jsSettings` options only apply to the Javascript build.
-* To support terseness at the command line, we define three values: `passes`, `passesJS` and
-  `passesNAT` for each of the variants based on the recommendation by those crossproject plugins.
-  This helps when you want to selectively run something like `passesJS/test` to run just the tests
-  defined with the javascript variant
+* a lazy val named `foo_cp` is defined as a `CrossModule` — an immutable builder wrapping a
+  `projectMatrix`. It is named with the `_cp` suffix to distinguish it from the per-platform
+  projects extracted below.
+* The `CrossModule` object is invoked. The first arguments are like a `Module` (`dirName`,
+  `modName`), plus a **`scalaVersion`** (default `"3.3.7"`): `projectMatrix` needs the Scala
+  version when each platform is declared, and it must match the version configured by
+  `With.typical`/`With.Scala3` on this module. The trailing argument list selects the targets to
+  build — here all three: `JVM`, `JS`, and `Native`.
+* `.configure` and `.settings` apply to **all** platforms. Doing something specific to one (like a
+  JS-only `libraryDependency`) here would break the JVM build.
+* `.jvmConfigure`/`.jvmSettings` apply only to the JVM build; `.jsConfigure`/`.jsSettings` only to
+  the Scala.js build; `.nativeConfigure`/`.nativeSettings` only to the Scala Native build.
+* Cross-platform dependencies use the ordinary **`%%`** operator (sbt 2 cross-builds it across
+  platforms; the sbt 1.x `%%%` operator is gone).
+* The terse vals `foo`, `fooJS`, and `fooNative` extract the per-platform sub-projects (so you can,
+  e.g., run `fooJS/test`). `.jvm`/`.js`/`.native` resolve `matrix.{jvm,js,native}.apply(scalaVersion)`.
 
 ### Plugin
 
@@ -331,21 +339,19 @@ Use this to define an SBT plugin in a sub-project, like this:
 
 ```scala
 lazy val plugin = Plugin(dirName = "sbt-plugin")
-  .configure(With.build_info)
-  .configure(With.scala2)
-  .configure(With.publishing)
+  .configure(With.BuildInfo)
   .settings(
     description := "An sbt plugin to help the build world along",
     buildInfoObject := "SbtRiddlPluginBuildInfo",
     buildInfoPackage := "com.ossuminc.riddl.sbt",
-    buildInfoUsePackageAsPath := true,
-    scalaVersion := "2.12.19"
+    buildInfoUsePackageAsPath := true
   )
 ```
 
-In this example we define that the `sbt-plugin` is in the eponymous directory. We configure that
-project with three things: `With.build_info`, `With.scala2`, and `With.publishing`. This automatically
-incorporates the `scripted` plugin for testing sbt plugins.
+In this example we define that the `sbt-plugin` is in the eponymous directory and add BuildInfo
+generation. On **sbt 2** a plugin compiles with **Scala 3** (managed by sbt — do **not** set
+`With.Scala2`/`scalaVersion := "2.12.x"`), and `Plugin(...)` automatically configures GitHub
+Packages publishing plus the `scripted` testing framework (built into sbt 2) for you.
 
 ### Program
 
@@ -419,7 +425,7 @@ These helpers take no parameters (or use all defaults):
 * **`With.resolvers`** - Add standard resolvers (Maven Local, JCenter, Typesafe)
 * **`With.scala2`** - Configure for Scala 2.13 (latest)
 * **`With.scala3`** - Configure for Scala 3.3.7 LTS (default)
-* **`With.scoverage`** - Enable code coverage with sbt-scoverage and sbt-coveralls
+* **`With.ScalaCoverage`** (a.k.a. `With.coverage(...)`) - Enable code coverage with sbt-scoverage
 
 ### Publishing Helpers
 
@@ -432,6 +438,13 @@ These helpers take no parameters (or use all defaults):
   [npm Publishing](#withpublishingnpm) below)
 
 > **Note**: Do not combine GitHub and Sonatype publishing in the same project.
+
+> **Maven Central (Central Portal):** `With.Publishing.sonatype` configures sbt 2's
+> native Central Portal publishing — snapshots go to the Central snapshots repo,
+> releases to the built-in `localStaging`. Release with
+> `publishSigned ; sonaUpload ; sonaRelease`, providing `SONATYPE_USERNAME` /
+> `SONATYPE_PASSWORD` (env) or `~/.sbt/sonatype_central_credentials`, plus PGP
+> signing keys. The legacy `sbt-sonatype` plugin is not used (and has no sbt 2 build).
 
 ### Composite Helpers
 
@@ -551,6 +564,12 @@ Module("my-lib")
 ```
 
 #### **`With.IdeaPlugin(...)`**
+
+> **Unavailable on sbt 2** until JetBrains' `sbt-idea-plugin` ships an sbt 2.0
+> build ([SCL-23480](https://youtrack.jetbrains.com/issue/SCL-23480)). On sbt 2,
+> calling `With.IdeaPlugin` fails fast with a clear message — use the sbt-ossuminc
+> **1.x** line for IntelliJ plugin projects until then.
+
 Configure IntelliJ IDEA plugin development.
 - **`name`**: Plugin name
 - **`description`**: Plugin description
@@ -712,8 +731,9 @@ sbt docker:publishLocal
 sbt dockerPublishProd
 ```
 
-**Default registry:** `ghcr.io/ossuminc` (override with `dockerRepository` and
-`dockerUsername` settings)
+**Default registry:** Google Artifact Registry
+(`us-central1-docker.pkg.dev` / `ossuminc-production/ossum-images`); override with
+the `dockerRepository` and `dockerUsername` settings.
 
 #### **`With.Packaging.npm(...)`**
 Assemble Scala.js output into an npm-publishable package. Requires the project
@@ -901,7 +921,8 @@ Create GraalVM native images.
 #### **`With.Riddl(...)`**
 Add RIDDL library dependencies.
 - **`version`**: RIDDL version to use
-- **`nonJVM`**: Use `%%%` (true) or `%%` (false) for dependency resolution
+- **`nonJVM`**: marks the dependency as cross-platform (JS/Native as well as JVM).
+  On sbt 2 the `%%` operator cross-builds across platforms (the `%%%` operator is gone).
 
 ```scala
 Module("my-riddl-app")
@@ -960,6 +981,31 @@ DocSite(
 ```
 
 ## Migration Notes
+
+### Migrating to 2.0.0 (sbt 1.x → sbt 2)
+
+sbt-ossuminc **2.0.0** targets **sbt 2.0.0** and **Scala 3**; the 1.x line
+(v1.4.0) remains for sbt 1.x builds. To upgrade a consuming project:
+
+1. **Bump sbt**: set `sbt.version=2.0.0` in `project/build.properties`, and the
+   plugin to `2.0.0` in `project/plugins.sbt`.
+2. **Credentials**: move `~/.sbt/1.0/github.sbt` to `~/.sbt/2/github.sbt`.
+3. **Cross-platform modules**: `CrossModule(...)` now takes a `scalaVersion`
+   argument and is built on the built-in `projectMatrix`. Replace `%%%` with
+   `%%` in cross-platform dependencies. The `.jvm`/`.js`/`.native`, `.configure`,
+   `.settings`, and `.{jvm,js,native}{Configure,Settings}` API is otherwise
+   unchanged.
+4. **sbt plugins** (`Plugin(...)`): drop `With.Scala2` and any
+   `scalaVersion := "2.12.x"` — sbt 2 plugins compile with Scala 3 (managed by sbt).
+5. **Publishing**: GitHub Packages is unchanged. Maven Central now uses sbt 2's
+   native Central Portal (see Publishing helpers) — no `sbt-sonatype`.
+6. **Unavailable until upstream ships sbt 2 builds**: `With.IdeaPlugin` (JetBrains
+   sbt-idea-plugin), Coveralls upload, TASTy-MiMa, and stable sbt-paradox docs.
+   The corresponding helpers degrade gracefully or fail fast with a clear message.
+
+No special configuration is needed for the transitive scala-xml /
+scala-collection-compat cross-version clash: sbt-ossuminc's published POM excludes
+the Scala 2.13 variants so your meta-build resolves cleanly.
 
 ### Migrating from 1.1.0 to 1.2.0
 

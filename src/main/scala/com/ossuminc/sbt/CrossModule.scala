@@ -107,6 +107,18 @@ final class CrossModule private[sbt] (
   def nativeConfigure(transform: Project => Project): CrossModule =
     copy(nativeXforms = nativeXforms :+ transform)
 
+  /** Apply settings only to the JVM platform. */
+  def jvmSettings(ss: Def.SettingsDefinition*): CrossModule =
+    jvmConfigure(_.settings(ss*))
+
+  /** Apply settings only to the Scala.js platform. */
+  def jsSettings(ss: Def.SettingsDefinition*): CrossModule =
+    jsConfigure(_.settings(ss*))
+
+  /** Apply settings only to the Scala Native platform. */
+  def nativeSettings(ss: Def.SettingsDefinition*): CrossModule =
+    nativeConfigure(_.settings(ss*))
+
   private def chain(xs: Seq[Project => Project]): Project => Project =
     xs.foldLeft(identity[Project])(_ andThen _)
 
