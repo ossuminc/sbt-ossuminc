@@ -1,4 +1,0 @@
-# Test IntelliJ IDEA plugin configuration
-# Just verify project loads with correct settings - full compilation requires compatible SDK
-> show intellijPluginName
-> show intellijBuild

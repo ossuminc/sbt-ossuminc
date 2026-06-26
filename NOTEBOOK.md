@@ -21,14 +21,16 @@ The released line v1.4.0 on `main` (sbt 1.x / Scala 2.12) keeps
 serving consumers that cannot move yet — notably riddl-idea-plugin,
 blocked on sbt-idea-plugin (see Blockers below).
 
-**MILESTONE (2026-06-26): the plugin compiles AND the entire scripted
-suite passes on sbt 2.0.0 — 20 tests green, 1 disabled.**
-Green: akka, asciidoc, basic, cross, docker-dual, everything,
-github-publishing, homebrew, laminar, linux-packaging, mima, multi, native,
-npm-packaging, packaging, program, publishing, scalajs, scalatest, sonatype.
-Disabled: idea-plugin (blocked on sbt-idea-plugin; `test` -> `test.disabled`).
-Phases 0, 1a, 1b, scripted validation, and Central Portal publishing are
-complete; remaining finalization is README refresh + release.
+**RELEASED 2.0.0 (2026-06-26): full sbt 2.0.0 migration complete.**
+The plugin compiles and the entire scripted suite passes via
+`sbt "scripted sbt-ossuminc/*"` — **20/20 green**: akka, asciidoc, basic,
+cross, docker-dual, everything, github-publishing, homebrew, laminar,
+linux-packaging, mima, multi, native, npm-packaging, packaging, program,
+publishing, scalajs, scalatest, sonatype. The idea-plugin scripted test was
+**removed** (the feature is unavailable on sbt 2; restore from git history
+when JetBrains ships sbt-idea-plugin for sbt 2 — SCL-23480). Phases 0/1a/1b,
+scripted validation, Central Portal publishing, and the README refresh are
+all complete. Merged feature/sbt2 -> main and tagged 2.0.0.
 
 ---
 
