@@ -26,6 +26,10 @@ jobs:
         with:
           ref: ${{ github.event.release.tag_name || github.event.inputs.tag }}
           fetch-depth: 0
+          # Required so sbt-dynver's `git describe` sees the release tag and
+          # derives the real version (e.g. 2.0.0) rather than the 0.0.0+<n>
+          # "no tag found" fallback.
+          fetch-tags: true
 
       - name: Setup JDK 25
         uses: actions/setup-java@v4
