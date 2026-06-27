@@ -28,9 +28,14 @@ gh release create X.Y.Z --title "vX.Y.Z" --generate-notes
 
 The `.github/workflows/release.yml` workflow triggers on release
 creation (not tag push) and:
-1. Builds and tests with JDK 25 Temurin
-2. Publishes to GitHub Packages via `sbt clean test publish`
+1. Builds with JDK 25 Temurin (checkout uses `fetch-tags: true` so dynver
+   sees the release tag)
+2. Publishes to GitHub Packages via `sbt "; clean; test; publish"`
+   (sbt 2 parses CLI args as one command line — commands must be `;`-separated)
 3. Uploads the plugin JAR to the release as a download artifact
+
+See `NOTEBOOK.md` → "sbt 2 CI / release gotchas" for the hard-won details
+(`;`-separated commands, `fetch-tags`, ThisBuild-scoped dynver settings).
 
 Manual dispatch is also available via `workflow_dispatch` with a
 tag input.
@@ -39,7 +44,8 @@ tag input.
 
 - `Root()` - Aggregator project
 - `Module()` - Standard module
-- `CrossModule()(JVM, JS, Native)` - Cross-platform module
+- `CrossModule(dir, name, scalaVersion="3.3.7")(JVM, JS, Native)` -
+  Cross-platform module (built on sbt 2's built-in `projectMatrix`)
 - `Plugin()` - SBT plugin
 - `Program()` - Executable program
 - `DocSite()` - Documentation site
@@ -178,17 +184,18 @@ sbt scalafmt
 
 ## Usage in Other Projects
 
-All Scala projects in ossuminc use this plugin. Add to `project/plugins.sbt`:
+All Scala projects in ossuminc use this plugin. **Requires sbt 2.0.0+**
+(`sbt.version=2.0.0` in `project/build.properties`) and Scala 3. Add to
+`project/plugins.sbt`:
 
 ```scala
-addSbtPlugin("com.ossuminc" % "sbt-ossuminc" % "1.3.0")
+addSbtPlugin("com.ossuminc" % "sbt-ossuminc" % "2.0.0")
 ```
 
 ### Example CrossModule Definition
 
 ```scala
-lazy val mymodule_cp = CrossModule("mymodule", "riddl-mymodule")(JVM, JS, Native)
-  .dependsOn(cpDep(utils_cp), cpDep(language_cp))
+lazy val mymodule_cp = CrossModule("mymodule", "riddl-mymodule", scalaVersion = "3.3.7")(JVM, JS, Native)
   .configure(With.typical, With.GithubPublishing)
   .settings(
     description := "Description here"
@@ -208,7 +215,8 @@ Then add to root aggregation: `.aggregate(..., mymodule, mymoduleJS, mymoduleNat
 
 ### Version Management
 - Uses `sbt-dynver` for dynamic versioning based on git tags
-- Tag format: `v1.2.3` creates version `1.2.3`
+- Tag format: `1.2.3` — **no `v` prefix** (`ThisBuild / dynverVTagPrefix :=
+  false`; a `v`-prefixed tag is not matched and yields a `0.0.0+...` version)
 - Between tags: `1.2.3-N-hash-YYYYMMDD-HHMM` (N commits since tag)
 
 ### Commit Messages

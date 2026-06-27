@@ -13,13 +13,11 @@ to the task file and note completion in this notebook.
 
 ## Current Status
 
-**Active work: sbt 2.0 migration** on branch `feature/sbt2`
-(redo-fresh from `main` @ v1.4.0). Targeting **sbt 2.0.0 final**
-(released 2026-06-14) + Scala 3 (sbt-managed).
-
-The released line v1.4.0 on `main` (sbt 1.x / Scala 2.12) keeps
-serving consumers that cannot move yet — notably riddl-idea-plugin,
-blocked on sbt-idea-plugin (see Blockers below).
+**Released 2.0.0 — sbt 2.0.0 / Scala 3. No active work items.**
+`main` is the sbt 2 line. The sbt 1.x line (last release **v1.4.0**) remains
+for consumers that cannot move yet — notably riddl-idea-plugin, blocked on
+sbt-idea-plugin (SCL-23480). Details of the completed migration and the
+reusable sbt 1->2 learnings are recorded below.
 
 **RELEASED 2.0.0 (2026-06-26): full sbt 2.0.0 migration complete.**
 The plugin compiles and the entire scripted suite passes via
@@ -40,7 +38,12 @@ remains. The `feature/sbt2` branch was merged to main and deleted.
 
 ---
 
-## sbt 2.0 Migration Plan (feature/sbt2)
+## sbt 2.0 Migration (COMPLETED — released as 2.0.0, 2026-06-26)
+
+_Historical record of the sbt 1.x -> 2.x migration. The `feature/sbt2` branch
+has been merged to `main` and deleted. Keep the "migration learnings" and
+"CI / release gotchas" subsections — they apply to the other ossuminc projects
+when they migrate._
 
 ### Reconciliation decision (2026-06-25)
 
@@ -298,6 +301,16 @@ v1.3.4, v1.3.3, v1.3.2, v1.3.0, v1.2.5.
 
 ## Work Completed (Recent)
 
+### Sessions Jun 25-27, 2026 — sbt 2.0 migration & 2.0.0 release
+Migrated the plugin from sbt 1.x / Scala 2.12 to **sbt 2.0.0 / Scala 3.8.4** and
+released **2.0.0** to GitHub Packages. Reconciled the stale `feature/sbt2` branch
+(redone fresh from `main`), migrated all ~15 helpers + `CrossModule`
+(-> `projectMatrix`) + the v1.3/v1.4 packaging task code, wired native Central
+Portal publishing, added `github-publishing` and `sonatype` scripted tests,
+refreshed the README, and fixed the CI/release workflows for sbt 2. Full detail
+and reusable learnings are in the "sbt 2.0 Migration (COMPLETED)" section above.
+20/20 scripted tests green; `feature/sbt2` merged to main and deleted.
+
 ### Session Feb 20, 2026 — Corporate Name Fix & Release Improvements
 
 **Released:** v1.3.4 and v1.3.5 to GitHub Packages.
@@ -483,60 +496,36 @@ Plus credentials in `~/.sbt/1.0/github.sbt`.
 
 ---
 
-## Next Steps (Priority Order)
+## Next Steps / Follow-ups
 
-### 🟡 REMAINING WORK
+The earlier pre-2.0.0 cleanup items are resolved by the sbt 2 migration:
+NodeTarget removed (CrossModule is `projectMatrix`-based); the Miscellaneous
+helpers (ClassPathJar/UnmanagedJars/ShellPrompt) are exposed in `With`;
+`Root(projectId = ...)` is configurable; the `project/` symlinks (including
+SonatypePublishing.scala) are gone; CI now uses JDK 25.
 
-#### 1. Remove or implement NodeTarget
-**File:** `CrossModule.scala` (lines 21, 76-80)
-
-Dead code - `NodePlatform.enable` does nothing. Either remove entirely or
-implement properly.
-
-#### 2. Expose Miscellaneous helpers in With object
-**File:** `OssumIncPlugin.scala`
-
-Add to `With` object:
-```scala
-val ClassPathJar = Miscellaneous.useClassPathJar _
-val UnmanagedJars = Miscellaneous.useUnmanagedJarLibs _
-val ShellPrompt = Miscellaneous.buildShellPrompt
-```
-
-#### 3. Clarify composite helpers
-Document what `basic`, `typical`, `everything` include. Consider if
-`typical` should include publishing by default.
-
-#### 4. Make Root project ID configurable
-**File:** `Root.scala` (line 38)
-
-Currently hardcoded to `"root"`. Add parameter:
-```scala
-def apply(
-  projectId: String = "root",  // New parameter
-  ghRepoName: String = "",
-  // ... rest
-): Project
-```
-
-#### 5. Remove placeholder Packaging methods
-**File:** `Packaging.scala`
-
-`jdkPackager()`, `linuxDebian()`, `linuxRPM()` do nothing. Either implement
-or remove.
-
-#### 6. Remove `project/SonatypePublishing.scala`
-No longer used after switching to GitHub Packages.
-
-#### 7. Update CI workflow to use JDK 25
-Release workflow uses JDK 25 Temurin; CI still uses JDK 21
-adopt-hotspot. Consider aligning.
+Remaining / future:
+- **Restore when upstream ships sbt 2 builds:** `With.IdeaPlugin`
+  (sbt-idea-plugin / SCL-23480), Coveralls upload, TASTy-MiMa, stable
+  sbt-paradox docs. The idea-plugin scripted test can be restored from git
+  history.
+- Reinstate Unidoc external `apiMappings` (dropped during the migration) if
+  external scaladoc links are wanted.
+- Optional: a scripted test exercising the real Central Portal publish flow
+  (the `sonatype` test currently validates the publishTo/snapshot wiring only).
+- Consider whether `With.typical` should include publishing by default.
+- Delete the two junk GitHub Packages versions — DONE (2026-06-27).
 
 ---
 
 ## Test Coverage Status
 
-### Current Test Results (Feb 3, 2026)
+### Current Test Results
+
+**sbt 2.0.0 suite: 20/20 scripted tests green** (run with
+`sbt "scripted sbt-ossuminc/*"`). The current test set differs from the table
+below (added: github-publishing, sonatype; removed: idea-plugin, scalably-typed).
+The table below is the pre-migration sbt 1.x record (Feb 3, 2026):
 
 | Test Scenario    | Purpose                        | Status   |
 |------------------|--------------------------------|----------|
