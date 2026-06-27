@@ -33,9 +33,10 @@ scripted validation, Central Portal publishing, and the README refresh are
 all complete. Merged feature/sbt2 -> main, tagged 2.0.0, and **published
 `sbt-ossuminc_sbt2_3` 2.0.0 to GitHub Packages** via the release workflow.
 
-NOTE: two junk versions (`0.0.0+225-...`, `0.0.0+226-...`) from the initial
-broken release runs remain in GitHub Packages — the local gh token lacks
-`delete:packages` scope. Delete them via the GitHub UI when convenient.
+The two junk versions (`0.0.0+225-...`, `0.0.0+226-...`) from the initial
+broken release runs were deleted from GitHub Packages (the `delete:packages`
+scope is on the env GITHUB_TOKEN, not the gh keychain token). Only 2.0.0
+remains. The `feature/sbt2` branch was merged to main and deleted.
 
 ---
 
