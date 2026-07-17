@@ -73,18 +73,35 @@ not provided:
    If it has a suffix, do NOT proceed — delete the tag
    (`git tag -d <VERSION>`), fix the issue, and re-tag.
 
-9. Run the full test suite including scripted plugin tests
-   and publish:
+9. Run the full local test gate — **do NOT publish here**:
    ```
-   sbt clean test scripted publish
+   sbt "; clean; test; scripted"
    ```
+   (sbt 2 parses CLI args as one command line — commands
+   MUST be `;`-separated; `sbt clean test scripted` is
+   parsed as a single unknown command and fails.)
+
+   **Why no `publish` in this step:** the `release.yml`
+   workflow triggered in step 11 is the *sole* publisher
+   (it publishes to GitHub Packages and uploads the JAR to
+   the release). Publishing locally here first makes the
+   workflow's publish fail with a GitHub Packages
+   `PUT ... overwriting is disabled` 409 — the version
+   already exists — and the workflow then dies before
+   uploading the JAR asset. Let the workflow own publishing.
+
    Scripted tests validate the plugin from a consumer's
-   perspective. Do NOT skip them. Because the tag is on
-   HEAD and the tree is clean, all published artifacts
-   will carry the clean `<VERSION>`. Verify in the sbt
-   output.
+   perspective. Do NOT skip them.
    **If tests fail, delete the tag** (`git tag -d
    <VERSION>`) — do NOT push a broken release.
+
+   **dynver / cache gotcha:** sbt-dynver computes the
+   version once at sbt startup from `git describe`, and
+   sbt 2's disk cache (`~/Library/Caches/sbt`, `~/.cache/sbt`)
+   can serve a *stale* version from before the tag/fetch. If
+   `show version` (step 8) showed a suffix or wrong base,
+   purge those dirs plus `target` and re-run in a fresh sbt
+   session before proceeding.
 
 10. Push commits and tag to origin:
     ```
@@ -149,12 +166,20 @@ not provided:
   Do NOT push a broken tag.
 - If scripted tests fail in step 9: this means the plugin
   is broken for consumers. Fix before releasing.
-- If dynver shows a suffix in step 8: delete the tag, fix
-  the dirty tree, and re-tag.
+- If dynver shows a suffix in step 8: it is usually a stale
+  sbt disk cache, not a dirty tree — purge
+  `~/Library/Caches/sbt`, `~/.cache/sbt`, and `target`, then
+  re-run `show version` in a fresh sbt session. If the tree
+  is genuinely dirty, delete the tag, commit/clean, re-tag.
 - If tag push fails in step 10: check if tag exists
   remotely.
-- If publish fails in step 9: check credentials and retry
-  (tag is still local, safe to retry).
+- If the `release.yml` publish fails in step 11 with a
+  GitHub Packages "overwriting is disabled" 409: the version
+  was already published (e.g. a local `publish` was run by
+  mistake). The artifacts are already on GitHub Packages, so
+  the release is functional; just attach the JAR the workflow
+  never uploaded:
+  `gh release upload <VERSION> target/out/jvm/scala-*/sbt-ossuminc/sbt-ossuminc_sbt2_3-<VERSION>.jar --clobber`.
 - If `gh release create` fails in step 11: the tag is
   already pushed, so the release can be created manually
   or retried.

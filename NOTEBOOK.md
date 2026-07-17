@@ -13,6 +13,48 @@ to the task file and note completion in this notebook.
 
 ## Current Status
 
+### RELEASED 3.0.0 (2026-07-17) — Scala 3.8.4 default, sbt 2.0.2+ floor
+
+Shipped via `/ship`. Tag `3.0.0` on `54c4b7b`'s successor `78f439b`,
+published to GitHub Packages, GitHub Release created:
+https://github.com/ossuminc/sbt-ossuminc/releases/tag/3.0.0
+MAJOR bump because the sbt-floor raise (2.0.0→2.0.2) and default-Scala
+change (3.3.7→3.8.4) can break existing consumers on upgrade.
+
+**Ship gotchas hit (fixes applied):**
+- **dynver stale-cache:** `git describe` was correct (`3.0.0`) but
+  `sbt show version` returned a stale `1.4.0-22-...` from sbt 2's disk
+  cache; dynver only recomputes at sbt startup. Fix: purge
+  `~/Library/Caches/sbt` + `~/.cache/sbt` + `target`, fresh sbt session.
+  Also: the `2.0.0` tag existed only on the remote — `git fetch --tags`
+  first or dynver bases off the wrong (older) tag.
+- **Double-publish:** the ship skill published locally (step 9) AND the
+  `release.yml` workflow re-published (step 11) → GitHub Packages 409
+  `overwriting is disabled`; the workflow died before uploading the JAR.
+  Recovered by attaching the JAR manually. **Fixed the ship SKILL.md** so
+  step 9 no longer publishes — `release.yml` is the sole publisher.
+
+**Consumer task drops:** only `riddl` (on 2.0.1 / sbt 2.0.2) can take 3.0.0
+directly; `riddl-gen` got a task flagging it needs the sbt 1→2 migration
+first. The other 8 consumers are on sbt-ossuminc 1.4.0 / sbt 1.x — 3.0.0 is
+inapplicable until they migrate, so no tasks dropped there.
+
+### KNOWN ISSUE: CI red since 2.0.0 — `everything` scripted test
+
+Every `Continuous Integration` run on `main` has failed since the 2.0.0
+release (2026-06-26). Root cause (investigated 2026-07-17): the `everything`
+scripted fixture does `.configure(With.Riddl)`, which pins
+`com.ossuminc %% riddl-testkit % 1.0.0-RC6` (in `helpers/Riddl.scala`,
+`latest_version`). `> run` forces resolution; in clean CI the artifact is
+**unresolvable** (`ResolveException ... riddl-testkit_3:1.0.0-RC6` — 404 on
+Central, **unauthorized** on GitHub Packages). Passes locally only because
+`1.0.0-RC6` is cached in `~/.ivy2`. `1.0.0-RC6` is ancient — riddl is now at
+**1.29.0**. Fix options (undecided): (a) bump `Riddl.latest_version` to a
+currently-published riddl (verify it resolves for `_3` in CI); (b) fix CI
+GitHub Packages auth to read the riddl registry cross-repo; (c) restructure
+the `everything` test so it doesn't resolve an external riddl artifact.
+Release itself is unaffected — `release.yml` does not run scripted.
+
 ### Compiler warning cleanup 2026-07-17
 
 Drove the plugin compile to **zero warnings** (verified with `-feature`, on a
@@ -35,7 +77,7 @@ build.sbt — any future warning fails the build. (Consumers already get
 `-Werror` via `With.Scala3`; this closes the gap where the plugin itself did
 not.)
 
-### Version bumps 2026-07-17 (post-2.0.0, uncommitted)
+### Version bumps 2026-07-17 (shipped in 3.0.0)
 
 Reviewed all plugins/deps for upgrades. The 15 re-exported sbt plugins were
 already at their latest `_sbt2_3` builds. Applied:
