@@ -87,7 +87,7 @@ object RootProjectInfo {
       "reid-spencer",
       "Reid Spencer",
       "",
-      url("https://github.com/reid-spencer")
+      uri("https://github.com/reid-spencer")
     )
   )
 
@@ -97,7 +97,7 @@ object RootProjectInfo {
     startYr: Int = Calendar.getInstance().get(Calendar.YEAR),
     orgPackage: String = "com.ossuminc",
     orgName: String = "Ossum Inc.",
-    orgPage: URI = url("https://ossuminc.com/"),
+    orgPage: URI = uri("https://ossuminc.com/"),
     devs: List[Developer] = defaultDevs,
     spdxLicenseName: String = "Apache-2.0"
   )(project: Project): Project = {
@@ -106,7 +106,7 @@ object RootProjectInfo {
         ThisBuild / Keys.copyrightHolder := orgName,
         ThisBuild / Keys.gitHubOrganization := ghOrgName,
         ThisBuild / Keys.gitHubRepository := ghRepoName,
-        ThisBuild / Keys.projectHomePage := url(
+        ThisBuild / Keys.projectHomePage := uri(
           s"https://github.com/${Keys.gitHubOrganization.value}/${Keys.gitHubRepository.value}"
         ),
         ThisBuild / Keys.projectStartYear := startYr,
@@ -117,21 +117,21 @@ object RootProjectInfo {
         ThisBuild / RootProjectInfo.Keys.spdxLicense := spdxLicenseName,
         ThisBuild / licenses := {
           spdxLicenseName match {
-            case l @ "Apache-2.0"    => Seq(l -> url("https://opensource.org/license/apache-2-0"))
-            case l @ "CDDL-1.0"      => Seq(l -> url("https://opensource.org/license/cddl-1-0"))
-            case l @ "EPL-2.0"       => Seq(l -> url("https://opensource.org/license/epl-2-0"))
-            case l @ "GPL-2.0"       => Seq(l -> url("https://opensource.org/license/gpl-2-0"))
-            case l @ "GPL-3.0"       => Seq(l -> url("https://opensource.org/license/gpl-3-0"))
-            case l @ "GPL-3.0-only"  => Seq(l -> url("https://opensource.org/license/gpl-3-0"))
-            case l @ "AGPL-3.0-only" => Seq(l -> url("https://opensource.org/license/agpl-v3"))
-            case l @ "LGPL-2.1"      => Seq(l -> url("https://opensource.org/license/lgpl-2-1"))
-            case l @ "LGPL-3.0-only" => Seq(l -> url("https://opensource.org/license/lgpl-3-0"))
-            case l @ "LGPL-2.0-only" => Seq(l -> url("https://opensource.org/license/lgpl-2-0"))
-            case l @ "MPL-2.0"       => Seq(l -> url("https://opensource.org/license/mpl-2-0"))
-            case l @ "BSD-2-Clause"  => Seq(l -> url("https://opensource.org/license/bsd-2-clause"))
-            case l @ "BSD-3-Clause"  => Seq(l -> url("https://opensource.org/license/bsd-3-clause"))
-            case l @ "MIT"           => Seq(l -> url("https://opensource.org/license/mit"))
-            case s: String           => Seq(s -> url("https://opensource.org/license/unlicense"))
+            case l @ "Apache-2.0"    => Seq(l -> uri("https://opensource.org/license/apache-2-0"))
+            case l @ "CDDL-1.0"      => Seq(l -> uri("https://opensource.org/license/cddl-1-0"))
+            case l @ "EPL-2.0"       => Seq(l -> uri("https://opensource.org/license/epl-2-0"))
+            case l @ "GPL-2.0"       => Seq(l -> uri("https://opensource.org/license/gpl-2-0"))
+            case l @ "GPL-3.0"       => Seq(l -> uri("https://opensource.org/license/gpl-3-0"))
+            case l @ "GPL-3.0-only"  => Seq(l -> uri("https://opensource.org/license/gpl-3-0"))
+            case l @ "AGPL-3.0-only" => Seq(l -> uri("https://opensource.org/license/agpl-v3"))
+            case l @ "LGPL-2.1"      => Seq(l -> uri("https://opensource.org/license/lgpl-2-1"))
+            case l @ "LGPL-3.0-only" => Seq(l -> uri("https://opensource.org/license/lgpl-3-0"))
+            case l @ "LGPL-2.0-only" => Seq(l -> uri("https://opensource.org/license/lgpl-2-0"))
+            case l @ "MPL-2.0"       => Seq(l -> uri("https://opensource.org/license/mpl-2-0"))
+            case l @ "BSD-2-Clause"  => Seq(l -> uri("https://opensource.org/license/bsd-2-clause"))
+            case l @ "BSD-3-Clause"  => Seq(l -> uri("https://opensource.org/license/bsd-3-clause"))
+            case l @ "MIT"           => Seq(l -> uri("https://opensource.org/license/mit"))
+            case s: String           => Seq(s -> uri("https://opensource.org/license/unlicense"))
           }
         },
         ThisBuild / homepage := Some(Keys.projectHomePage.value),

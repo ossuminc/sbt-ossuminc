@@ -8,8 +8,8 @@ object Laminar extends AutoPluginHelper {
   override def apply(project: Project): Project = apply()(project)
 
   def apply(
-    laminar_version: String = "17.2.0",
-    dom_version: String = "2.8.0",
+    laminar_version: String = "17.2.1",
+    dom_version: String = "2.8.1",
     waypoint_version: Option[String] = Some("9.0.0"),
     laminextVersion: Option[String] = None,
     laminextModules: Seq[String] = Seq.empty

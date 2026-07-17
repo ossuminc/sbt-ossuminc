@@ -32,7 +32,7 @@ Instead of writing imperative sbt settings, you **declare what you want** using 
 ```scala
 // ❌ Imperative (verbose, repetitive)
 lazy val myModule = project
-  .settings(scalaVersion := "3.3.7")
+  .settings(scalaVersion := "3.8.4")
   .settings(scalacOptions ++= Seq("-deprecation", "-feature"))
   .settings(libraryDependencies += "org.scalatest" %% "scalatest" % "3.2.19" % Test)
   .enablePlugins(GitPlugin, DynVerPlugin)
@@ -57,7 +57,7 @@ Module("my-lib")
 ### Sensible Defaults
 Defaults are chosen for **modern Scala development** but can always be overridden:
 
-- **Scala 3.3.7 LTS** by default (override with `With.Scala3(version = Some("3.4.0"))`)
+- **Scala 3.8.4** (Scala Next) by default (override with `With.Scala3(version = Some("3.3.8"))`)
 - **Cross-platform ready** (JVM, JS, Native with one declaration)
 - **Dynamic versioning** from git tags (no manual version management)
 - **Automatic header management** (keep license headers current)
@@ -294,7 +294,7 @@ CrossModule object in a pattern like this:
 
 ```scala
 lazy val foo_cp: CrossModule =
-  CrossModule(dirName = "foo", modName = "foo", scalaVersion = "3.3.7")(JVM, JS, Native)
+  CrossModule(dirName = "foo", modName = "foo", scalaVersion = "3.8.4")(JVM, JS, Native)
     .configure(With.typical, With.publishing)
     .settings(
       scalacOptions ++= Seq("-explain", "-explain-cyclic"),
@@ -320,7 +320,7 @@ replaces the sbt 1.x `org.portable-scala` cross-project plugins). From top to bo
   `projectMatrix`. It is named with the `_cp` suffix to distinguish it from the per-platform
   projects extracted below.
 * The `CrossModule` object is invoked. The first arguments are like a `Module` (`dirName`,
-  `modName`), plus a **`scalaVersion`** (default `"3.3.7"`): `projectMatrix` needs the Scala
+  `modName`), plus a **`scalaVersion`** (default `"3.8.4"`): `projectMatrix` needs the Scala
   version when each platform is declared, and it must match the version configured by
   `With.typical`/`With.Scala3` on this module. The trailing argument list selects the targets to
   build — here all three: `JVM`, `JS`, and `Native`.
@@ -424,7 +424,7 @@ These helpers take no parameters (or use all defaults):
 * **`With.release`** - Enable `sbt-release` plugin
 * **`With.resolvers`** - Add standard resolvers (Maven Local, JCenter, Typesafe)
 * **`With.scala2`** - Configure for Scala 2.13 (latest)
-* **`With.scala3`** - Configure for Scala 3.3.7 LTS (default)
+* **`With.scala3`** - Configure for Scala 3.8.4 (Scala Next, default)
 * **`With.ScalaCoverage`** (a.k.a. `With.coverage(...)`) - Enable code coverage with sbt-scoverage
 
 ### Publishing Helpers
@@ -931,7 +931,7 @@ Module("my-riddl-app")
 
 #### **`With.Scala3(...)`**
 Configure Scala 3 with custom version, compiler options, and documentation.
-- **`version`**: Scala version (defaults to `"3.3.7"`)
+- **`version`**: Scala version (defaults to `"3.8.4"`)
 - **`scala3Options`**: Additional compiler options
 - **`projectName`**: Project name for scaladoc output (optional)
 - **`docSiteRoot`**: Root directory for documentation site (optional)

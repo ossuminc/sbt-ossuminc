@@ -10,10 +10,10 @@ import com.github.sbt.git.GitPlugin.autoImport.git
 object ScalaJS extends AutoPluginHelper {
 
   /** Default version for scala-java-time dependency */
-  val defaultScalaJavaTimeVersion = "2.6.0"
+  val defaultScalaJavaTimeVersion = "2.7.0"
 
   /** Default version for scalatest dependencies */
-  val defaultScalatestVersion = "3.2.19"
+  val defaultScalatestVersion = "3.2.20"
 
   override def apply(project: Project): Project = apply()(project)
 

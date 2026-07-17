@@ -6,12 +6,12 @@ import sbt.librarymanagement.ModuleID
 
 object Scalatest extends AutoPluginHelper {
 
-  val latest_version = "3.2.19"
+  val latest_version = "3.2.20"
 
   override def apply(project: Project): Project = apply()(project)
 
   def apply(
-    version: String = "3.2.19",
+    version: String = "3.2.20",
     scalacheckVersion: Option[String] = None,
     nonJVM: Boolean = true
   )(project: Project): Project = {

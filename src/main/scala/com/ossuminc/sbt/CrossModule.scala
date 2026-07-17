@@ -21,7 +21,7 @@ import sbt.Keys.*
   * }}}
   *
   * `projectMatrix` needs the Scala version(s) at platform-declaration time, so
-  * the version is a parameter of [[apply]] (default 3.3.7, matching With.Scala3).
+  * the version is a parameter of [[apply]] (default 3.8.4, matching With.Scala3).
   * It is also used to resolve the per-platform sub-projects in `.jvm`/`.js`/
   * `.native`, so it must match the version configured by `With.typical`/
   * `With.Scala3` on this module.
@@ -40,7 +40,7 @@ object CrossModule {
   private type Xform = Project => Project
 
   /** Default Scala version — matches [[com.ossuminc.sbt.helpers.Scala3]]. */
-  val defaultScalaVersion: String = "3.3.7"
+  val defaultScalaVersion: String = "3.8.4"
 
   /** Define a cross-platform subproject. Configuration is deferred (accumulated)
     * and materialized into a `projectMatrix` the first time `.jvm`/`.js`/
@@ -50,7 +50,7 @@ object CrossModule {
     *
     * @param dirName  subdirectory containing the module
     * @param modName  published artifact name (defaults to `dirName` if blank)
-    * @param scalaVersion  Scala version for the platform axes (default 3.3.7)
+    * @param scalaVersion  Scala version for the platform axes (default 3.8.4)
     */
   def apply(
     dirName: String,
@@ -135,7 +135,7 @@ final class CrossModule private[sbt] (
     if (targets.contains(CrossModule.JSTarget))
       m = m.jsPlatform(Seq(scalaVersion), Seq.empty[VirtualAxis], chain(jsXforms))
     if (targets.contains(CrossModule.NativeTarget)) {
-      // scalatest-core_native (3.2.19) pins an older scala-native test-interface
+      // scalatest-core_native (3.2.20) pins an older scala-native test-interface
       // than the active scala-native (0.5.x), tripping strict eviction. Downgrade
       // to a warning so the newer, compatible test-interface is selected.
       val nativeDefaults: Project => Project =

@@ -13,7 +13,7 @@ import sbt.Keys.libraryDependencies
   */
 object ScalaJavaTime extends AutoPluginHelper {
 
-  val defaultVersion = "2.6.0"
+  val defaultVersion = "2.7.0"
 
   override def apply(project: Project): Project = apply()(project)
 

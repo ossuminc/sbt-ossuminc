@@ -44,7 +44,7 @@ tag input.
 
 - `Root()` - Aggregator project
 - `Module()` - Standard module
-- `CrossModule(dir, name, scalaVersion="3.3.7")(JVM, JS, Native)` -
+- `CrossModule(dir, name, scalaVersion="3.8.4")(JVM, JS, Native)` -
   Cross-platform module (built on sbt 2's built-in `projectMatrix`)
 - `Plugin()` - SBT plugin
 - `Program()` - Executable program
@@ -195,7 +195,7 @@ addSbtPlugin("com.ossuminc" % "sbt-ossuminc" % "2.0.0")
 ### Example CrossModule Definition
 
 ```scala
-lazy val mymodule_cp = CrossModule("mymodule", "riddl-mymodule", scalaVersion = "3.3.7")(JVM, JS, Native)
+lazy val mymodule_cp = CrossModule("mymodule", "riddl-mymodule", scalaVersion = "3.8.4")(JVM, JS, Native)
   .configure(With.typical, With.GithubPublishing)
   .settings(
     description := "Description here"

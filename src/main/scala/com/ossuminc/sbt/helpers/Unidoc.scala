@@ -56,7 +56,7 @@ object Unidoc extends AutoPluginHelper {
       .disablePlugins(ScoverageSbtPlugin)
       .settings(
         Compile / doc / target := apiOutput,
-        apiURL := baseURL.map(url),
+        apiURL := baseURL.map(uri),
         ScalaUnidoc / unidoc / unidocProjectFilter := inProjects(inclusions: _*) -- inProjects(exclusions: _*),
         ScalaUnidoc / scalaVersion := (Compile / scalaVersion).value,
         ScalaUnidoc / unidoc / target := apiOutput,

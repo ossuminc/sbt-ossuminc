@@ -51,17 +51,17 @@ object AsciiDoc extends AutoPluginHelper {
 
     // Base library dependencies for AsciidoctorJ
     val asciidoctorDeps = Seq(
-      "org.asciidoctor" % "asciidoctorj" % "2.5.13"
+      "org.asciidoctor" % "asciidoctorj" % "3.0.1"
     )
 
     // Add PDF support if enabled
     val pdfDeps = if (enablePdf) Seq(
-      "org.asciidoctor" % "asciidoctorj-pdf" % "2.3.18"
+      "org.asciidoctor" % "asciidoctorj-pdf" % "2.3.23"
     ) else Seq.empty
 
     // Add diagram support if enabled
     val diagramDeps = if (enableDiagrams) Seq(
-      "org.asciidoctor" % "asciidoctorj-diagram" % "2.3.1"
+      "org.asciidoctor" % "asciidoctorj-diagram" % "3.2.1"
     ) else Seq.empty
 
     project

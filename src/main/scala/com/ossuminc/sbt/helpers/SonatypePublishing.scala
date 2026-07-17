@@ -69,7 +69,7 @@ object SonatypePublishing extends AutoPluginHelper {
         )
         Some(
           ScmInfo(
-            url(s"https://github.com/$org/$repo"),
+            uri(s"https://github.com/$org/$repo"),
             s"scm:git:https://github.com/$org/$repo.git"
           )
         )

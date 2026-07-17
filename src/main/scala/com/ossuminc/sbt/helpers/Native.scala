@@ -9,7 +9,7 @@ import scala.scalanative.sbtplugin.ScalaNativePlugin.autoImport.*
 object Native extends AutoPluginHelper {
 
   /** Default version for scalatest dependencies */
-  val defaultScalatestVersion = "3.2.19"
+  val defaultScalatestVersion = "3.2.20"
 
   /** The configuration function to call for this plugin helper to add support
     * for Scala Native
@@ -48,7 +48,7 @@ object Native extends AutoPluginHelper {
     project
       .enablePlugins(ScalaNativePlugin)
       .settings(
-        // scalatest-core_native (3.2.19) pins an older scala-native test-interface
+        // scalatest-core_native (3.2.20) pins an older scala-native test-interface
         // than the active scala-native; downgrade strict eviction to a warning so
         // the newer, compatible test-interface is selected.
         evictionErrorLevel := Level.Warn,

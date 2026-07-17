@@ -41,7 +41,7 @@ object Scala3 extends AutoPluginHelper {
   /** Configure Scala 3 compilation with optional documentation settings.
     *
     * @param version
-    *   Scala version (default: 3.3.7 LTS)
+    *   Scala version (default: 3.8.4, Scala Next)
     * @param scala3Options
     *   Additional compiler options
     * @param projectName
@@ -67,7 +67,7 @@ object Scala3 extends AutoPluginHelper {
 
     project
       .settings(
-        scalaVersion := version.getOrElse("3.3.7"),
+        scalaVersion := version.getOrElse("3.8.4"),
         scalacOptions ++= scala_3_options ++ scala3Options,
         Compile / doc / scalacOptions := scala_3_doc_options(
           (Compile / scalaVersion).value,

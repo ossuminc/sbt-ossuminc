@@ -68,7 +68,7 @@ lazy val `sbt-ossuminc` = project
 
     libraryDependencies ++= Seq(
       "org.apache.commons" % "commons-lang3" % "3.20.0",
-      "org.slf4j" % "slf4j-simple" % "2.0.17"
+      "org.slf4j" % "slf4j-simple" % "2.0.18"
     ),
 
     // Resolve transitive cross-version (_2.13 vs _3) conflicts in the
@@ -126,7 +126,7 @@ addSbtPlugin(reexport("com.eed3si9n" % "sbt-buildinfo" % "0.13.1"))
 addSbtPlugin(reexport("com.github.sbt" % "sbt-header" % "5.11.0")) // org moved from de.heikoseeberger
 addSbtPlugin(reexport("com.timushev.sbt" % "sbt-updates" % "0.7.0"))
 addSbtPlugin(reexport("ch.epfl.scala" % "sbt-scalafix" % "0.14.7"))
-addSbtPlugin(reexport("org.scalameta" % "sbt-scalafmt" % "2.5.6"))
+addSbtPlugin(reexport("org.scalameta" % "sbt-scalafmt" % "2.6.1"))
 addSbtPlugin(reexport("org.scoverage" % "sbt-scoverage" % "2.4.4"))
 addSbtPlugin(reexport("org.scala-native" % "sbt-scala-native" % "0.5.12"))
 addSbtPlugin(reexport("org.scala-js" % "sbt-scalajs" % "1.22.0"))

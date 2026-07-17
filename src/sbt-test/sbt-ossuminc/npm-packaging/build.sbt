@@ -25,7 +25,7 @@ lazy val root = Root("npm-packaging-test", startYr = 2026)
     )
   )
   .settings(
-    scalaVersion := "3.3.7",
+    scalaVersion := "3.8.4",
     maxErrors := 50,
     TaskKey[Unit]("checkPackageJson") := {
       import com.ossuminc.sbt.helpers.NpmPackaging

@@ -1,6 +1,6 @@
 package com.ossuminc.sbt
 
-import sbt.{Developer, Project, file, url}
+import sbt.{Developer, Project, file, uri}
 import java.net.URI
 
 /** A configuration object for a root project of a monorepo composed of
@@ -38,7 +38,7 @@ object Root {
     ghOrgName: String = "ossuminc",
     orgPackage: String = "com.ossuminc",
     orgName: String = "Ossum Inc.",
-    orgPage: URI = url("https://ossuminc.com/"),
+    orgPage: URI = uri("https://ossuminc.com/"),
     startYr: Int = 2023,
     devs: List[Developer] = List.empty,
     spdx: String = "Apache-2.0",

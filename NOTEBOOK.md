@@ -13,6 +13,39 @@ to the task file and note completion in this notebook.
 
 ## Current Status
 
+### Version bumps 2026-07-17 (post-2.0.0, uncommitted)
+
+Reviewed all plugins/deps for upgrades. The 15 re-exported sbt plugins were
+already at their latest `_sbt2_3` builds. Applied:
+
+- **Scala default 3.3.7 → 3.8.4** — `helpers/Scala3.scala`,
+  `CrossModule.scala` (`defaultScalaVersion`), plus README/CLAUDE doc refs
+  and the npm-packaging scripted test. 3.8.4 matches the Scala version sbt
+  2.0 ships and the state of the art most consumers already build on. The
+  old "no Scala Next for library publishing" note in `../CLAUDE.md` was a
+  holdover from a since-fixed compiler failure and has been **removed**; the
+  org Version Policy now names 3.8.4 as the default (LTS 3.3.8 available via
+  `With.Scala3(version = Some("3.3.8"))`).
+- **Library bumps:** scalatest 3.2.19→3.2.20, scala-java-time 2.6.0→2.7.0,
+  laminar 17.2.0→17.2.1, scalajs-dom 2.8.0→2.8.1, slf4j-simple 2.0.17→2.0.18.
+- **sbt-scalafmt 2.5.6 → 2.6.1** (build.sbt re-export + project/plugins.sbt).
+- **sbt core 2.0.0 → 2.0.3** (project/build.properties). Surfaced new
+  `url(...)` → `uri(...)` deprecations (sbt 2.0.2); **fixed** all of them:
+  `sbt.url` → `sbt.uri` across Root/RootProjectInfo/SonatypePublishing/
+  Unidoc, and `Resolver.url(name, url)(patterns)` →
+  `Resolver.uri(name, uri)(using patterns)` in Akka.scala (sbt 2.0.3
+  signature: `apply(name, baseURI)(using Patterns)`). Remaining `: _*`
+  varargs warnings in Unidoc are a separate pre-existing Scala 3.8 item.
+- **AsciiDoc 2.x → 3.x** (asciidoctorj 2.5.13→3.0.1, diagram 2.3.1→3.2.1,
+  pdf 2.3.18→2.3.23) — **attempted per Reid's "try it" directive and it
+  WORKS**: the asciidoc scripted test (reflection-driven HTML+PDF gen via
+  `Asciidoctor$Factory`) passes on 3.0.1. Kept.
+- **No action** (already current): scala-native 0.5.12 (no 0.6.x exists),
+  scala.js 1.22.0, commons-lang3 3.20.0, waypoint 9.0.0 (10.x milestone-only).
+
+Verified: `sbt compile` + scripted `asciidoc`, `scalatest`, `cross`,
+`laminar`, `npm-packaging` all green. Not yet committed; not released.
+
 **Released 2.0.0 — sbt 2.0.0 / Scala 3. No active work items.**
 `main` is the sbt 2 line. The sbt 1.x line (last release **v1.4.0**) remains
 for consumers that cannot move yet — notably riddl-idea-plugin, blocked on

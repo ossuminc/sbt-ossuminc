@@ -1,3 +1,4 @@
-object Main extends App {
-  println("Hello from docker-dual test!")
+object Main {
+  def main(args: Array[String]): Unit =
+    println("Hello from docker-dual test!")
 }
