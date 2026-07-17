@@ -51,6 +51,11 @@ lazy val `sbt-ossuminc` = project
     sbtPlugin := true,
     scalaVersion := "3.8.4", // matches the Scala version sbt 2.0.0 ships
 
+    // Fail the build on any compiler warning so they can't accumulate. -deprecation
+    // and -feature surface the actual location/reason instead of a summarized count,
+    // making a -Werror failure actionable.
+    scalacOptions ++= Seq("-deprecation", "-feature", "-Werror"),
+
     // Dynamic versioning (was DynamicVersioning helper). These MUST be at
     // ThisBuild scope: sbt-dynver computes ThisBuild/version using the ThisBuild
     // values. At project scope they are ignored, dynver defaults to expecting a

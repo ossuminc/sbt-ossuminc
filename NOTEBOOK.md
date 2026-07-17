@@ -29,6 +29,12 @@ warnings; delete those dirs to force an honest full recompile):
   bodies in `Def.uncached { ... }` (Packaging.scala). Full scripted suite
   (20 tests) still green.
 
+To keep warnings from re-accumulating, the plugin's own build now compiles
+with `scalacOptions ++= Seq("-deprecation", "-feature", "-Werror")` in
+build.sbt — any future warning fails the build. (Consumers already get
+`-Werror` via `With.Scala3`; this closes the gap where the plugin itself did
+not.)
+
 ### Version bumps 2026-07-17 (post-2.0.0, uncommitted)
 
 Reviewed all plugins/deps for upgrades. The 15 re-exported sbt plugins were
