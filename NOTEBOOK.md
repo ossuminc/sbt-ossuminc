@@ -39,21 +39,34 @@ directly; `riddl-gen` got a task flagging it needs the sbt 1→2 migration
 first. The other 8 consumers are on sbt-ossuminc 1.4.0 / sbt 1.x — 3.0.0 is
 inapplicable until they migrate, so no tasks dropped there.
 
-### KNOWN ISSUE: CI red since 2.0.0 — `everything` scripted test
+### FIXED: CI red since 2.0.0 — `everything` scripted test (2026-07-17)
 
-Every `Continuous Integration` run on `main` has failed since the 2.0.0
-release (2026-06-26). Root cause (investigated 2026-07-17): the `everything`
-scripted fixture does `.configure(With.Riddl)`, which pins
-`com.ossuminc %% riddl-testkit % 1.0.0-RC6` (in `helpers/Riddl.scala`,
-`latest_version`). `> run` forces resolution; in clean CI the artifact is
-**unresolvable** (`ResolveException ... riddl-testkit_3:1.0.0-RC6` — 404 on
-Central, **unauthorized** on GitHub Packages). Passes locally only because
-`1.0.0-RC6` is cached in `~/.ivy2`. `1.0.0-RC6` is ancient — riddl is now at
-**1.29.0**. Fix options (undecided): (a) bump `Riddl.latest_version` to a
-currently-published riddl (verify it resolves for `_3` in CI); (b) fix CI
-GitHub Packages auth to read the riddl registry cross-repo; (c) restructure
-the `everything` test so it doesn't resolve an external riddl artifact.
-Release itself is unaffected — `release.yml` does not run scripted.
+Every `Continuous Integration` run on `main` had failed since the 2.0.0
+release (2026-06-26). Root cause: the `everything` scripted fixture did
+`.configure(With.Riddl)`, pulling `com.ossuminc %% riddl-testkit % 1.0.0-RC6`
+(the `latest_version` default in `helpers/Riddl.scala`). `> run` forces
+resolution; in clean CI it was **unresolvable** (`ResolveException` — 404 on
+Central, **unauthorized** on GitHub Packages). It passed locally only because
+`1.0.0-RC6` was cached in `~/.ivy2`.
+
+Verified two dimensions: `1.0.0-RC6` no longer exists (riddl-testkit_3 on
+GitHub Packages is 1.20.0–1.29.0, package is **public**), AND even a valid
+`1.29.0` still returned **unauthorized** — GitHub Packages requires auth for
+all Maven reads and the scripted sub-build has no GitHub Packages credentials
+(the resolver is added by `Resolvers.apply` but credentials are not).
+
+**Fix (minimal):** `everything`'s `Main` never uses riddl — it configured
+`With.Riddl` only as decoration — so removed `.configure(With.Riddl)` from
+`src/sbt-test/.../everything/build.sbt`. The test is now self-contained and
+resolves nothing external. Also bumped the dead `Riddl.latest_version`
+default `1.0.0-RC6 → 1.29.0` so `With.Riddl()` bare no longer points at a
+nonexistent version. Full scripted suite (20 tests) green locally.
+
+**Deliberately NOT done (proposed follow-ups):** (a) wiring GitHub Packages
+*resolution* credentials into `Resolvers.apply` (a broad, every-consumer
+behavior change — real consumers rely on a global `~/.sbt/2/github.sbt`
+instead; propose separately); (b) With.Riddl now has no scripted coverage —
+could add a non-resolving dependency-presence check later.
 
 ### Compiler warning cleanup 2026-07-17
 
