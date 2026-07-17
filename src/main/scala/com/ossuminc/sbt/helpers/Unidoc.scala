@@ -57,7 +57,7 @@ object Unidoc extends AutoPluginHelper {
       .settings(
         Compile / doc / target := apiOutput,
         apiURL := baseURL.map(uri),
-        ScalaUnidoc / unidoc / unidocProjectFilter := inProjects(inclusions: _*) -- inProjects(exclusions: _*),
+        ScalaUnidoc / unidoc / unidocProjectFilter := inProjects(inclusions*) -- inProjects(exclusions*),
         ScalaUnidoc / scalaVersion := (Compile / scalaVersion).value,
         ScalaUnidoc / unidoc / target := apiOutput,
         Compile / doc / scalacOptions := {

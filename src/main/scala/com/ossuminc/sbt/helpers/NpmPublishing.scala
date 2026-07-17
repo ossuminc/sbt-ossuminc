@@ -66,7 +66,7 @@ object NpmPublishing {
     log.info(s"Running: ${cmd.mkString(" ")}")
 
     val env = Seq("NPM_TOKEN" -> token)
-    val exitCode = sys.process.Process(cmd, prepDir, env: _*).!
+    val exitCode = sys.process.Process(cmd, prepDir, env*).!
 
     // Clean up .npmrc regardless of outcome
     IO.delete(npmrc)
@@ -119,7 +119,7 @@ object NpmPublishing {
     log.info(s"Running: ${cmd.mkString(" ")}")
 
     val env = Seq("GITHUB_TOKEN" -> token)
-    val exitCode = sys.process.Process(cmd, prepDir, env: _*).!
+    val exitCode = sys.process.Process(cmd, prepDir, env*).!
 
     // Clean up .npmrc regardless of outcome
     IO.delete(npmrc)
