@@ -33,9 +33,13 @@ already at their latest `_sbt2_3` builds. Applied:
   `url(...)` → `uri(...)` deprecations (sbt 2.0.2); **fixed** all of them:
   `sbt.url` → `sbt.uri` across Root/RootProjectInfo/SonatypePublishing/
   Unidoc, and `Resolver.url(name, url)(patterns)` →
-  `Resolver.uri(name, uri)(using patterns)` in Akka.scala (sbt 2.0.3
+  `Resolver.uri(name, uri)(using patterns)` in Akka.scala (sbt 2.0.2+
   signature: `apply(name, baseURI)(using Patterns)`). Remaining `: _*`
   varargs warnings in Unidoc are a separate pre-existing Scala 3.8 item.
+- **Mandated sbt >= 2.0.2** (Resolver.uri does not exist in 2.0.0/2.0.1).
+  All 20 scripted fixtures pin `sbt.version=2.0.2` (the floor, to prove it
+  works there); README + CLAUDE requirement text bumped 2.0.0+ → 2.0.2+.
+  The plugin's own meta-build stays on 2.0.3.
 - **AsciiDoc 2.x → 3.x** (asciidoctorj 2.5.13→3.0.1, diagram 2.3.1→3.2.1,
   pdf 2.3.18→2.3.23) — **attempted per Reid's "try it" directive and it
   WORKS**: the asciidoc scripted test (reflection-driven HTML+PDF gen via

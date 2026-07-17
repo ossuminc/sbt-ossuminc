@@ -14,7 +14,7 @@ SBT plugin providing build infrastructure and configuration helpers for Ossum
 Inc. projects. Defines declarative project types and configuration options
 used across all Scala projects in the organization.
 
-**Current version: 2.0.0** (released Jun 2026) — **sbt 2.0.0 / Scala 3**.
+**Current version: 2.0.0** (released Jun 2026) — **sbt 2.0.2+ / Scala 3**.
 The 1.x line (last release **v1.4.0**) remains for sbt 1.x builds.
 
 ## Release Process
@@ -184,8 +184,8 @@ sbt scalafmt
 
 ## Usage in Other Projects
 
-All Scala projects in ossuminc use this plugin. **Requires sbt 2.0.0+**
-(`sbt.version=2.0.0` in `project/build.properties`) and Scala 3. Add to
+All Scala projects in ossuminc use this plugin. **Requires sbt 2.0.2+**
+(`sbt.version=2.0.2` in `project/build.properties`) and Scala 3. Add to
 `project/plugins.sbt`:
 
 ```scala

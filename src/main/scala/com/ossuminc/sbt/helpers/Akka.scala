@@ -48,10 +48,9 @@ object Akka extends AutoPluginHelper {
     * require Ivy-style patterns.
     */
   private def akkaIvyResolver: URLRepository =
-    // NB: Resolver.url is deprecated in sbt 2.0.2 in favour of Resolver.uri, but
-    // Resolver.uri does not exist in sbt 2.0.0/2.0.1. Consumers may still run those,
-    // so we keep Resolver.url here for runtime compatibility (harmless deprecation).
-    Resolver.url("akka-secure-ivy", uri(akkaRepoUrl).toURL)(Resolver.ivyStylePatterns)
+    // Resolver.uri requires sbt >= 2.0.2 (it does not exist in 2.0.0/2.0.1); the
+    // plugin mandates that floor. Signature: apply(name, baseURI)(using Patterns).
+    Resolver.uri("akka-secure-ivy", uri(akkaRepoUrl))(using Resolver.ivyStylePatterns)
 
   /** Both Akka resolvers (Maven and Ivy style) */
   private def akkaResolvers: Seq[Resolver] = Seq(akkaMavenResolver, akkaIvyResolver)

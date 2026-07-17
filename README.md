@@ -4,7 +4,7 @@
 [![Scala.js](https://www.scala-js.org/assets/badges/scalajs-1.22.0.svg)](https://www.scala-js.org)
 [![scala-native](https://www.scala-native.org/assets/badges/scala-native-0.5.12.svg)](https://www.scala-native.org)
 
-> **sbt 2.x:** `sbt-ossuminc` 2.0.0+ targets **sbt 2.0.0** and **Scala 3**.
+> **sbt 2.x:** `sbt-ossuminc` 2.0.0+ requires **sbt 2.0.2+** and **Scala 3**.
 > For sbt 1.x builds, use the 1.x line (last release **v1.4.0**).
 
 ## Purpose
@@ -82,10 +82,10 @@ lazy val moduleC = Module("module-c").configure(standardModule)
 
 ### project/build.properties
 
-Pin sbt 2.0.0 (or newer) in your `project/build.properties`:
+Pin sbt 2.0.2 (or newer) in your `project/build.properties`:
 
 ```properties
-sbt.version=2.0.0
+sbt.version=2.0.2
 ```
 
 ### project/plugins.sbt
@@ -984,11 +984,12 @@ DocSite(
 
 ### Migrating to 2.0.0 (sbt 1.x → sbt 2)
 
-sbt-ossuminc **2.0.0** targets **sbt 2.0.0** and **Scala 3**; the 1.x line
+sbt-ossuminc **2.0.0** requires **sbt 2.0.2+** and **Scala 3**; the 1.x line
 (v1.4.0) remains for sbt 1.x builds. To upgrade a consuming project:
 
-1. **Bump sbt**: set `sbt.version=2.0.0` in `project/build.properties`, and the
-   plugin to `2.0.0` in `project/plugins.sbt`.
+1. **Bump sbt**: set `sbt.version=2.0.2` (the minimum; newer is fine) in
+   `project/build.properties`, and the plugin to `2.0.0` in
+   `project/plugins.sbt`.
 2. **Credentials**: move `~/.sbt/1.0/github.sbt` to `~/.sbt/2/github.sbt`.
 3. **Cross-platform modules**: `CrossModule(...)` now takes a `scalaVersion`
    argument and is built on the built-in `projectMatrix`. Replace `%%%` with
