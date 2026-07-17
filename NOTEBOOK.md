@@ -13,6 +13,22 @@ to the task file and note completion in this notebook.
 
 ## Current Status
 
+### Compiler warning cleanup 2026-07-17
+
+Drove the plugin compile to **zero warnings** (verified with `-feature`, on a
+purged build cache — sbt 2's disk cache at `~/Library/Caches/sbt` +
+`~/.cache/sbt` silently serves hits, so `clean` alone does not re-emit
+warnings; delete those dirs to force an honest full recompile):
+- `: _*` vararg splices → `x*` (Unidoc, NpmPublishing).
+- `Foo[_]` type wildcards → `Foo[?]` (OssumIncPlugin, Release).
+- `Char + String` → interpolation `s"..."` (HomebrewPackaging).
+- 15 `implicitConversions` feature warnings (RootProjectInfo license `given`
+  conversion, lines 120-134) → one `import scala.language.implicitConversions`.
+- 2 sbt-2 "transient key stagingDirectory excluded from cache input" warnings
+  → wrapped the side-effecting `dockerStageProd` / `dockerPublishProd` task
+  bodies in `Def.uncached { ... }` (Packaging.scala). Full scripted suite
+  (20 tests) still green.
+
 ### Version bumps 2026-07-17 (post-2.0.0, uncommitted)
 
 Reviewed all plugins/deps for upgrades. The 15 re-exported sbt plugins were

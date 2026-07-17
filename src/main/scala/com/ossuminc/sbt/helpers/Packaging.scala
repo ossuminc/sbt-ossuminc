@@ -156,7 +156,7 @@ object Packaging extends AutoPluginHelper {
         // for local development. Production builds use buildx with explicit amd64.
 
         // Production staging task - creates Dockerfile for distroless
-        Keys.dockerStageProd := {
+        Keys.dockerStageProd := Def.uncached {
           val log = streams.value.log
           val stageDir = (Docker / stagingDirectory).value
           val mainCls = Keys.dockerMainClass.value
@@ -209,7 +209,7 @@ object Packaging extends AutoPluginHelper {
         },
 
         // Production publish task
-        Keys.dockerPublishProd := {
+        Keys.dockerPublishProd := Def.uncached {
           val log = streams.value.log
           val stageDir = (Docker / stagingDirectory).value
           val name = (Docker / packageName).value

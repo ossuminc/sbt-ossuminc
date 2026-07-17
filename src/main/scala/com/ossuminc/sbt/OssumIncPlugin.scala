@@ -230,9 +230,9 @@ object OssumIncPlugin extends AutoPlugin {
     }
   }
 
-  override def projectSettings: Seq[Setting[_]] = Nil
+  override def projectSettings: Seq[Setting[?]] = Nil
 
-  override def buildSettings: Seq[Setting[_]] = Seq(
+  override def buildSettings: Seq[Setting[?]] = Seq(
     // Provide default (sentinel) values for RootProjectInfo keys
     // These will be overridden when Root() is called
     helpers.RootProjectInfo.Keys.gitHubOrganization :=

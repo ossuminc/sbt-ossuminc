@@ -20,6 +20,7 @@ import com.ossuminc.sbt.helpers.Miscellaneous.buildShellPrompt
 import sbt.*
 import sbt.Keys.*
 import sbt.given // (String, URI) -> License conversion for `licenses` (Scala 3)
+import scala.language.implicitConversions // enables the sbt.given License conversion
 import java.net.URI
 import java.util.Calendar
 

@@ -60,7 +60,7 @@ object HomebrewPackaging {
   private def rubyClassName(name: String): String = {
     name.split("[^a-zA-Z0-9]+").map { word =>
       if (word.isEmpty) ""
-      else word.head.toUpper + word.tail.toLowerCase
+      else s"${word.head.toUpper}${word.tail.toLowerCase}"
     }.mkString
   }
 

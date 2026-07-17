@@ -83,8 +83,8 @@ object Release extends AutoPluginHelper {
     )
   }
 
-  private def defaultSettings: Seq[sbt.Setting[_]] = {
-    Seq[sbt.Setting[_]](
+  private def defaultSettings: Seq[sbt.Setting[?]] = {
+    Seq[sbt.Setting[?]](
       Keys.artifactKinds := Seq(Keys.ZipFileArtifact),
       Keys.privateNexusResolver := None,
       Keys.additionalCheckSteps := Seq.empty[ReleaseStep],
