@@ -19,19 +19,19 @@ Added a `notify-blog` job to `release.yml` so **minor+** releases announce
 on ossum.ai/blog + newsletter (patch releases skipped via
 `if: endsWith(tag, '.0')`). Mirrors riddl's pattern. Full chain:
 1. `release.yml notify-blog` → `repository_dispatch` (event_type
-   `sbt-ossuminc-release`) to `ossuminc/ossum.ai` (needs `BLOG_DISPATCH`
-   secret — **not yet added to this repo**, flagged to Reid).
+   `sbt-ossuminc-release`) to `ossuminc/ossum.ai` (uses `BLOG_DISPATCH`
+   secret — **added 2026-07-24**).
 2. ossum.ai `release-blog-post.yml` → writes
    `src/content/blog/sbt-ossuminc-<v>-release.md`, commits to main.
 3. ossum.ai `deploy.yml` → deploys + POSTs `ai-api.ossum.ai/api/blog/
    check-new-posts`.
 4. `ossum-ai-api` sends the newsletter to subscribers.
 
-**Blocked on two things** (both dropped as tasks / flagged):
-- `BLOG_DISPATCH` secret in this repo (ops).
-- ossum.ai receiver must handle `sbt-ossuminc-release` (task dropped:
-  `../ossum.ai/task/handle-sbt-ossuminc-release-blog.md`). Until then the
-  dispatch is a no-op on the ossum.ai side.
+**Sender side is ready** (`BLOG_DISPATCH` added). **One blocker remains:**
+ossum.ai receiver must handle `sbt-ossuminc-release` (task dropped:
+`../ossum.ai/task/handle-sbt-ossuminc-release-blog.md`). Until then the
+dispatch fires but is a no-op on the ossum.ai side (no matching
+`repository_dispatch` type → nothing happens).
 
 Note: **riddl-gen does NOT wire this** (only riddl does, plus synapify on
 the receiver) — the "riddl-generator does it too" assumption was wrong.
