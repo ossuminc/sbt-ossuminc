@@ -13,6 +13,52 @@ to the task file and note completion in this notebook.
 
 ## Current Status
 
+### RELEASED 3.0.1 (2026-07-24) — CrossModule `defaultAxes`; CI on Node 24
+
+Shipped via `/ship`. Tag `3.0.1` on `c8639ba`, published to GitHub Packages,
+JAR attached to the release:
+https://github.com/ossuminc/sbt-ossuminc/releases/tag/3.0.1
+PATCH bump — additive/defensive, no consumer breakage.
+
+**What shipped:**
+- **CrossModule `.defaultAxes(VirtualAxis.jvm, VirtualAxis.scalaABIVersion(
+  scalaVersion))`** on the `ProjectMatrix` builder (`CrossModule.scala`), so
+  the JVM/Scala-3 row is the default axis and generated project IDs stay clean
+  (`utils`, `utilsJS`, `utilsNative`) with no `3` ABI suffix. Requested by
+  riddl's sbt 2 migration, which reported `utils3`-style IDs.
+- **`cross` scripted test strengthened**: a `checkProjectIds` task asserts the
+  IDs are exactly `cross`/`crossJS`/`crossNative`.
+- **CI actions bumped to Node 24 runtimes** (separate commit `6f14d68`):
+  `actions/checkout` v4→v7, `actions/setup-java` v4→v5,
+  `coursier/cache-action` v6→v8 in both `ci.yml` and `release.yml`. Clears the
+  Node 20 deprecation warning. `sbt/setup-sbt@v1` is composite — left as-is.
+
+**Key finding — `defaultAxes` is a no-op under sbt 2.0.2 (verified).** The
+task premise cited the *sbt 1.x `sbt-projectmatrix`* default (a Scala 2.13 ABI
+axis). sbt 2's **built-in** projectMatrix already defaults the ABI to the
+declared version, so IDs are clean **with or without** the call — proven by
+running the `cross` scripted test both ways (both yield
+`cross, crossJS, crossNative`). The ABI suffix is a *multi-version*
+disambiguation, and CrossModule only ever declares a single Scala version, so
+it can't be reproduced through the public API. Shipped anyway as defensive/
+self-documenting (pins the intended default; future-proofs against
+projectMatrix default changes). **riddl asked to re-verify against 3.0.1 and
+share an exact repro if `utils3` persists** (task dropped in `../riddl/task/`).
+
+**Ship gotcha refined — the stale-version culprit is the `sbtn` SERVER, not
+disk cache.** After `git tag -a 3.0.1`, `sbt show version` returned `3.0.0`.
+Purging `~/Library/Caches/sbt` + `~/.cache/sbt` + `target` did **not** fix it
+(still `3.0.0`). The fix was **`sbt shutdown`** — sbt 2's persistent `sbtn`
+server computes dynver once at server startup and holds it; a graceful
+shutdown forces recompute. `git describe` was correct (`3.0.1`) throughout.
+Update the mental model: dynver stale version ⇒ `sbt shutdown` first, then
+purge caches only if still wrong. (Never `pkill -f sbt`.)
+
+**Double-publish fix confirmed working.** No local `publish` was run (only
+`publishLocal` → `~/.ivy2/local`, which does not collide with Packages), so
+`release.yml` published 3.0.1 to GitHub Packages cleanly with **no 409** and
+uploaded the JAR — unlike 3.0.0.
+
 ### RELEASED 3.0.0 (2026-07-17) — Scala 3.8.4 default, sbt 2.0.2+ floor
 
 Shipped via `/ship`. Tag `3.0.0` on `54c4b7b`'s successor `78f439b`,
