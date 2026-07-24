@@ -13,6 +13,31 @@ to the task file and note completion in this notebook.
 
 ## Current Status
 
+### RELEASED 3.0.2 (2026-07-24) — `With.NoDocs` helper
+
+Shipped via `/ship`. Tag `3.0.2` on `1fdef2d`, published to GitHub Packages,
+JAR attached to the release:
+https://github.com/ossuminc/sbt-ossuminc/releases/tag/3.0.2
+PATCH bump — additive helper, no consumer breakage.
+
+**What shipped:**
+- **`With.NoDocs`** — a `ConfigFunc` that clears `Compile / doc / sources`
+  so Scaladoc/Javadoc generation is skipped for modules where it is slow or
+  unnecessary. The empty `packageDoc` artifact is still produced, so
+  Sonatype's javadoc-jar requirement stays satisfied. Follows the existing
+  `noPublishing`/`noMiMa` pattern (the task's suggested `AutoConfigurator`
+  base does **not** exist in this codebase). Documented in README.
+- **New `nodocs` scripted test** — *discriminating*: asserts the module has
+  real compile sources but zero doc sources. Verified it **fails** when
+  `With.NoDocs` is removed (`docSources=1`) and passes with it (`docSources=0`)
+  — a real, working feature (unlike 3.0.1's no-op defaultAxes).
+
+**Process note:** applied the 3.0.1 dynver learning proactively — ran
+`sbt shutdown` right after tagging, so `sbt show version` returned `3.0.2`
+first try (no stale-cache detour). Skipped a redundant post-tag gate re-run
+since the committed tree was byte-identical to the just-passed
+`; clean; test; scripted`.
+
 ### RELEASED 3.0.1 (2026-07-24) — CrossModule `defaultAxes`; CI on Node 24
 
 Shipped via `/ship`. Tag `3.0.1` on `c8639ba`, published to GitHub Packages,
