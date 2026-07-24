@@ -13,6 +13,29 @@ to the task file and note completion in this notebook.
 
 ## Current Status
 
+### IN FLIGHT: blog + newsletter wiring (2026-07-24)
+
+Added a `notify-blog` job to `release.yml` so **minor+** releases announce
+on ossum.ai/blog + newsletter (patch releases skipped via
+`if: endsWith(tag, '.0')`). Mirrors riddl's pattern. Full chain:
+1. `release.yml notify-blog` → `repository_dispatch` (event_type
+   `sbt-ossuminc-release`) to `ossuminc/ossum.ai` (needs `BLOG_DISPATCH`
+   secret — **not yet added to this repo**, flagged to Reid).
+2. ossum.ai `release-blog-post.yml` → writes
+   `src/content/blog/sbt-ossuminc-<v>-release.md`, commits to main.
+3. ossum.ai `deploy.yml` → deploys + POSTs `ai-api.ossum.ai/api/blog/
+   check-new-posts`.
+4. `ossum-ai-api` sends the newsletter to subscribers.
+
+**Blocked on two things** (both dropped as tasks / flagged):
+- `BLOG_DISPATCH` secret in this repo (ops).
+- ossum.ai receiver must handle `sbt-ossuminc-release` (task dropped:
+  `../ossum.ai/task/handle-sbt-ossuminc-release-blog.md`). Until then the
+  dispatch is a no-op on the ossum.ai side.
+
+Note: **riddl-gen does NOT wire this** (only riddl does, plus synapify on
+the receiver) — the "riddl-generator does it too" assumption was wrong.
+
 ### RELEASED 3.0.2 (2026-07-24) — `With.NoDocs` helper
 
 Shipped via `/ship`. Tag `3.0.2` on `1fdef2d`, published to GitHub Packages,
