@@ -13,6 +13,35 @@ to the task file and note completion in this notebook.
 
 ## Current Status
 
+### RELEASED 3.0.3 (2026-07-24) — CrossModule auto-adds scalajs-stubs
+
+Shipped via `/ship`. Tag `3.0.3` on `b25156e`, GitHub Packages + JAR:
+https://github.com/ossuminc/sbt-ossuminc/releases/tag/3.0.3
+PATCH — regression fix restoring dropped 1.x behavior.
+
+**What shipped:** A JS-targeting `CrossModule` now auto-adds
+`scalajs-stubs % provided` to its **JVM and Native** rows, so shared code
+using `@JSExport*` (from `scala.scalajs.js.annotation`) compiles on all
+three rows with no consumer dep. 1.x did this; the projectMatrix rewrite
+dropped it, and consumers hit `value scalajs is not a member of scala`.
+- Native row **forces the JVM artifact**: `"org.scala-js" % "scalajs-stubs_3"`
+  (single `%`, hardcoded `_3`). projectMatrix's platform-aware `%%` would
+  chase the nonexistent `scalajs-stubs_native0.5_3`. Compile-only; never
+  fed to the native linker. Non-JS modules get nothing added.
+- `cross` scripted test extended: shared `@JSExportTopLevel` object (proves
+  criteria 1/2/4 via `> compile`), plus `checkHasStubs`/`checkNoStubs` and a
+  non-JS control module. **Verified load-bearing** — forcing the auto-add
+  off reproduces `value scalajs is not a member of scala` (a real fix,
+  unlike 3.1.0-defaultAxes which was a no-op).
+
+**Process:** applied dynver learning (`sbt shutdown` after tag → `3.0.3`
+first try); skipped redundant post-tag gate (committed tree == just-passed
+`; clean; test; scripted`). **notify-blog correctly skipped** — patch tags
+don't match the `.0` gate, so no dispatch fired (as intended).
+
+Consumer handoff: `../riddl/task/drop-manual-scalajs-stubs-3.0.3.md` — riddl
+can remove its manual `Dep.scalajs_stubs`/`_native` in utils/language/passes.
+
 ### IN FLIGHT: blog + newsletter wiring (2026-07-24)
 
 Added a `notify-blog` job to `release.yml` so **minor+** releases announce
