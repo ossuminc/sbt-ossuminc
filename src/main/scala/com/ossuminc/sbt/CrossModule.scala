@@ -42,6 +42,11 @@ object CrossModule {
   /** Default Scala version — matches [[com.ossuminc.sbt.helpers.Scala3]]. */
   val defaultScalaVersion: String = "3.8.4"
 
+  /** scalajs-stubs version auto-added (as `provided`) to the JVM and Native
+    * rows of a JS-targeting cross module, so shared code using `@JSExport*`
+    * from `scala.scalajs.js.annotation` compiles on those rows too. */
+  val scalajsStubsVersion: String = "1.1.0"
+
   /** Define a cross-platform subproject. Configuration is deferred (accumulated)
     * and materialized into a `projectMatrix` the first time `.jvm`/`.js`/
     * `.native` is accessed, so both whole-module (`configure`/`settings`) and
@@ -135,8 +140,34 @@ final class CrossModule private[sbt] (
       .settings(name := dirName, moduleName := mname)
       .settings(commonSettings*)
       .configure(common*)
+    // When this module also targets JS, its shared sources may use
+    // `@JSExportTopLevel`/`@JSExport` (from `scala.scalajs.js.annotation`).
+    // Those symbols must be on the JVM and Native rows' compile classpath too,
+    // via scalajs-stubs (provided). Restores sbt-ossuminc 1.x behavior that the
+    // projectMatrix rewrite dropped. No-op for pure JVM/Native modules.
+    val jsTargeted = targets.contains(CrossModule.JSTarget)
+    // JVM row: `%%` resolves the correct `scalajs-stubs_3` artifact.
+    val jvmStubs: Project => Project =
+      if (jsTargeted)
+        _.settings(
+          libraryDependencies +=
+            "org.scala-js" %% "scalajs-stubs" % CrossModule.scalajsStubsVersion % "provided"
+        )
+      else identity
+    // Native row: force the JVM `_3` artifact (single `%`, hardcoded suffix).
+    // scalajs-stubs is published only for the JVM, and projectMatrix's
+    // platform-aware `%%` would chase the nonexistent `scalajs-stubs_native0.5_3`.
+    // It is compile-only (`provided`) and never fed to the native linker.
+    val nativeStubs: Project => Project =
+      if (jsTargeted)
+        _.settings(
+          libraryDependencies +=
+            "org.scala-js" % "scalajs-stubs_3" % CrossModule.scalajsStubsVersion % "provided"
+        )
+      else identity
+
     if (targets.contains(CrossModule.JVMTarget))
-      m = m.jvmPlatform(Seq(scalaVersion), Seq.empty[VirtualAxis], chain(jvmXforms))
+      m = m.jvmPlatform(Seq(scalaVersion), Seq.empty[VirtualAxis], jvmStubs.andThen(chain(jvmXforms)))
     if (targets.contains(CrossModule.JSTarget))
       m = m.jsPlatform(Seq(scalaVersion), Seq.empty[VirtualAxis], chain(jsXforms))
     if (targets.contains(CrossModule.NativeTarget)) {
@@ -148,7 +179,7 @@ final class CrossModule private[sbt] (
       m = m.nativePlatform(
         Seq(scalaVersion),
         Seq.empty[VirtualAxis],
-        nativeDefaults.andThen(chain(nativeXforms))
+        nativeDefaults.andThen(nativeStubs).andThen(chain(nativeXforms))
       )
     }
     m

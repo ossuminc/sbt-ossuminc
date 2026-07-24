@@ -1,3 +1,7 @@
+# compile builds all rows; the JVM/Native rows compile the shared
+# @JSExportTopLevel source only if scalajs-stubs was auto-added.
 > compile
 > projects
 > checkProjectIds
+> checkHasStubs
+> checkNoStubs
