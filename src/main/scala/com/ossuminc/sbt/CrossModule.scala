@@ -127,6 +127,11 @@ final class CrossModule private[sbt] (
     val mname = if (modName.isEmpty) dirName else modName
     var m = ProjectMatrix(dirName, file(dirName), getClass.getClassLoader)
       .enablePlugins(OssumIncPlugin)
+      // Make the JVM + configured-Scala-3 row the default axis so generated
+      // project IDs come out clean (`utils`, `utilsJS`, `utilsNative`) instead
+      // of carrying projectMatrix's `3` ABI suffix (`utils3`, ...). Consumers
+      // reference these IDs directly in build.sbt/aggregate/addCommandAlias.
+      .defaultAxes(VirtualAxis.jvm, VirtualAxis.scalaABIVersion(scalaVersion))
       .settings(name := dirName, moduleName := mname)
       .settings(commonSettings*)
       .configure(common*)

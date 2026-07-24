@@ -16,3 +16,12 @@ lazy val cm = CrossModule("cross", "cross_test.cross")(JVM, JS, Native)
 val cm_jvm = cm.jvm
 val cm_js = cm.js
 val cm_native = cm.native
+
+// Assert CrossModule's defaultAxes yields clean project IDs (no `3` suffix).
+TaskKey[Unit]("checkProjectIds") := {
+  val ids = Seq(cm_jvm.id, cm_js.id, cm_native.id)
+  println(s"CrossModule project IDs: ${ids.mkString(", ")}")
+  val expected = Seq("cross", "crossJS", "crossNative")
+  if (ids != expected)
+    sys.error(s"Expected $expected but got $ids (defaultAxes regression?)")
+}
