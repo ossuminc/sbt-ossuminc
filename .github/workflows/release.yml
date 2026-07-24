@@ -68,3 +68,47 @@ jobs:
           find $HOME/.cache/coursier/v1 -name "ivydata-*.properties" -delete || true
           find $HOME/.ivy2/cache -name "ivydata-*.properties" -delete || true
           find $HOME/.sbt -name "*.lock" -delete || true
+
+  # Announce minor+ releases on ossum.ai/blog and the newsletter. Patch
+  # releases (x.y.Z with Z>0) are intentionally skipped to avoid subscriber
+  # noise from routine build-plugin fixes. This only fires after `release`
+  # (the publish job) succeeds. Requires the BLOG_DISPATCH secret: a PAT that
+  # can POST repository_dispatch to ossuminc/ossum.ai (same secret riddl uses).
+  # The ossum.ai side must handle event_type `sbt-ossuminc-release`.
+  notify-blog:
+    needs: [release]
+    if: ${{ endsWith(github.event.release.tag_name || github.event.inputs.tag, '.0') }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    env:
+      TAG: ${{ github.event.release.tag_name || github.event.inputs.tag }}
+    steps:
+      - name: Fetch release body
+        env:
+          GH_TOKEN: ${{ secrets.BLOG_DISPATCH }}
+        run: |
+          BODY=$(gh api repos/ossuminc/sbt-ossuminc/releases/tags/${TAG} --jq '.body' 2>/dev/null || echo "")
+          if [ -z "$BODY" ]; then
+            echo "::warning::Could not fetch release body for ${TAG}"
+          fi
+          # Write to a file to avoid shell quoting issues.
+          echo "$BODY" > /tmp/release-body.txt
+
+      - name: Dispatch blog post creation
+        env:
+          GH_TOKEN: ${{ secrets.BLOG_DISPATCH }}
+        run: |
+          BODY=$(cat /tmp/release-body.txt)
+          gh api repos/ossuminc/ossum.ai/dispatches \
+            --method POST \
+            --input - <<PAYLOAD
+          {
+            "event_type": "sbt-ossuminc-release",
+            "client_payload": {
+              "product": "sbt-ossuminc",
+              "version": "${TAG}",
+              "release_url": "https://github.com/ossuminc/sbt-ossuminc/releases/tag/${TAG}",
+              "body": $(echo "$BODY" | jq -Rs .)
+            }
+          }
+          PAYLOAD
