@@ -76,18 +76,26 @@ jobs:
   # can POST repository_dispatch to ossuminc/ossum.ai (same secret riddl uses).
   # The ossum.ai side must handle event_type `sbt-ossuminc-release`.
   notify-blog:
+    name: Announce release on ossum.ai blog
     needs: [release]
     if: ${{ endsWith(github.event.release.tag_name || github.event.inputs.tag, '.0') }}
+    # Best-effort: `release` has already published by the time this runs, so a
+    # blog-dispatch hiccup must NOT mark the run red. Matches riddl-generator.
+    continue-on-error: true
     runs-on: ubuntu-latest
     timeout-minutes: 10
+    permissions:
+      contents: read # read this repo's release notes via GITHUB_TOKEN
     env:
       TAG: ${{ github.event.release.tag_name || github.event.inputs.tag }}
     steps:
       - name: Fetch release body
         env:
-          GH_TOKEN: ${{ secrets.BLOG_DISPATCH }}
+          # Public repo — the built-in token reads the release body; the
+          # BLOG_DISPATCH PAT is reserved for the cross-repo dispatch below.
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          BODY=$(gh api repos/ossuminc/sbt-ossuminc/releases/tags/${TAG} --jq '.body' 2>/dev/null || echo "")
+          BODY=$(gh api "repos/${{ github.repository }}/releases/tags/${TAG}" --jq '.body' 2>/dev/null || echo "")
           if [ -z "$BODY" ]; then
             echo "::warning::Could not fetch release body for ${TAG}"
           fi
