@@ -202,6 +202,16 @@ object OssumIncPlugin extends AutoPlugin {
           publish / skip := true
         )
 
+      /** Suppress Scaladoc/Javadoc generation for this module by clearing the
+        * `doc` task's input sources. Useful where doc generation is slow or
+        * unnecessary. The (now empty) `packageDoc` artifact is still produced,
+        * so Sonatype's javadoc-jar publishing requirement remains satisfied.
+        */
+      def NoDocs(project: Project): Project =
+        project.settings(
+          Compile / doc / sources := Seq.empty
+        )
+
       /** Apply multiple configuration functions */
       def these(cfuncs: ConfigFunc*)(project: Project): Project =
         cfuncs.foldLeft(project) { (p, func) =>

@@ -417,6 +417,7 @@ These helpers take no parameters (or use all defaults):
 * **`With.scalajs`** - Enable Scala.js compilation (default configuration)
 * **`With.noMiMa`** - Disable binary compatibility checking
 * **`With.noPublishing`** - Disable artifact publishing (useful for root aggregator projects)
+* **`With.NoDocs`** - Suppress Scaladoc/Javadoc generation (clears the `doc` task's input sources) for modules where doc generation is slow or unnecessary; the empty `packageDoc` artifact is still produced so Sonatype publishing remains valid
 * **`With.ScalaJavaTime()`** - Add `scala-java-time` dependency for cross-platform `java.time` API
 * **`With.ClassPathJar`** - Use classpath JAR for packaging (reduces command line length)
 * **`With.UnmanagedJars`** - Use unmanaged JAR files from `libs/` directory

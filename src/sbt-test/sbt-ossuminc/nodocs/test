@@ -1,0 +1,5 @@
+# Verify With.NoDocs clears the doc task's input sources.
+> compile
+> checkNoDocs
+# doc should still succeed (producing empty output, so the javadoc jar exists).
+> lib/doc
