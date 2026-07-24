@@ -33,8 +33,16 @@ ossum.ai receiver must handle `sbt-ossuminc-release` (task dropped:
 dispatch fires but is a no-op on the ossum.ai side (no matching
 `repository_dispatch` type → nothing happens).
 
-Note: **riddl-gen does NOT wire this** (only riddl does, plus synapify on
-the receiver) — the "riddl-generator does it too" assumption was wrong.
+Reference implementations: **riddl** and **riddl-generator** both have
+`notify-blog` sender jobs. (`riddl-gen` — the *defunct* repo superseded by
+`riddl-generator` — has none; don't confuse the two.) Our job is based on
+riddl-generator's, adopting its `continue-on-error` (best-effort; don't red
+the run), `permissions: contents: read`, and split-token pattern
+(`GITHUB_TOKEN` reads the release body, `BLOG_DISPATCH` only for the
+dispatch). Caveat: the ossum.ai receiver currently handles only
+`riddl-release`/`synapify-release`, so both riddl-generator's
+`riddlg-release` and our `sbt-ossuminc-release` no-op there until receiver
+branches are added.
 
 ### RELEASED 3.0.2 (2026-07-24) — `With.NoDocs` helper
 
