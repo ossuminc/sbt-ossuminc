@@ -13,6 +13,34 @@ to the task file and note completion in this notebook.
 
 ## Current Status
 
+**Latest release: 3.0.3** (2026-07-24). `main` is green; working tree clean.
+Task dropbox `task/` is **empty** — all three requests this session are in
+`task/done/` (`crossmodule-defaultaxes`, `add-nodocs-helper`,
+`crossmodule-scalajs-stubs-autoadd`).
+
+### Open threads (next session picks up here)
+
+1. **ossum.ai receiver not wired** — our `notify-blog` job dispatches
+   `sbt-ossuminc-release`, but ossum.ai's `release-blog-post.yml` workflow
+   only handles `riddl-release` / `synapify-release`. Until a branch is added
+   there, the dispatch no-ops. Task dropped:
+   `../ossum.ai/task/handle-sbt-ossuminc-release-blog.md`.
+   *Also observed:* riddl-generator's own `riddlg-release` dispatch is
+   unhandled there too — the receiver is the shared bottleneck.
+   **Nothing fires until a MINOR release anyway** (patch tags are gated out).
+2. **riddl to confirm two things:**
+   - Whether 3.0.1's `defaultAxes` actually fixed their `utils3` IDs — it is a
+     verified no-op here, so if they still see suffixes we need their exact
+     repro (`../riddl/task/upgrade-sbt-ossuminc-3.0.1.md`).
+   - Removing their manual `Dep.scalajs_stubs` / `_native` from
+     utils/language/passes now that 3.0.3 auto-adds them
+     (`../riddl/task/drop-manual-scalajs-stubs-3.0.3.md`).
+3. **Ship SKILL.md dynver guidance is out of date** — it says purge caches;
+   the real fix is `sbt shutdown` first (proven twice). Worth correcting.
+4. **Parent `../CLAUDE.md` is stale** — still says sbt-ossuminc 2.0.0 is
+   latest and consumers are on 1.4.0. Coordination-layer file, so update it
+   from whichever instance owns that.
+
 ### RELEASED 3.0.3 (2026-07-24) — CrossModule auto-adds scalajs-stubs
 
 Shipped via `/ship`. Tag `3.0.3` on `b25156e`, GitHub Packages + JAR:

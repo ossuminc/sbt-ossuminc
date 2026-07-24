@@ -14,7 +14,7 @@ SBT plugin providing build infrastructure and configuration helpers for Ossum
 Inc. projects. Defines declarative project types and configuration options
 used across all Scala projects in the organization.
 
-**Current version: 2.0.0** (released Jun 2026) — **sbt 2.0.2+ / Scala 3**.
+**Current version: 3.0.3** (released Jul 2026) — **sbt 2.0.2+ / Scala 3**.
 The 1.x line (last release **v1.4.0**) remains for sbt 1.x builds.
 
 ## Release Process
@@ -33,12 +33,32 @@ creation (not tag push) and:
 2. Publishes to GitHub Packages via `sbt "; clean; test; publish"`
    (sbt 2 parses CLI args as one command line — commands must be `;`-separated)
 3. Uploads the plugin JAR to the release as a download artifact
+4. **`notify-blog`** (minor+ only) — dispatches a `repository_dispatch`
+   (`event_type: sbt-ossuminc-release`) to `ossuminc/ossum.ai`, which renders
+   the release notes into a blog post; deploying that post triggers the
+   newsletter send. Gated by `if: endsWith(tag, '.0')` so **patch releases
+   never announce**. `continue-on-error` — a dispatch hiccup must not red an
+   already-published release. Needs the `BLOG_DISPATCH` secret (present).
+
+**CRITICAL — `release.yml` is the SOLE publisher.** Never run `sbt publish`
+locally for a release: GitHub Packages forbids overwrite, so the workflow's
+publish then dies with a 409 before attaching the JAR. `publishLocal`
+(→ `~/.ivy2/local`) is safe and does not collide.
 
 See `NOTEBOOK.md` → "sbt 2 CI / release gotchas" for the hard-won details
 (`;`-separated commands, `fetch-tags`, ThisBuild-scoped dynver settings).
 
 Manual dispatch is also available via `workflow_dispatch` with a
 tag input.
+
+### dynver stale-version gotcha (hit twice; costs 10 min if forgotten)
+
+After `git tag -a X.Y.Z`, `sbt 'show version'` may still report the *previous*
+version. The culprit is sbt 2's persistent **`sbtn` server**, which computes
+dynver once at server startup and holds it — **purging the disk caches does
+not help**. Fix: run **`sbt shutdown`**, then re-check. Only if it is still
+wrong should you purge `~/Library/Caches/sbt`, `~/.cache/sbt`, and `target`.
+Confirm ground truth with `git describe --tags`. Never `pkill -f sbt`.
 
 ## Project Types Provided
 
@@ -49,6 +69,28 @@ tag input.
 - `Plugin()` - SBT plugin
 - `Program()` - Executable program
 - `DocSite()` - Documentation site
+
+### `CrossModule` automatic behaviors (don't re-add these in consumers)
+
+`CrossModule.scala`'s `matrix` lazy val applies two things consumers used to
+do by hand. Both are covered by the `cross` scripted test:
+
+1. **`.defaultAxes(VirtualAxis.jvm, VirtualAxis.scalaABIVersion(sv))`** —
+   pins the JVM/Scala-3 row as the default axis so project IDs stay clean
+   (`utils`, `utilsJS`, `utilsNative`; no `3` ABI suffix). Consumers reference
+   these IDs in `build.sbt` vals, `.aggregate(...)`, and `addCommandAlias`.
+   *Note:* verified to be a **no-op** under sbt 2.0.2 (its built-in
+   projectMatrix already defaults the ABI correctly); kept as defensive,
+   self-documenting intent. The ABI suffix is a multi-version disambiguation
+   and CrossModule declares only one Scala version.
+2. **scalajs-stubs auto-add** (3.0.3+) — when the target set contains **JS**,
+   `scalajs-stubs % provided` is added to the **JVM and Native** rows so shared
+   code using `@JSExport*` (from `scala.scalajs.js.annotation`) compiles there.
+   The Native row **forces the JVM artifact**:
+   `"org.scala-js" % "scalajs-stubs_3"` (single `%`, hardcoded `_3`) because
+   scalajs-stubs is JVM-only and projectMatrix's platform-aware `%%` would
+   chase a nonexistent `scalajs-stubs_native0.5_3`. Non-JS modules get nothing.
+   Without this, consumers hit `value scalajs is not a member of scala`.
 
 ## Configuration Helpers (`With.*`)
 
@@ -63,6 +105,9 @@ tag input.
 - `With.dynver` - Dynamic versioning
 - `With.scalajs` - Scala.js with default configuration
 - `With.noMiMa` - Disable binary compatibility checking
+- `With.NoDocs` - Suppress Scaladoc/Javadoc generation (3.0.2+); clears
+  `Compile / doc / sources`. The empty `packageDoc` artifact is still
+  produced, so Sonatype's javadoc-jar requirement stays satisfied.
 
 ### Parameterized Options
 
@@ -189,7 +234,7 @@ All Scala projects in ossuminc use this plugin. **Requires sbt 2.0.2+**
 `project/plugins.sbt`:
 
 ```scala
-addSbtPlugin("com.ossuminc" % "sbt-ossuminc" % "2.0.0")
+addSbtPlugin("com.ossuminc" % "sbt-ossuminc" % "3.0.3")
 ```
 
 ### Example CrossModule Definition
