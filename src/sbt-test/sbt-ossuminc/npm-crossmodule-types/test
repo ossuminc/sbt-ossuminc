@@ -4,3 +4,6 @@
 > mylibJS/npmPrepare
 > checkTypesPackaged
 > checkGeneratedParity
+# An npmTypesDir override written BEFORE the Packaging.npm configure call must
+# still take effect (it used to be silently discarded).
+> checkOverrideBeforeConfigureWins

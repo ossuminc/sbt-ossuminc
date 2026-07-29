@@ -115,13 +115,13 @@ do by hand. Both are covered by the `cross` scripted test:
 ### Parameterless Options
 
 - `With.typical` - Standard Scala 3 setup with publishing
-- `With.scala2` / `With.scala3` - Scala version
+- `With.Scala2` / `With.Scala3` - Scala version
 - `With.publishing` / `With.noPublishing` - Artifact publishing
 - `With.coverage(percent)` - Code coverage
 - `With.BuildInfo.configure` - BuildInfo plugin (default config)
-- `With.git` - Git commands in sbt
-- `With.dynver` - Dynamic versioning
-- `With.scalajs` - Scala.js with default configuration
+- `With.Git` - Git commands in sbt
+- `With.DynVer` - Dynamic versioning
+- `With.ScalaJS` - Scala.js with default configuration
 - `With.noMiMa` - Disable binary compatibility checking
 - `With.NoDocs` - Suppress Scaladoc/Javadoc generation (3.0.2+); clears
   `Compile / doc / sources`. The empty `packageDoc` artifact is still

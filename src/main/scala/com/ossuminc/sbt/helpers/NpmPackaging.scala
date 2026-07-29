@@ -75,6 +75,24 @@ object NpmPackaging {
     )
   }
 
+  /** Convention-derived defaults for the keys a project might want to state for itself.
+    *
+    * These live in [[com.ossuminc.sbt.OssumIncPlugin.projectSettings]] rather than being assigned
+    * by [[npm]], because sbt orders an AutoPlugin's `projectSettings` BEFORE every setting written
+    * in `build.sbt`. A project override therefore wins wherever it is written — including in a
+    * `.jsSettings(...)` block placed *above* the `.jsConfigure(With.Packaging.npm(...))` call,
+    * which is the natural spot and which previously had its override silently discarded by `npm`'s
+    * `:=`.
+    *
+    * Values passed as arguments to `npm(...)` are still hard assignments: an explicit argument is
+    * an explicit instruction, and it is the sanctioned way to state a value outright.
+    */
+  def defaultSettings: Seq[Setting[?]] = Seq(
+    Keys.npmTypesDir := typesDirCandidates(moduleBaseDirectory.value).find(_.exists()),
+    Keys.npmTemplateFile := templateCandidates(moduleBaseDirectory.value).find(_.exists()),
+    Keys.npmOutputDir := target.value / "npm-package"
+  )
+
   /** Configure npm packaging for a Scala.js project.
     *
     * @param scope
@@ -99,117 +117,122 @@ object NpmPackaging {
     keywords: Seq[String] = Seq.empty,
     esModule: Boolean = true,
     templateFile: Option[File] = None,
-    typesDir: Option[File] = None
+    typesDir: Option[File] = None,
+    outputDir: Option[File] = None
   )(project: Project): Project = {
-    project.settings(
-      Keys.npmScope := scope,
-      Keys.npmPackageName := pkgName,
-      Keys.npmPackageDescription := pkgDescription,
-      Keys.npmKeywords := keywords,
-      Keys.npmEsModule := esModule,
-      Keys.npmTemplateFile := {
-        templateFile.orElse(templateCandidates(moduleBaseDirectory.value).find(_.exists()))
-      },
-      Keys.npmTypesDir := {
-        typesDir.orElse(typesDirCandidates(moduleBaseDirectory.value).find(_.exists()))
-      },
-      Keys.npmOutputDir := target.value / "npm-package",
-      Keys.npmPrepare := Def.uncached {
-        val log = streams.value.log
-        val jsOutput = (Compile / fullOptJS).value.data
-        val outputDir = Keys.npmOutputDir.value
-        val ver = version.value
-        val scope = Keys.npmScope.value
-        val name = Keys.npmPackageName.value
-        val desc = Keys.npmPackageDescription.value
-        val kw = Keys.npmKeywords.value
-        val esm = Keys.npmEsModule.value
-        val template = Keys.npmTemplateFile.value
-        val typesDir = Keys.npmTypesDir.value
-        val searched = typesDirCandidates(moduleBaseDirectory.value)
-        val ghOrg = RootProjectInfo.Keys.gitHubOrganization.value
-        val ghRepo = RootProjectInfo.Keys.gitHubRepository.value
-        val lic = RootProjectInfo.Keys.spdxLicense.value
-        val author = organizationName.value
+    // Only the values the caller actually stated are assigned here. The rest
+    // are left to `defaultSettings` (in OssumIncPlugin.projectSettings), which
+    // sbt orders below everything in build.sbt, so a project override wins no
+    // matter where it is written relative to this configure call.
+    val stated: Seq[Setting[?]] =
+      templateFile.map(f => Keys.npmTemplateFile := Some(f)).toSeq ++
+        typesDir.map(d => Keys.npmTypesDir := Some(d)).toSeq ++
+        outputDir.map(d => Keys.npmOutputDir := d).toSeq
 
-        log.info(s"Assembling npm package at $outputDir")
+    project
+      .settings(stated*)
+      .settings(
+        Keys.npmScope := scope,
+        Keys.npmPackageName := pkgName,
+        Keys.npmPackageDescription := pkgDescription,
+        Keys.npmKeywords := keywords,
+        Keys.npmEsModule := esModule,
+        Keys.npmPrepare := Def.uncached {
+          val log = streams.value.log
+          val jsOutput = (Compile / fullOptJS).value.data
+          val outputDir = Keys.npmOutputDir.value
+          val ver = version.value
+          val scope = Keys.npmScope.value
+          val name = Keys.npmPackageName.value
+          val desc = Keys.npmPackageDescription.value
+          val kw = Keys.npmKeywords.value
+          val esm = Keys.npmEsModule.value
+          val template = Keys.npmTemplateFile.value
+          val typesDir = Keys.npmTypesDir.value
+          val searched = typesDirCandidates(moduleBaseDirectory.value)
+          val ghOrg = RootProjectInfo.Keys.gitHubOrganization.value
+          val ghRepo = RootProjectInfo.Keys.gitHubRepository.value
+          val lic = RootProjectInfo.Keys.spdxLicense.value
+          val author = organizationName.value
 
-        // Clean and create output directory
-        IO.delete(outputDir)
-        IO.createDirectory(outputDir)
+          log.info(s"Assembling npm package at $outputDir")
 
-        // Copy optimized JS output
-        IO.copyFile(jsOutput, outputDir / "main.js")
-        val sourceMap = new File(jsOutput.getAbsolutePath + ".map")
-        if (sourceMap.exists()) {
-          IO.copyFile(sourceMap, outputDir / "main.js.map")
-        }
+          // Clean and create output directory
+          IO.delete(outputDir)
+          IO.createDirectory(outputDir)
 
-        // Copy TypeScript definitions if present. Report the outcome either
-        // way: a silently-empty result here is how an entire major version
-        // shipped without .d.ts files and nobody noticed.
-        val hasTypes = typesDir match {
-          case Some(dir) =>
-            val indexDts = dir / "index.d.ts"
-            if (indexDts.exists()) {
-              IO.copyFile(indexDts, outputDir / "index.d.ts")
-              log.info(s"TypeScript definitions: $indexDts")
-              true
-            } else {
+          // Copy optimized JS output
+          IO.copyFile(jsOutput, outputDir / "main.js")
+          val sourceMap = new File(jsOutput.getAbsolutePath + ".map")
+          if (sourceMap.exists()) {
+            IO.copyFile(sourceMap, outputDir / "main.js.map")
+          }
+
+          // Copy TypeScript definitions if present. Report the outcome either
+          // way: a silently-empty result here is how an entire major version
+          // shipped without .d.ts files and nobody noticed.
+          val hasTypes = typesDir match {
+            case Some(dir) =>
+              val indexDts = dir / "index.d.ts"
+              if (indexDts.exists()) {
+                IO.copyFile(indexDts, outputDir / "index.d.ts")
+                log.info(s"TypeScript definitions: $indexDts")
+                true
+              } else {
+                log.warn(
+                  s"npmTypesDir is $dir but it has no index.d.ts; " +
+                    "package will ship without TypeScript definitions"
+                )
+                false
+              }
+            case None =>
               log.warn(
-                s"npmTypesDir is $dir but it has no index.d.ts; " +
-                  "package will ship without TypeScript definitions"
+                "no TypeScript definitions found (looked in " +
+                  searched.mkString(", ") + "); package will ship without them"
               )
               false
-            }
-          case None =>
-            log.warn(
-              "no TypeScript definitions found (looked in " +
-                searched.mkString(", ") + "); package will ship without them"
-            )
-            false
-        }
+          }
 
-        // Generate or process package.json
-        val packageJson = outputDir / "package.json"
-        template match {
-          case Some(tmplFile) =>
-            val content = IO.read(tmplFile)
-            IO.write(
-              packageJson,
-              content.replace("VERSION_PLACEHOLDER", ver)
-            )
-            log.info(
-              s"Using package.json template: $tmplFile " +
-                "(template wins; settings-generated package.json not used)"
-            )
-          case None =>
-            val fullName =
-              if (scope.nonEmpty) s"$scope/$name" else name
-            val json = generatePackageJson(
-              fullName,
-              ver,
-              desc,
-              kw,
-              esm,
-              hasTypes,
-              sourceMap.exists(),
-              ghOrg,
-              ghRepo,
-              lic,
-              author
-            )
-            IO.write(packageJson, json)
-            log.info("Generated package.json from settings")
-        }
+          // Generate or process package.json
+          val packageJson = outputDir / "package.json"
+          template match {
+            case Some(tmplFile) =>
+              val content = IO.read(tmplFile)
+              IO.write(
+                packageJson,
+                content.replace("VERSION_PLACEHOLDER", ver)
+              )
+              log.info(
+                s"Using package.json template: $tmplFile " +
+                  "(template wins; settings-generated package.json not used)"
+              )
+            case None =>
+              val fullName =
+                if (scope.nonEmpty) s"$scope/$name" else name
+              val json = generatePackageJson(
+                fullName,
+                ver,
+                desc,
+                kw,
+                esm,
+                hasTypes,
+                sourceMap.exists(),
+                ghOrg,
+                ghRepo,
+                lic,
+                author
+              )
+              IO.write(packageJson, json)
+              log.info("Generated package.json from settings")
+          }
 
-        // Generate README.md
-        val fullName =
-          if (scope.nonEmpty) s"$scope/$name" else name
-        val readme = outputDir / "README.md"
-        IO.write(
-          readme,
-          s"""# $fullName
+          // Generate README.md
+          val fullName =
+            if (scope.nonEmpty) s"$scope/$name" else name
+          val readme = outputDir / "README.md"
+          IO.write(
+            readme,
+            s"""# $fullName
              |
              |$desc
              |
@@ -219,71 +242,72 @@ object NpmPackaging {
              |npm install $fullName
              |```
              |""".stripMargin
-        )
-
-        log.info(s"npm package assembled: $outputDir")
-        outputDir
-      },
-      Keys.npmPack := Def.uncached {
-        val log = streams.value.log
-        val prepDir = Keys.npmPrepare.value
-        val targetDir = target.value / "npm-packages"
-        IO.createDirectory(targetDir)
-
-        val cmd = Seq(
-          "npm",
-          "pack",
-          s"--pack-destination=${targetDir.getAbsolutePath}"
-        )
-        log.info(s"Running: ${cmd.mkString(" ")}")
-
-        val exitCode = sys.process.Process(cmd, prepDir).!
-        if (exitCode != 0) {
-          sys.error(s"npm pack failed with exit code $exitCode")
-        }
-
-        // Find the produced .tgz file
-        val tgzFiles = (targetDir * "*.tgz").get()
-        if (tgzFiles.isEmpty) {
-          sys.error(
-            s"npm pack did not produce a .tgz file in $targetDir"
           )
+
+          log.info(s"npm package assembled: $outputDir")
+          outputDir
+        },
+        Keys.npmPack := Def.uncached {
+          val log = streams.value.log
+          val prepDir = Keys.npmPrepare.value
+          val targetDir = target.value / "npm-packages"
+          IO.createDirectory(targetDir)
+
+          val cmd = Seq(
+            "npm",
+            "pack",
+            s"--pack-destination=${targetDir.getAbsolutePath}"
+          )
+          log.info(s"Running: ${cmd.mkString(" ")}")
+
+          val exitCode = sys.process.Process(cmd, prepDir).!
+          if (exitCode != 0) {
+            sys.error(s"npm pack failed with exit code $exitCode")
+          }
+
+          // Find the produced .tgz file
+          val tgzFiles = (targetDir * "*.tgz").get()
+          if (tgzFiles.isEmpty) {
+            sys.error(
+              s"npm pack did not produce a .tgz file in $targetDir"
+            )
+          }
+
+          val result = tgzFiles.head
+          log.info(s"npm package created: $result")
+          result
+        },
+        Keys.npmPublishLocal := Def.uncached {
+          val log = streams.value.log
+          val tgz = Keys.npmPack.value
+          val scope = Keys.npmScope.value
+          val name = Keys.npmPackageName.value
+          val ver = version.value
+
+          // Mirror ivy2 local convention: ~/.ivy2/local/npm/<scope>/<name>/<version>/
+          val scopeDir = if (scope.nonEmpty) scope.stripPrefix("@") else "_unscoped"
+          val localDir = Path.userHome / ".ivy2" / "local" / "npm" / scopeDir / name / ver
+          IO.createDirectory(localDir)
+
+          val dest = localDir / tgz.getName
+          IO.copyFile(tgz, dest)
+
+          // Also write a latest-version marker for convenience
+          val latestFile =
+            Path.userHome / ".ivy2" / "local" / "npm" / scopeDir / name / "latest.txt"
+          IO.write(latestFile, ver + "\n")
+
+          log.info(s"npm package published locally: $dest")
+          log.info(s"  Install with: npm install $dest")
+          dest
+        },
+        // Hook into publishLocal so npm .tgz is also produced
+        publishLocal := {
+          publishLocal.value
+          Keys.npmPublishLocal.value
+          ()
         }
-
-        val result = tgzFiles.head
-        log.info(s"npm package created: $result")
-        result
-      },
-      Keys.npmPublishLocal := Def.uncached {
-        val log = streams.value.log
-        val tgz = Keys.npmPack.value
-        val scope = Keys.npmScope.value
-        val name = Keys.npmPackageName.value
-        val ver = version.value
-
-        // Mirror ivy2 local convention: ~/.ivy2/local/npm/<scope>/<name>/<version>/
-        val scopeDir = if (scope.nonEmpty) scope.stripPrefix("@") else "_unscoped"
-        val localDir = Path.userHome / ".ivy2" / "local" / "npm" / scopeDir / name / ver
-        IO.createDirectory(localDir)
-
-        val dest = localDir / tgz.getName
-        IO.copyFile(tgz, dest)
-
-        // Also write a latest-version marker for convenience
-        val latestFile = Path.userHome / ".ivy2" / "local" / "npm" / scopeDir / name / "latest.txt"
-        IO.write(latestFile, ver + "\n")
-
-        log.info(s"npm package published locally: $dest")
-        log.info(s"  Install with: npm install $dest")
-        dest
-      },
-      // Hook into publishLocal so npm .tgz is also produced
-      publishLocal := {
-        publishLocal.value
-        Keys.npmPublishLocal.value
-        ()
-      }
-    )
+      )
   }
 
   /** The module's real base directory, valid on both plain projects and `projectMatrix` rows.

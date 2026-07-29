@@ -243,7 +243,7 @@ lazy val riddl: Project = Root(
   startYr = 2024,
   projectId = "root"  // Optional: customize sbt project ID (default: "root")
 )
-  .configure(With.noPublishing, With.git, With.dynver)
+  .configure(With.noPublishing, With.Git, With.DynVer)
   .aggregate(
     module0, // a sub-component of your project
     module1,
@@ -408,13 +408,13 @@ You can pass these directly into a `.configure()` call chain.
 
 These helpers take no parameters (or use all defaults):
 
-* **`With.aliases`** - Add useful command line aliases to the sbt shell
-* **`With.build_info`** - Enable `sbt-buildinfo` plugin (default configuration)
-* **`With.dynver`** - Enable `sbt-dynver` for git-based dynamic versioning
-* **`With.git`** - Enable `sbt-git` to issue git commands from sbt prompt
-* **`With.header`** - Enable `sbt-header` for automatic license header management
-* **`With.java`** - Enable javac compiler for Java/Scala projects
-* **`With.scalajs`** - Enable Scala.js compilation (default configuration)
+* **`With.Aliases`** - Add useful command line aliases to the sbt shell
+* **`With.BuildInfo`** - Enable `sbt-buildinfo` plugin (default configuration)
+* **`With.DynVer`** - Enable `sbt-dynver` for git-based dynamic versioning
+* **`With.Git`** - Enable `sbt-git` to issue git commands from sbt prompt
+* **`With.Header`** - Enable `sbt-header` for automatic license header management
+* **`With.Java`** - Enable javac compiler for Java/Scala projects
+* **`With.ScalaJS`** - Enable Scala.js compilation (default configuration)
 * **`With.noMiMa`** - Disable binary compatibility checking
 * **`With.noPublishing`** - Disable artifact publishing (useful for root aggregator projects)
 * **`With.NoDocs`** - Suppress Scaladoc/Javadoc generation (clears the `doc` task's input sources) for modules where doc generation is slow or unnecessary; the empty `packageDoc` artifact is still produced so Sonatype publishing remains valid
@@ -422,10 +422,10 @@ These helpers take no parameters (or use all defaults):
 * **`With.ClassPathJar`** - Use classpath JAR for packaging (reduces command line length)
 * **`With.UnmanagedJars`** - Use unmanaged JAR files from `libs/` directory
 * **`With.ShellPrompt`** - Custom shell prompt showing project name, git branch, and version
-* **`With.release`** - Enable `sbt-release` plugin
-* **`With.resolvers`** - Add standard resolvers (Maven Local, JCenter, Typesafe)
-* **`With.scala2`** - Configure for Scala 2.13 (latest)
-* **`With.scala3`** - Configure for Scala 3.8.4 (Scala Next, default)
+* **`With.Release`** - Enable `sbt-release` plugin
+* **`With.Resolvers`** - Add standard resolvers (Maven Local, JCenter, Typesafe)
+* **`With.Scala2`** - Configure for Scala 2.13 (latest)
+* **`With.Scala3`** - Configure for Scala 3.8.4 (Scala Next, default)
 * **`With.ScalaCoverage`** (a.k.a. `With.coverage(...)`) - Enable code coverage with sbt-scoverage
 
 ### Publishing Helpers
@@ -605,7 +605,16 @@ CrossModule("my-ui", "ui")(JVM, JS)
   ))
 ```
 
-> **Note**: `With.Javascript` is deprecated and will be removed in 2.0. Use `With.ScalaJS` instead.
+> **Removed in 3.1.0**: `With.Javascript`, along with the other lowercase
+> aliases deprecated back in 1.1.0 (`With.akka`, `With.aliases`,
+> `With.build_info`, `With.dynver`, `With.git`, `With.header`, `With.java`,
+> `With.release`, `With.resolvers`, `With.riddl`, `With.scala2`,
+> `With.scala3`, `With.scalajs`, `With.scoverage`). Use the capitalized
+> names: `With.ScalaJS`, `With.Akka`, `With.Aliases`, `With.BuildInfo`,
+> `With.DynVer`, `With.Git`, `With.Header`, `With.Java`, `With.Release`,
+> `With.Resolvers`, `With.Riddl`, `With.Scala2`, `With.Scala3`,
+> `With.ScalaCoverage`. (`With.coverage(percent)` is **not** affected — it is
+> a current helper, not an alias.)
 
 #### **`With.Laminar(...)`**
 Add Laminar reactive UI dependencies (Scala.js).
@@ -750,6 +759,18 @@ target).
 - **`templateFile`**: Optional `package.json` template with `VERSION_PLACEHOLDER`
 - **`typesDir`**: Optional explicit TypeScript definitions directory, overriding
   the convention below (default: `None`)
+- **`outputDir`**: Optional staging directory (default: `target/npm-package`)
+
+**Overriding a key directly** (3.1.0+): `npmTypesDir`, `npmTemplateFile` and
+`npmOutputDir` get their convention-derived values from the plugin's
+`projectSettings`, which sbt orders *below* everything in `build.sbt`. A project
+override therefore takes effect **wherever you write it** — including in a
+`.jsSettings(...)` block above the `.jsConfigure(With.Packaging.npm(...))` call.
+Before 3.1.0 `npm(...)` assigned those keys unconditionally, so an override in
+that position was silently discarded and the ordering was load-bearing.
+
+Values you pass as arguments to `npm(...)` remain hard assignments — an explicit
+argument is an explicit instruction.
 
 **Tasks provided:**
 - **`npmPrepare`**: Assembles the npm package directory (pure sbt, no npm

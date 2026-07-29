@@ -14,7 +14,7 @@ enablePlugins(OssumIncPlugin)
 
 lazy val root = Root("npm-crossmodule-types-test", startYr = 2026)
   .configure(With.noPublishing)
-  .aggregate(mylib_jvm, mylib_js)
+  .aggregate(mylib_jvm, mylib_js, other_jvm, other_js)
 
 lazy val mylib = CrossModule("mylib", "npm-crossmodule-types-test.mylib")(JVM, JS)
   .configure(With.typical)
@@ -37,6 +37,61 @@ lazy val mylib = CrossModule("mylib", "npm-crossmodule-types-test.mylib")(JVM, J
   )
 val mylib_jvm = mylib.jvm
 val mylib_js = mylib.js
+
+// Ordering regression test. The npmTypesDir override below is written BEFORE
+// the .jsConfigure(With.Packaging.npm(...)) call -- the natural place, in the
+// .jsSettings block that is already there. Packaging.npm used to assign that
+// key with `:=` unconditionally, so an override in this position was silently
+// discarded and riddl had to discover that the order was load-bearing.
+//
+// other/js/types/index.d.ts exists too, so the convention has something to
+// find: if the override is dropped, npmTypesDir resolves to that instead and
+// the assertion below catches it.
+lazy val other = CrossModule("other", "npm-crossmodule-types-test.other")(JVM, JS)
+  .configure(With.typical)
+  .settings(maxErrors := 50)
+  .jsSettings(
+    com.ossuminc.sbt.helpers.NpmPackaging.Keys.npmTypesDir :=
+      Some((ThisBuild / baseDirectory).value / "other" / "custom-types")
+  )
+  .jsConfigure(
+    With.ScalaJS(
+      "npm-crossmodule-types-test-other",
+      hasMain = false,
+      withCommonJSModule = true
+    )
+  )
+  .jsConfigure(
+    With.Packaging.npm(
+      scope = "@test",
+      pkgName = "npm-crossmodule-types-test-other",
+      pkgDescription = "Override-before-configure ordering test",
+      esModule = true
+    )
+  )
+val other_jvm = other.jvm
+val other_js = other.js
+
+// An override written before the configure call must still win.
+TaskKey[Unit]("checkOverrideBeforeConfigureWins") := Def.uncached {
+  import com.ossuminc.sbt.helpers.NpmPackaging
+  val dir = (other_js / NpmPackaging.Keys.npmTypesDir).value
+  println(s"checkOverrideBeforeConfigureWins: npmTypesDir=$dir")
+  dir match {
+    case None =>
+      sys.error("npmTypesDir is None -- the build.sbt override was discarded entirely")
+    case Some(d) if d.getName == "types" =>
+      sys.error(
+        s"the convention won over the build.sbt override (got $d). The override " +
+          "is written before .jsConfigure(With.Packaging.npm(...)) and must still take effect."
+      )
+    case Some(d) =>
+      if (d.getName != "custom-types")
+        sys.error(s"npmTypesDir resolved to an unexpected directory: $d")
+      if (!(d / "index.d.ts").exists())
+        sys.error(s"override directory has no index.d.ts: $d")
+  }
+}
 
 // The convention must resolve to the REAL source tree, not the matrix row's
 // synthetic baseDirectory.

@@ -122,53 +122,6 @@ object OssumIncPlugin extends AutoPlugin {
       /** Configure unified API documentation */
       def Unidoc: helpers.Unidoc.type = helpers.Unidoc
 
-      // ===== Deprecated lowercase aliases (will be removed in 2.0) =====
-
-      @deprecated("Use Akka instead", "1.1.0")
-      def akka: helpers.Akka.type = helpers.Akka
-
-      @deprecated("Use Aliases instead", "1.1.0")
-      def aliases: helpers.HandyAliases.type = helpers.HandyAliases
-
-      @deprecated("Use BuildInfo instead", "1.1.0")
-      def build_info: helpers.BuildInfo.type = helpers.BuildInfo
-
-      @deprecated("Use DynVer instead", "1.1.0")
-      def dynver: helpers.DynamicVersioning.type = helpers.DynamicVersioning
-
-      @deprecated("Use Git instead", "1.1.0")
-      def git: helpers.Git.type = helpers.Git
-
-      @deprecated("Use Header instead", "1.1.0")
-      def header: helpers.Header.type = helpers.Header
-
-      @deprecated("Use Java instead", "1.1.0")
-      def java: helpers.Java.type = helpers.Java
-
-      @deprecated("Use ScalaJS instead", "1.1.0")
-      def Javascript: helpers.ScalaJS.type = helpers.ScalaJS
-
-      @deprecated("Use Release instead", "1.1.0")
-      def release: helpers.Release.type = helpers.Release
-
-      @deprecated("Use Resolvers instead", "1.1.0")
-      def resolvers: helpers.Resolvers.type = helpers.Resolvers
-
-      @deprecated("Use Riddl instead", "1.1.0")
-      def riddl: helpers.Riddl.type = helpers.Riddl
-
-      @deprecated("Use Scala2 instead", "1.1.0")
-      def scala2: helpers.Scala2.type = helpers.Scala2
-
-      @deprecated("Use Scala3 instead", "1.1.0")
-      def scala3: helpers.Scala3.type = helpers.Scala3
-
-      @deprecated("Use ScalaJS instead", "1.1.0")
-      def scalajs: helpers.ScalaJS.type = helpers.ScalaJS
-
-      @deprecated("Use ScalaCoverage instead", "1.1.0")
-      def scoverage: helpers.ScalaCoverage.type = helpers.ScalaCoverage
-
       // ===== Special helpers =====
 
       /** Configure code coverage with minimum threshold */
@@ -240,7 +193,12 @@ object OssumIncPlugin extends AutoPlugin {
     }
   }
 
-  override def projectSettings: Seq[Setting[?]] = Nil
+  // sbt orders an AutoPlugin's projectSettings BELOW everything written in
+  // build.sbt, which is exactly what a "default the project may override"
+  // needs: the override wins wherever the author writes it, rather than only
+  // when it happens to follow the .configure(...) call that set the key.
+  override def projectSettings: Seq[Setting[?]] =
+    helpers.NpmPackaging.defaultSettings
 
   override def buildSettings: Seq[Setting[?]] = Seq(
     // Provide default (sentinel) values for RootProjectInfo keys
