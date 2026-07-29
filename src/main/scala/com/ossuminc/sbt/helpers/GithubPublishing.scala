@@ -22,13 +22,23 @@ object GithubPublishing extends AutoPluginHelper {
         val repo = RootProjectInfo.requireConfigured(
           RootProjectInfo.Keys.gitHubRepository.value, "gitHubRepository", "GithubPublishing"
         )
-        Some("GitHub Packages" at s"https://maven.pkg.github.com/$org/$repo")
+        // NOTE: this must NOT be named "GitHub Packages" -- that is the name of
+        // the org-wide *resolver* below (and in Resolvers), which points at a
+        // different URL (/_ vs /$repo). Two resolvers sharing a name but not a
+        // URL make sbt warn on every publish:
+        //   Multiple resolvers having different access mechanism configured
+        //   with same name 'GitHub Packages'...
+        // sbt's own suggested remedy is to rename the publishing resolver.
+        // The name is cosmetic here: credentials are matched by host, not name.
+        Some("GitHub Packages Publish" at s"https://maven.pkg.github.com/$org/$repo")
       },
-      resolvers += {
+      // `.distinct` for the same reason as in Resolvers: this repo is commonly
+      // added there too, and duplicate entries are noise on every resolve.
+      resolvers := {
         val org = RootProjectInfo.requireConfigured(
           RootProjectInfo.Keys.gitHubOrganization.value, "gitHubOrganization", "GithubPublishing"
         )
-        "GitHub Packages" at s"https://maven.pkg.github.com/$org/_"
+        (resolvers.value :+ ("GitHub Packages" at s"https://maven.pkg.github.com/$org/_")).distinct
       },
       credentials ++= githubCredentials
     )
