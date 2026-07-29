@@ -13,14 +13,38 @@ to the task file and note completion in this notebook.
 
 ## Current Status
 
-**Latest release: 3.0.3** (2026-07-24). `main` is green.
+**Latest release: 3.0.3** (2026-07-24). `main` is green; full scripted suite
+23/23. **Unreleased work on `main` warrants 3.1.0** — see "Why 3.1.0" below.
 
 Task dropbox holds **one open request**:
-`make-npm-packaging-and-dynver-just-work.md` (from riddl, 2026-07-28) — six
-issues, in progress; see "npm packaging under projectMatrix" below.
-`task/done/` now has four (`crossmodule-defaultaxes`, `add-nodocs-helper`,
-`crossmodule-scalajs-stubs-autoadd`,
-`delegate-consumer-bumps-to-shared-skill`).
+`2026-07-29-release-candidate-support.md` (from riddl, arrived mid-session
+2026-07-29) — RC support: npm dist-tag, `isPrerelease`, workflow guards. Not
+started. `task/done/` now has five; `make-npm-packaging-and-dynver-just-work.md`
+closed 2026-07-29 with all five acceptance criteria met.
+
+### Why 3.1.0 (not 3.0.4)
+
+Two behavior changes, neither of which belongs in a patch:
+
+1. **A dormant `package.json.template` becomes live on upgrade** — template
+   auto-discovery means a repo carrying one (riddl does) switches from the
+   settings-generated `package.json` to that file.
+2. **The 1.1.0-era lowercase aliases are gone** (`With.scala2`, `With.git`,
+   `With.dynver`, `With.Javascript`, …). Strictly a *major* change; they were
+   marked "will be removed in 2.0" and have overstayed by two majors. No active
+   consumer uses them — verified across every repo in the consumer list; the
+   only occurrences org-wide are in `defunct/`, `etc/` and unrelated experiment
+   repos, all on the 1.x line where the aliases still exist.
+
+Also new and worth a release note: `publish` now **fails** when the resolved
+version names a commit other than HEAD (`publishLocal` warns).
+
+### Known flake
+
+`cross` failed once mid-suite with `Bad symbolic reference ... Cloneable/T in
+package java.lang`, then passed in isolation and in the next full run.
+Uninvestigated. If it recurs, suspect stale sbt disk-cache analysis rather than
+a real classpath problem.
 
 ### Open threads (next session picks up here)
 
@@ -636,18 +660,28 @@ suite dies with `no test scripts found`. CI never saw it because CI always runs
 on a fresh checkout; locally it fails every second run. `scripted` now sweeps
 the directory first (`build.sbt`).
 
-**Still open — Issue 2** (`:=` discards a project override applied *before* the
-configure call). Partly mooted: the convention now works and `typesDir` /
-`templateFile` are parameters, so the override riddl needed is unnecessary. The
-ordering hazard itself is inherent to sbt's last-wins settings semantics — the
-real fix is to move convention-derived defaults into `OssumIncPlugin`'s
-`projectSettings`, which sbt always orders *before* build.sbt settings, and have
-`npm(...)` assign those keys only when the caller passed them explicitly. Not
-done; needs a decision.
+**Issue 2 — override ordering (done).** `Packaging.npm` assigned its keys with
+`:=` unconditionally, so an override written *before* the configure call was
+silently discarded. The three convention-derived keys (`npmTypesDir`,
+`npmTemplateFile`, `npmOutputDir`) now get their defaults from
+`OssumIncPlugin.projectSettings`, which sbt orders **below** everything in
+`build.sbt` — so a project override wins wherever it is written. `npm(...)`
+assigns them only when the caller states them, and gained an `outputDir`
+parameter so all three are statable as arguments. Values passed as arguments
+stay hard assignments, per the task's own guidance.
 
-Issue 6b (`With.typical`'s project-level `scalacOptions` shadowing
-`ThisBuild / Test / scalacOptions`) and 6c (the `Compile / doc` race under
-concurrent Native publish) are also untouched.
+**This is the general lever worth remembering:** a plugin default that a project
+should be able to override *from anywhere* belongs in `projectSettings`, not in
+a `.configure(...)` function. sbt has no "default unless overridden" primitive
+for settings written in `build.sbt` — ordering is all there is.
+
+Issues 6b and 6c remain untouched; both are written up under "Next Steps".
+
+**Also removed the 1.1.0-era lowercase aliases** (`With.scala2`, `With.git`,
+`With.dynver`, `With.Javascript`, `With.scoverage`, …), which were marked "will
+be removed in 2.0" and had overstayed by two majors. No active consumer uses
+them. README and CLAUDE.md advertised several and now name the capitalized
+helpers. `With.coverage(percent)` is untouched — a current helper, not an alias.
 
 ### Session Jul 28-29, 2026 — npm TypeScript definitions lost under projectMatrix
 
@@ -910,6 +944,20 @@ helpers (ClassPathJar/UnmanagedJars/ShellPrompt) are exposed in `With`;
 SonatypePublishing.scala) are gone; CI now uses JDK 25.
 
 Remaining / future:
+- **From riddl's npm/dynver task, NOT in its acceptance criteria and NOT done**
+  (the task is otherwise closed in `task/done/`):
+  - **Issue 6b — `Test / scalacOptions` cannot be set from `ThisBuild`.**
+    `With.typical` defines a *project-level* `scalacOptions` (`Scala3.scala:71`,
+    `scalacOptions ++=` unscoped), so an undefined `<proj> / Test /
+    scalacOptions` delegates to that before ever reaching `ThisBuild / Test /
+    scalacOptions` — making a `ThisBuild / Test / scalacOptions +=` silently
+    ineffective and forcing the setting to be repeated per project. riddl hit
+    this adding a `-Wconf` rule for test sources. Wants a
+    `With.testScalacOptions(...)` helper, or config-aware defaults.
+  - **Issue 6c — `Compile / doc` race under concurrent Native publish.** riddl
+    works around it per-module (`passesNative`, `riddlLibNative` set
+    `Compile / doc / sources := Seq.empty`). If the plugin can serialise `doc`
+    tasks, that workaround can be retired.
 - **Restore when upstream ships sbt 2 builds:** `With.IdeaPlugin`
   (sbt-idea-plugin / SCL-23480), Coveralls upload, TASTy-MiMa, stable
   sbt-paradox docs. The idea-plugin scripted test can be restored from git
