@@ -4,3 +4,7 @@
 # githubOwner/githubRepository keys no longer exist).
 > show publishTo
 > show resolvers
+# A stale sbt server must not be able to publish a version naming another commit.
+> checkStalenessLogic
+# publishLocal warns rather than fails, so it must still succeed.
+> publishLocal

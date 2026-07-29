@@ -60,6 +60,24 @@ not help**. Fix: run **`sbt shutdown`**, then re-check. Only if it is still
 wrong should you purge `~/Library/Caches/sbt`, `~/.cache/sbt`, and `target`.
 Confirm ground truth with `git describe --tags`. Never `pkill -f sbt`.
 
+**As of 3.1.0 the plugin no longer relies on you remembering this.**
+`With.DynVer` wires a freshness check into the publish tasks: every publish
+logs `Publishing version <ver> (HEAD <sha>)`, and if the resolved version
+carries a `-<n>-<sha>` component naming a commit that is not HEAD, `publish`
+**fails** while `publishLocal` / `publishM2` **warn**. (Remote publishing is
+not correctable in place — GitHub Packages forbids overwriting a coordinate —
+whereas a local publish is cheap to redo.)
+
+The check is deliberately conservative: a version sitting exactly on a tag
+carries no sha to compare, so it is never flagged. That is what keeps a tagged
+CI release from being failed by a check that cannot evaluate it. The pure
+decision function is `DynamicVersioning.stalenessOf(version, headSha)`,
+asserted by the `publishing` scripted test.
+
+This came from riddl, which published `1.31.0-182-2bc257ae` — two commits
+stale — and got `[success]`. Consumers testing that coordinate were running
+code that predated the fixes they were asked to verify.
+
 ## Project Types Provided
 
 - `Root()` - Aggregator project
@@ -176,6 +194,8 @@ Management, Projections).
 - Template mode: set `templateFile` with `VERSION_PLACEHOLDER`
 - TypeScript defs auto-discovered from `<moduleDir>/js/types/index.d.ts`,
   falling back to `<moduleDir>/types/`; override with `typesDir`
+- A `package.json.template` at `<moduleDir>/js/` or `<moduleDir>/` is
+  auto-discovered (3.1.0+) and **wins over** the generated document
 
 ### `npmTypesDir` must not use `baseDirectory` (3.0.4 fix)
 
