@@ -79,3 +79,27 @@ TaskKey[Unit]("checkTypesPackaged") := Def.uncached {
     sys.error(s"""package.json is missing "exports", got:\n$content""")
   println(s"checkTypesPackaged: index.d.ts staged and declared in package.json")
 }
+
+// Parity items the hand-written templates carried but the generator dropped.
+TaskKey[Unit]("checkGeneratedParity") := Def.uncached {
+  import com.ossuminc.sbt.helpers.NpmPackaging
+  val outputDir = (mylib_js / NpmPackaging.Keys.npmOutputDir).value
+  val content = IO.read(outputDir / "package.json")
+  def require(fragment: String, why: String): Unit =
+    if (!content.contains(fragment))
+      sys.error(s"package.json is missing $why ($fragment), got:\n$content")
+
+  // Without "files", npm packs whatever is in the staging dir -- correct only
+  // by accident.
+  require(""""files":""", "the files array")
+  require(""""index.d.ts"""", "index.d.ts in files")
+  // ESM consumers resolve "import"; "default" stays as the fallback.
+  require(""""import": "./main.js"""", "exports import condition")
+  require(""""default": "./main.js"""", "exports default condition")
+  // A scoped package is private by default on npmjs without this.
+  require(""""publishConfig":""", "publishConfig")
+  require(""""access": "public"""", "publishConfig.access")
+  require(""""homepage":""", "homepage")
+  require(""""bugs":""", "bugs")
+  println("checkGeneratedParity: files/exports/publishConfig/homepage/bugs present")
+}

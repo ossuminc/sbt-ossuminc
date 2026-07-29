@@ -795,9 +795,20 @@ CrossModule("my-lib", "my-lib")(JVM, JS)
   )
 ```
 
+**Generated `package.json`** (3.1.0+) includes `files`, `homepage`, `bugs`,
+`author`, and — for a scoped package — `publishConfig.access = "public"`.
+When TypeScript definitions are present, `exports["."]` declares `types`,
+`import` **and** `default`: bundlers resolve `import` for an ESM consumer,
+while `default` remains the universal fallback.
+
 **Template mode**: Instead of generating `package.json` from settings, you
 can provide a template file containing `VERSION_PLACEHOLDER` which will be
-replaced with the project version at build time:
+replaced with the project version at build time.
+
+A template is **auto-discovered** (3.1.0+) at `<moduleDir>/js/package.json.template`
+or `<moduleDir>/package.json.template`; when one is found it governs packaging
+and the settings-generated document is not used. `npmPrepare` logs which
+template it used. Pass `templateFile` explicitly to use a different path:
 
 ```scala
 With.Packaging.npm(

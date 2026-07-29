@@ -1,0 +1,6 @@
+# A package.json.template at the conventional location is discovered and used
+# with NO templateFile argument passed to Packaging.npm.
+> compile
+> checkTemplateDiscovered
+> npmPrepare
+> checkTemplateUsed

@@ -107,7 +107,9 @@ object NpmPackaging {
       Keys.npmPackageDescription := pkgDescription,
       Keys.npmKeywords := keywords,
       Keys.npmEsModule := esModule,
-      Keys.npmTemplateFile := templateFile,
+      Keys.npmTemplateFile := {
+        templateFile.orElse(templateCandidates(moduleBaseDirectory.value).find(_.exists()))
+      },
       Keys.npmTypesDir := {
         typesDir.orElse(typesDirCandidates(moduleBaseDirectory.value).find(_.exists()))
       },
@@ -128,6 +130,7 @@ object NpmPackaging {
         val ghOrg = RootProjectInfo.Keys.gitHubOrganization.value
         val ghRepo = RootProjectInfo.Keys.gitHubRepository.value
         val lic = RootProjectInfo.Keys.spdxLicense.value
+        val author = organizationName.value
 
         log.info(s"Assembling npm package at $outputDir")
 
@@ -176,7 +179,10 @@ object NpmPackaging {
               packageJson,
               content.replace("VERSION_PLACEHOLDER", ver)
             )
-            log.info(s"Processed package.json template from $tmplFile")
+            log.info(
+              s"Using package.json template: $tmplFile " +
+                "(template wins; settings-generated package.json not used)"
+            )
           case None =>
             val fullName =
               if (scope.nonEmpty) s"$scope/$name" else name
@@ -187,9 +193,11 @@ object NpmPackaging {
               kw,
               esm,
               hasTypes,
+              sourceMap.exists(),
               ghOrg,
               ghRepo,
-              lic
+              lic,
+              author
             )
             IO.write(packageJson, json)
             log.info("Generated package.json from settings")
@@ -300,6 +308,18 @@ object NpmPackaging {
   private def typesDirCandidates(moduleBase: File): Seq[File] =
     Seq(moduleBase / "js" / "types", moduleBase / "types")
 
+  /** Conventional locations for a `package.json` template, most specific first.
+    *
+    * Auto-discovered when `Packaging.npm(...)` is given no explicit `templateFile`, so that a
+    * template sitting in the repo actually governs packaging instead of looking authoritative while
+    * being inert.
+    */
+  private def templateCandidates(moduleBase: File): Seq[File] =
+    Seq(
+      moduleBase / "js" / "package.json.template",
+      moduleBase / "package.json.template"
+    )
+
   /** Generate a package.json string from settings.
     *
     * Uses string building rather than a JSON library to avoid adding dependencies (sbt plugins use
@@ -312,9 +332,11 @@ object NpmPackaging {
     keywords: Seq[String],
     esModule: Boolean,
     hasTypes: Boolean,
+    hasSourceMap: Boolean,
     ghOrg: String,
     ghRepo: String,
-    license: String
+    license: String,
+    author: String
   ): String = {
     val sb = new StringBuilder()
     sb.append("{\n")
@@ -330,17 +352,45 @@ object NpmPackaging {
       sb.append(s"""  "exports": {\n""")
       sb.append(s"""    ".": {\n""")
       sb.append(s"""      "types": "./index.d.ts",\n""")
+      // `import` is what a bundler resolves for an ESM consumer; `default`
+      // remains as the universal fallback. The hand-written template this
+      // generator replaces declared only `import`, the generator only
+      // `default` -- emit both rather than let the drift stand.
+      sb.append(s"""      "import": "./main.js",\n""")
       sb.append(s"""      "default": "./main.js"\n""")
       sb.append(s"""    }\n""")
       sb.append(s"""  },\n""")
     }
+    // Without "files", npm packs whatever happens to be in the staging
+    // directory. That is correct today only by accident; state it explicitly.
+    val files = Seq("main.js") ++
+      (if (hasSourceMap) Seq("main.js.map") else Nil) ++
+      (if (hasTypes) Seq("index.d.ts") else Nil) ++
+      Seq("README.md")
+    sb.append(
+      s"""  "files": [${files.map(f => s""""${escapeJson(f)}"""").mkString(", ")}],\n"""
+    )
     if (keywords.nonEmpty) {
       val kws = keywords
         .map(k => s""""${escapeJson(k)}"""")
         .mkString(", ")
       sb.append(s"""  "keywords": [$kws],\n""")
     }
+    if (author.nonEmpty) {
+      sb.append(s"""  "author": "${escapeJson(author)}",\n""")
+    }
     sb.append(s"""  "license": "${escapeJson(license)}",\n""")
+    sb.append(s"""  "homepage": "https://github.com/$ghOrg/$ghRepo#readme",\n""")
+    sb.append(s"""  "bugs": {\n""")
+    sb.append(s"""    "url": "https://github.com/$ghOrg/$ghRepo/issues"\n""")
+    sb.append(s"""  },\n""")
+    // A scoped package is private by default on npmjs; publishing one without
+    // this fails with a 402 unless the registry account carries a paid plan.
+    if (fullName.startsWith("@")) {
+      sb.append(s"""  "publishConfig": {\n""")
+      sb.append(s"""    "access": "public"\n""")
+      sb.append(s"""  },\n""")
+    }
     sb.append(s"""  "repository": {\n""")
     sb.append(s"""    "type": "git",\n""")
     sb.append(

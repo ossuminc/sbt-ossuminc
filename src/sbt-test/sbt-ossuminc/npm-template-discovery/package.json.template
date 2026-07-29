@@ -1,0 +1,9 @@
+{
+  "name": "@test/npm-template-discovery",
+  "version": "VERSION_PLACEHOLDER",
+  "description": "Assembled from the template, not from settings",
+  "main": "main.js",
+  "types": "index.d.ts",
+  "marker": "came-from-template",
+  "license": "Apache-2.0"
+}
