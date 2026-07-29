@@ -578,6 +578,46 @@ v1.3.4, v1.3.3, v1.3.2, v1.3.0, v1.2.5.
 
 ## Work Completed (Recent)
 
+### Session Jul 28-29, 2026 — npm TypeScript definitions lost under projectMatrix
+
+Issue 1 of `task/make-npm-packaging-and-dynver-just-work.md` (from riddl).
+
+**The bug:** `NpmPackaging`'s `npmTypesDir` looked in `baseDirectory / "types"`.
+On a `projectMatrix` row `baseDirectory` is the synthetic
+`.sbt/matrix/<rowId>/`, which holds no sources, so the lookup could never
+match — and it said nothing. `npmTypesDir` was `None`, `index.d.ts` was never
+staged, `package.json` omitted `types`/`exports`, and `npmPack` produced a
+tarball that looked fine. **`@ossuminc/riddl-lib` shipped with no TypeScript
+definitions from riddl's sbt 2 migration until riddl found it by hand.**
+
+The original code was correct under sbt 1: `CrossProject`'s JS row really was
+based at `<mod>/js`, so `baseDirectory / "types"` *was* `<mod>/js/types`. The
+projectMatrix rewrite silently invalidated the assumption. Note the doc comment
+said `<baseDir>/js/types/` while the code said `<base>/types` — the two had
+disagreed since the migration, which is a smell worth heeding next time.
+
+**The fix:** anchor on `sourceDirectory.getParentFile`. projectMatrix sets
+`sourceDirectory := <realModuleBase>/src` (ProjectMatrix.scala:371), so its
+parent is the real module tree; on a plain project the identity is trivially
+true. Candidates are now `<mod>/js/types` then `<mod>/types`. Also:
+
+- `npmPrepare` now logs `TypeScript definitions: <path>`, or **warns** listing
+  every location searched. A silent `None` is how this survived a major version.
+- `Packaging.npm(...)` gained `typesDir: Option[File] = None` so a project can
+  state the location outright.
+
+**Test:** new scripted test `npm-crossmodule-types` — a `CrossModule(JVM, JS)`
+with `mylib/js/types/index.d.ts` and **no** `npmTypesDir` override, asserting
+the staged `index.d.ts` and the `types`/`exports` keys, and that the resolved
+path is not inside `.sbt/matrix`. Verified red first, with the exact reported
+symptom, then green. `npm-packaging` (plain `Root` project) still passes.
+
+The old `npm-packaging` test only ever exercised a plain `Root`, which is why
+CI was green throughout. **Any helper with a path convention needs a
+projectMatrix row in its coverage, not just a plain project.**
+
+Riddl keeps its `build.sbt` `npmTypesDir` override until this ships in **3.0.4**.
+
 ### Session Jul 28, 2026 — `/ship` step 16 delegated to `bump-consumers`
 
 Task `delegate-consumer-bumps-to-shared-skill.md` (from the ossum.ai

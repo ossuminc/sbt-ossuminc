@@ -171,10 +171,29 @@ Management, Projections).
 **`With.Packaging.npm(...)`** - npm package assembly (v1.3.0+)
 - For Scala.js projects, assembles output into npm-publishable package
 - Signature: `(scope, pkgName, pkgDescription, keywords, esModule,
-  templateFile)(project)`
+  templateFile, typesDir)(project)`
 - Tasks: `npmPrepare` (pure sbt), `npmPack` (requires npm on PATH)
 - Template mode: set `templateFile` with `VERSION_PLACEHOLDER`
-- TypeScript defs auto-discovered from `<module>/types/index.d.ts`
+- TypeScript defs auto-discovered from `<moduleDir>/js/types/index.d.ts`,
+  falling back to `<moduleDir>/types/`; override with `typesDir`
+
+### `npmTypesDir` must not use `baseDirectory` (3.0.4 fix)
+
+A `projectMatrix` row's `baseDirectory` is a **synthetic**
+`.sbt/matrix/<rowId>/` holding no sources, so the old
+`baseDirectory / "types"` lookup could never match. It failed **silently**:
+`npmTypesDir` was `None`, `index.d.ts` was never staged, and `package.json`
+omitted `types`/`exports`. `@ossuminc/riddl-lib` shipped with no TypeScript
+definitions at all from riddl's sbt 2 migration until this was found.
+
+The convention now anchors on `sourceDirectory.getParentFile`, which
+projectMatrix sets to `<realModuleBase>/src` and which is trivially correct on
+plain projects too. Under sbt 1's `CrossProject` the JS row genuinely was based
+at `<mod>/js`, which is why the original code was right at the time.
+
+**Any new path convention in a helper must be derived this way, not from
+`baseDirectory`** — and must log both outcomes. Covered by the
+`npm-crossmodule-types` scripted test, whose build declares no override.
 
 **`With.Publishing.npm(...)`** - npm registry publishing (v1.3.0+)
 - Signature: `(registries)(project)` where registries is

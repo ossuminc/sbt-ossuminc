@@ -1,0 +1,5 @@
+# TypeScript definitions at <mod>/js/types/index.d.ts must be discovered on a
+# projectMatrix JS row with NO npmTypesDir override in build.sbt.
+> checkTypesDirFound
+> mylibJS/npmPrepare
+> checkTypesPackaged

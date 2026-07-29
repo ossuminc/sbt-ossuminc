@@ -25,8 +25,14 @@ import org.scalajs.sbtplugin.ScalaJSPlugin.autoImport._
   * )
   * }}}
   *
-  * TypeScript definitions are discovered by convention: if `<baseDir>/js/types/index.d.ts` exists,
-  * it is copied into the package and referenced in package.json.
+  * TypeScript definitions are discovered by convention: the first of `<moduleDir>/js/types/` or
+  * `<moduleDir>/types/` that exists is used, and an `index.d.ts` found there is copied into the
+  * package and referenced in package.json. `npmPrepare` logs which directory was used, or every
+  * location it searched when none was found.
+  *
+  * `<moduleDir>` is the module's real source tree, derived from `sourceDirectory` rather than
+  * `baseDirectory` so that the convention works on `projectMatrix` rows, whose `baseDirectory` is a
+  * synthetic `.sbt/matrix/<rowId>/`. Pass `typesDir` explicitly to override the convention.
   *
   * Supports template mode: set `templateFile` to a `package.json` template containing
   * `VERSION_PLACEHOLDER`, which will be replaced with the project version at build time.
@@ -83,6 +89,8 @@ object NpmPackaging {
     *   Whether to set "type": "module" in package.json
     * @param templateFile
     *   Optional package.json template with VERSION_PLACEHOLDER
+    * @param typesDir
+    *   Explicit TypeScript definitions directory; overrides the `<moduleDir>/js/types` convention
     */
   def npm(
     scope: String = "",
@@ -90,7 +98,8 @@ object NpmPackaging {
     pkgDescription: String = "",
     keywords: Seq[String] = Seq.empty,
     esModule: Boolean = true,
-    templateFile: Option[File] = None
+    templateFile: Option[File] = None,
+    typesDir: Option[File] = None
   )(project: Project): Project = {
     project.settings(
       Keys.npmScope := scope,
@@ -100,10 +109,7 @@ object NpmPackaging {
       Keys.npmEsModule := esModule,
       Keys.npmTemplateFile := templateFile,
       Keys.npmTypesDir := {
-        // Convention: look for TypeScript definitions at
-        // <project-base>/js/types/
-        val typesDir = baseDirectory.value / "types"
-        if (typesDir.exists()) Some(typesDir) else None
+        typesDir.orElse(typesDirCandidates(moduleBaseDirectory.value).find(_.exists()))
       },
       Keys.npmOutputDir := target.value / "npm-package",
       Keys.npmPrepare := Def.uncached {
@@ -118,6 +124,7 @@ object NpmPackaging {
         val esm = Keys.npmEsModule.value
         val template = Keys.npmTemplateFile.value
         val typesDir = Keys.npmTypesDir.value
+        val searched = typesDirCandidates(moduleBaseDirectory.value)
         val ghOrg = RootProjectInfo.Keys.gitHubOrganization.value
         val ghRepo = RootProjectInfo.Keys.gitHubRepository.value
         val lic = RootProjectInfo.Keys.spdxLicense.value
@@ -135,15 +142,29 @@ object NpmPackaging {
           IO.copyFile(sourceMap, outputDir / "main.js.map")
         }
 
-        // Copy TypeScript definitions if present
-        val hasTypes = typesDir.exists { dir =>
-          val indexDts = dir / "index.d.ts"
-          if (indexDts.exists()) {
-            IO.copyFile(indexDts, outputDir / "index.d.ts")
-            true
-          } else {
+        // Copy TypeScript definitions if present. Report the outcome either
+        // way: a silently-empty result here is how an entire major version
+        // shipped without .d.ts files and nobody noticed.
+        val hasTypes = typesDir match {
+          case Some(dir) =>
+            val indexDts = dir / "index.d.ts"
+            if (indexDts.exists()) {
+              IO.copyFile(indexDts, outputDir / "index.d.ts")
+              log.info(s"TypeScript definitions: $indexDts")
+              true
+            } else {
+              log.warn(
+                s"npmTypesDir is $dir but it has no index.d.ts; " +
+                  "package will ship without TypeScript definitions"
+              )
+              false
+            }
+          case None =>
+            log.warn(
+              "no TypeScript definitions found (looked in " +
+                searched.mkString(", ") + "); package will ship without them"
+            )
             false
-          }
         }
 
         // Generate or process package.json
@@ -256,6 +277,28 @@ object NpmPackaging {
       }
     )
   }
+
+  /** The module's real base directory, valid on both plain projects and `projectMatrix` rows.
+    *
+    * A matrix row's `baseDirectory` is a *synthetic* `.sbt/matrix/<rowId>/` directory that contains
+    * no sources, so conventions anchored on it silently find nothing. `sourceDirectory`, however,
+    * is set by projectMatrix to `<realModuleBase>/src`, so its parent is the module's actual source
+    * tree root. On a plain (non-matrix) project the same identity holds trivially.
+    *
+    * This is why the `<mod>/js/types` convention broke in the sbt 1 -> sbt 2 migration: under sbt
+    * 1's `CrossProject` the JS row really was based at `<mod>/js`, so `baseDirectory / "types"` was
+    * correct.
+    */
+  private def moduleBaseDirectory: Def.Initialize[File] =
+    Def.setting(sourceDirectory.value.getParentFile)
+
+  /** Conventional locations for TypeScript definitions, most specific first.
+    *
+    *   - `<mod>/js/types` — a cross-platform module's JS-only sources
+    *   - `<mod>/types` — a single-platform Scala.js project
+    */
+  private def typesDirCandidates(moduleBase: File): Seq[File] =
+    Seq(moduleBase / "js" / "types", moduleBase / "types")
 
   /** Generate a package.json string from settings.
     *

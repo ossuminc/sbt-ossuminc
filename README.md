@@ -748,6 +748,8 @@ target).
 - **`keywords`**: npm keywords for package discovery
 - **`esModule`**: Whether to set `"type": "module"` in package.json (default: `true`)
 - **`templateFile`**: Optional `package.json` template with `VERSION_PLACEHOLDER`
+- **`typesDir`**: Optional explicit TypeScript definitions directory, overriding
+  the convention below (default: `None`)
 
 **Tasks provided:**
 - **`npmPrepare`**: Assembles the npm package directory (pure sbt, no npm
@@ -755,9 +757,28 @@ target).
   `package.json`, and includes TypeScript definitions if found.
 - **`npmPack`**: Shells out to `npm pack` to create a `.tgz` archive.
 
-**TypeScript definitions** are discovered by convention: if
-`<project-base>/types/index.d.ts` exists, it is copied into the package and
-referenced in `package.json`.
+**TypeScript definitions** are discovered by convention (3.0.4+): the first of
+`<moduleDir>/js/types/` or `<moduleDir>/types/` that exists is used, and an
+`index.d.ts` found there is copied into the package and referenced by `types`
+and `exports` in `package.json`.
+
+`<moduleDir>` is the module's real source tree — for a `CrossModule` that is the
+directory named in `CrossModule("my-lib", ...)`, **not** the JS row's
+`baseDirectory`. A `projectMatrix` row is based at a synthetic
+`.sbt/matrix/<rowId>/` containing no sources, so it is deliberately not used
+here.
+
+`npmPrepare` reports which directory it used, or warns listing every location it
+searched when none was found:
+
+```
+[info] TypeScript definitions: /path/to/my-lib/js/types/index.d.ts
+[warn] no TypeScript definitions found (looked in /path/to/my-lib/js/types,
+       /path/to/my-lib/types); package will ship without them
+```
+
+Pass `typesDir = Some(file(...))` to state the location outright instead of
+relying on the convention.
 
 ```scala
 CrossModule("my-lib", "my-lib")(JVM, JS)
