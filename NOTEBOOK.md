@@ -578,6 +578,77 @@ v1.3.4, v1.3.3, v1.3.2, v1.3.0, v1.2.5.
 
 ## Work Completed (Recent)
 
+### Session Jul 29, 2026 — remaining items of the riddl npm/dynver task
+
+Issues 3, 4, 5 and 6a of `task/make-npm-packaging-and-dynver-just-work.md`.
+
+**Issue 5 — stale-server publishing (the dangerous one).** sbt 2's persistent
+server resolves `version` once at project load and holds it, so a server left
+running across commits publishes artifacts stamped with an *older* commit and
+still reports `[success]`. riddl shipped `1.31.0-182-2bc257ae`, two commits
+stale, this way. `With.DynVer` now logs `Publishing version <ver> (HEAD <sha>)`
+on every publish and compares the two: `publish` **fails**, `publishLocal` /
+`publishM2` **warn**. Rationale for the split: GitHub Packages forbids
+overwriting a coordinate, so a bad remote publish is not correctable in place.
+
+Detection is conservative **by design** — only a version carrying an explicit
+`-<n>-<sha>` component can be judged, so a version sitting exactly on a tag is
+never flagged. That is what keeps the tagged CI release path (`release.yml`)
+from being failed by a check that cannot evaluate it. `stalenessOf` is a pure
+function so the `publishing` scripted test can assert both directions without
+needing a git repo (scripted temp dirs are not repos, so the whole check
+no-ops there).
+
+This retires the folklore at the top of CLAUDE.md — the plugin now enforces
+what the note asked people to remember.
+
+**Issue 3 — `package.json.template` auto-discovery.** `templateFile` defaulted
+to `None` and nothing looked for a template, so riddl's well-formed
+`riddlLib/js/package.json.template` was authoritative-looking and completely
+inert. Now auto-discovered at `<mod>/js/package.json.template` or
+`<mod>/package.json.template`, logged when used. **This is a behavior change:**
+a repo with a dormant template gets it activated on upgrade — which is why this
+is 3.1.0, not 3.0.4. Decision made deliberately (the alternative was to log and
+keep ignoring it).
+
+**Issue 4 — generated `package.json` parity.** Added `files` (npm was packing
+whatever happened to be staged — correct only by accident), `homepage`, `bugs`,
+`author` (from `organizationName`), and `publishConfig.access = "public"` for
+scoped packages. `exports["."]` now emits `types` + `import` + `default`: the
+template said `import`, the generator said `default`, and rather than let that
+drift stand, both are emitted — bundlers take `import` for ESM, `default` is
+the universal fallback.
+
+**Issue 6a — duplicate resolver warning.** Two separate defects. (1) `publishTo`
+and a resolver were both named `GitHub Packages` while pointing at different
+URLs (`/$repo` vs `/_`), which is exactly what sbt's "different access
+mechanism configured with same name" warning complains about; the publishing
+resolver is renamed, per sbt's own suggested remedy. (2) `Root`/`Module`,
+`With.basic` and `With.GithubPublishing` each added the org repo, leaving
+**three identical entries** in `resolvers`; the adds are now `.distinct`. Both
+are asserted in the `github-publishing` scripted test, verified red first.
+
+**Bonus: the scripted suite was self-poisoning.** A scripted run leaves a
+`target/global-logging` directory in `src/sbt-test/sbt-ossuminc/`. Scripted
+discovers tests as `<group>/<name>`, so on the *next* full run that stray
+directory is picked up as a test named `sbt-ossuminc/target` and the whole
+suite dies with `no test scripts found`. CI never saw it because CI always runs
+on a fresh checkout; locally it fails every second run. `scripted` now sweeps
+the directory first (`build.sbt`).
+
+**Still open — Issue 2** (`:=` discards a project override applied *before* the
+configure call). Partly mooted: the convention now works and `typesDir` /
+`templateFile` are parameters, so the override riddl needed is unnecessary. The
+ordering hazard itself is inherent to sbt's last-wins settings semantics — the
+real fix is to move convention-derived defaults into `OssumIncPlugin`'s
+`projectSettings`, which sbt always orders *before* build.sbt settings, and have
+`npm(...)` assign those keys only when the caller passed them explicitly. Not
+done; needs a decision.
+
+Issue 6b (`With.typical`'s project-level `scalacOptions` shadowing
+`ThisBuild / Test / scalacOptions`) and 6c (the `Compile / doc` race under
+concurrent Native publish) are also untouched.
+
 ### Session Jul 28-29, 2026 — npm TypeScript definitions lost under projectMatrix
 
 Issue 1 of `task/make-npm-packaging-and-dynver-just-work.md` (from riddl).

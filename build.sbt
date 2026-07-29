@@ -63,6 +63,16 @@ lazy val `sbt-ossuminc` = project
     ThisBuild / dynverSeparator := "-",
     ThisBuild / dynverVTagPrefix := false,
 
+    // A scripted run leaves a `target/` (global-logging) directory in the test
+    // group directory. Scripted discovers tests as <group>/<name>, so on the
+    // NEXT run that stray directory is picked up as a test named
+    // "sbt-ossuminc/target" and the whole suite dies with
+    // "java.io.FileNotFoundException: no test scripts found". Sweep it first.
+    // (CI never saw this: it always runs on a fresh checkout.)
+    scripted := scripted.dependsOn(Def.task {
+      IO.delete(sbtTestDirectory.value / "sbt-ossuminc" / "target")
+    }).evaluated,
+
     // Scripted == sbt plugin tests
     scriptedLaunchOpts := {
       scriptedLaunchOpts.value ++
