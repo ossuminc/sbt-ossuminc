@@ -7,6 +7,26 @@ import java.net.URI
 
 object Scala3 extends AutoPluginHelper {
 
+  /** Make `ThisBuild / Test / scalacOptions` actually reach test compilation.
+    *
+    * sbt delegates the *project* axis last, so an undefined `<proj> / Test / scalacOptions` finds
+    * the PROJECT-level `scalacOptions` this helper defines before it ever consults `ThisBuild /
+    * Test / scalacOptions`. The result is that a perfectly reasonable `ThisBuild / Test /
+    * scalacOptions += "-Wconf:..."` is silently ignored and the option has to be repeated in every
+    * project. riddl hit exactly this adding a `-Wconf` rule for test sources.
+    *
+    * Appending only the *difference* against `ThisBuild / scalacOptions` is what keeps this from
+    * double-adding: when `ThisBuild / Test / scalacOptions` is undefined it delegates to `ThisBuild
+    * / scalacOptions`, whose contents the project-level `scalacOptions` has already picked up, so
+    * the difference is empty and this is a no-op.
+    */
+  private[helpers] def honourThisBuildTestScalacOptions: Setting[?] =
+    Test / scalacOptions ++= {
+      val fromBuildTest = (ThisBuild / Test / scalacOptions).value
+      val fromBuild = (ThisBuild / scalacOptions).value
+      fromBuildTest.diff(fromBuild)
+    }
+
   lazy val scala_3_options: Seq[String] =
     Seq(
       "-deprecation",
@@ -69,6 +89,7 @@ object Scala3 extends AutoPluginHelper {
       .settings(
         scalaVersion := version.getOrElse("3.8.4"),
         scalacOptions ++= scala_3_options ++ scala3Options,
+        honourThisBuildTestScalacOptions,
         Compile / doc / scalacOptions := scala_3_doc_options(
           (Compile / scalaVersion).value,
           projectName,

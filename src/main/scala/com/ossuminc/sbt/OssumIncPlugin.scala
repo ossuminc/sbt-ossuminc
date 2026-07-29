@@ -142,6 +142,15 @@ object OssumIncPlugin extends AutoPlugin {
             helpers.ScalaCoverage.Keys.coveragePercent := percent
           )
 
+      /** Add scalac options for TEST sources only.
+        *
+        * Prefer this over writing `Test / scalacOptions ++= ...` by hand when the option is
+        * conceptually build-wide: `ThisBuild / Test / scalacOptions` is honoured as of 3.1.0, but
+        * this states the intent at the project where it applies.
+        */
+      def testScalacOptions(options: String*)(project: Project): Project =
+        project.settings(Test / scalacOptions ++= options)
+
       /** Do not configure binary compatibility checking */
       def noMiMa: ConfigFunc = helpers.MiMa.without
 

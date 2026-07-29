@@ -97,6 +97,9 @@ object Scala2 extends AutoPluginHelper {
       .settings(
         scalaVersion := "2.12.19",
         Keys.titleForDocs := name.value,
+        // Same project-axis shadowing as Scala3 -- see
+        // Scala3.honourThisBuildTestScalacOptions for why this is needed.
+        Scala3.honourThisBuildTestScalacOptions,
         scalacOptions ++= {
           val version = "(\\d)\\.(\\d{2})".r
           scalaVersion.value match {

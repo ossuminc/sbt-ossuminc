@@ -1,0 +1,7 @@
+# `ThisBuild / Test / scalacOptions +=` must not be shadowed by the
+# project-level scalacOptions that With.Scala3 defines.
+> checkProjectOptionsIntact
+> checkThisBuildTestOptions
+> checkTestScalacOptionsHelper
+# The options must actually reach the compiler.
+> Test/compile
