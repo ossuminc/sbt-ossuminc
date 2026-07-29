@@ -135,29 +135,18 @@ not provided:
 15. Report a summary: tag, commit SHA, release URL, and any
     CI workflows triggered.
 
-16. **Drop upgrade tasks in dependent projects.** For each
-    consumer of sbt-ossuminc, create a task file in its
-    `task/` directory describing the plugin version bump
-    needed. The file should be named
-    `upgrade-sbt-ossuminc-<VERSION>.md` and contain:
-    - What changed (link to the GitHub release)
-    - The new version to depend on
-    - The file to update (`project/plugins.sbt`)
+16. **Drop upgrade tasks in dependent projects.** Invoke
+    `/ossuminc-skills:bump-consumers` with library
+    `sbt-ossuminc` and the version just released. It owns the
+    consumer list and the task file format; do not maintain a
+    copy here.
 
-    Consumer projects:
-    ```
-    ../riddl/task/upgrade-sbt-ossuminc-<VERSION>.md
-    ../synapify/task/upgrade-sbt-ossuminc-<VERSION>.md
-    ../riddl-idea-plugin/task/upgrade-sbt-ossuminc-<VERSION>.md
-    ../riddlsim/task/upgrade-sbt-ossuminc-<VERSION>.md
-    ../ossum.tech/task/upgrade-sbt-ossuminc-<VERSION>.md
-    ../riddl-mcp-server/task/upgrade-sbt-ossuminc-<VERSION>.md
-    ../riddl-models/task/upgrade-sbt-ossuminc-<VERSION>.md
-    ../ossum-ai-api/task/upgrade-sbt-ossuminc-<VERSION>.md
-    ../riddl-gen/task/upgrade-sbt-ossuminc-<VERSION>.md
-    ../riddl-examples/task/upgrade-sbt-ossuminc-<VERSION>.md
-    ../riddl-server-infrastructure/task/upgrade-sbt-ossuminc-<VERSION>.md
-    ```
+    If the consumer set is wrong, correct it in
+    `ossuminc/plugins/ossuminc-skills/skills/bump-consumers/consumers.md`
+    — not in this file.
+
+    Note that the skill skips propagation for patch releases,
+    which matches this project's `notify-blog` gate.
 
 ## If Something Fails
 

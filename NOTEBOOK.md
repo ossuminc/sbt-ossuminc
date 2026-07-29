@@ -13,10 +13,14 @@ to the task file and note completion in this notebook.
 
 ## Current Status
 
-**Latest release: 3.0.3** (2026-07-24). `main` is green; working tree clean.
-Task dropbox `task/` is **empty** — all three requests this session are in
-`task/done/` (`crossmodule-defaultaxes`, `add-nodocs-helper`,
-`crossmodule-scalajs-stubs-autoadd`).
+**Latest release: 3.0.3** (2026-07-24). `main` is green.
+
+Task dropbox holds **one open request**:
+`make-npm-packaging-and-dynver-just-work.md` (from riddl, 2026-07-28) — six
+issues, in progress; see "npm packaging under projectMatrix" below.
+`task/done/` now has four (`crossmodule-defaultaxes`, `add-nodocs-helper`,
+`crossmodule-scalajs-stubs-autoadd`,
+`delegate-consumer-bumps-to-shared-skill`).
 
 ### Open threads (next session picks up here)
 
@@ -573,6 +577,23 @@ APIs directly — no sbt2-compat dual-compilation layer.
 v1.3.4, v1.3.3, v1.3.2, v1.3.0, v1.2.5.
 
 ## Work Completed (Recent)
+
+### Session Jul 28, 2026 — `/ship` step 16 delegated to `bump-consumers`
+
+Task `delegate-consumer-bumps-to-shared-skill.md` (from the ossum.ai
+instance) → `task/done/`. Step 16 of `.claude/skills/ship/SKILL.md` carried
+its own hardcoded list of 11 consumer repos, which had already drifted
+(it named `riddl-gen`, renamed to `riddl-generator`). It now invokes
+`/ossuminc-skills:bump-consumers`, which owns the list org-wide.
+
+**The shared list was itself wrong** — `riddl-server-infrastructure` was
+missing from `consumers.md` despite building with the plugin. Added there,
+with a note in that file's Maintenance section. All 11 consumers were
+spot-checked against their real `project/plugins.sbt`: `riddl` and
+`riddl-examples` are on **3.0.3**, the other nine still on **1.4.0**.
+
+Also noted: `~/Code/ossuminc/riddl-gen` still exists on disk, though both
+the task file and `consumers.md` describe it as "being deleted".
 
 ### Sessions Jun 25-27, 2026 — sbt 2.0 migration & 2.0.0 release
 Migrated the plugin from sbt 1.x / Scala 2.12 to **sbt 2.0.0 / Scala 3.8.4** and
