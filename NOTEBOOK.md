@@ -608,6 +608,33 @@ v1.3.4, v1.3.3, v1.3.2, v1.3.0, v1.2.5.
 
 ## Work Completed (Recent)
 
+### Session Jul 29, 2026 — issue 6b fixed, 6c deliberately not
+
+**6b — `ThisBuild / Test / scalacOptions` was silently ignored.** `With.Scala3`
+defines a **project-level** `scalacOptions`, and sbt delegates the *project*
+axis LAST, so an undefined `<proj> / Test / scalacOptions` found that before it
+ever consulted `ThisBuild / Test / scalacOptions`. Every consumer had to repeat
+the option per project; riddl hit it adding a `-Wconf` rule for test sources.
+
+Scala2 and Scala3 now append the **difference** between
+`ThisBuild / Test / scalacOptions` and `ThisBuild / scalacOptions` to
+`Test / scalacOptions`. The difference is the trick: when the ThisBuild/Test key
+is undefined it delegates to `ThisBuild / scalacOptions`, which the
+project-level `scalacOptions` already absorbed — so the diff is empty and the
+setting is a no-op rather than a duplicator. Also added
+`With.testScalacOptions(...)`. New scripted test `test-scalacoptions`, verified
+red first; suite now 24/24.
+
+**Worth internalising:** project-level settings beat ThisBuild at *any* config,
+because sbt varies the project axis last. Any plugin default written unscoped at
+project level therefore makes the corresponding `ThisBuild / <config> / key`
+unreachable. Same family of bug as issue 2 (ordering) — both are sbt scope
+mechanics that silently swallow a reasonable-looking user setting.
+
+**6c — not fixed, on purpose.** See "Next Steps"; blocked on a reproduction
+rather than shipping a build-wide doc serialisation to fix an undemonstrated
+race.
+
 ### Session Jul 29, 2026 — release-candidate support
 
 `task/2026-07-29-release-candidate-support.md` (from riddl, arrived mid-session).
@@ -991,20 +1018,19 @@ helpers (ClassPathJar/UnmanagedJars/ShellPrompt) are exposed in `With`;
 SonatypePublishing.scala) are gone; CI now uses JDK 25.
 
 Remaining / future:
-- **From riddl's npm/dynver task, NOT in its acceptance criteria and NOT done**
-  (the task is otherwise closed in `task/done/`):
-  - **Issue 6b — `Test / scalacOptions` cannot be set from `ThisBuild`.**
-    `With.typical` defines a *project-level* `scalacOptions` (`Scala3.scala:71`,
-    `scalacOptions ++=` unscoped), so an undefined `<proj> / Test /
-    scalacOptions` delegates to that before ever reaching `ThisBuild / Test /
-    scalacOptions` — making a `ThisBuild / Test / scalacOptions +=` silently
-    ineffective and forcing the setting to be repeated per project. riddl hit
-    this adding a `-Wconf` rule for test sources. Wants a
-    `With.testScalacOptions(...)` helper, or config-aware defaults.
-  - **Issue 6c — `Compile / doc` race under concurrent Native publish.** riddl
-    works around it per-module (`passesNative`, `riddlLibNative` set
-    `Compile / doc / sources := Seq.empty`). If the plugin can serialise `doc`
-    tasks, that workaround can be retired.
+- **Issue 6c — `Compile / doc` race under concurrent Native publish. BLOCKED ON
+  A REPRODUCTION; deliberately not fixed (decided 2026-07-29).**
+  The proposed fix is to tag `doc` and serialise it build-wide via
+  `concurrentRestrictions`. Not shipped: that imposes a build-wide loss of doc
+  parallelism on every consumer to fix a race nobody here can demonstrate — a
+  guess wearing a fix's clothing. Asked riddl for the failing command, the
+  error text, and whether it survives `concurrentRestrictions := Seq(Tags.limit(
+  Tags.All, 1))`, which distinguishes doc-vs-doc (serialising works) from doc
+  racing the native toolchain (serialising is theatre).
+  Meanwhile riddl's hand-written `Compile / doc / sources := Seq.empty` has a
+  supported one-liner already: **`.nativeConfigure(With.NoDocs)`** (3.0.2+).
+  That tidies the workaround; it does not fix the race.
+  Task filed: `../riddl/task/2026-07-29-sbt-ossuminc-3.1.0-npm-dynver-rc.md`.
 - **Restore when upstream ships sbt 2 builds:** `With.IdeaPlugin`
   (sbt-idea-plugin / SCL-23480), Coveralls upload, TASTy-MiMa, stable
   sbt-paradox docs. The idea-plugin scripted test can be restored from git
