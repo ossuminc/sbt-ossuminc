@@ -38,14 +38,49 @@ object NpmPublishing {
     val npmRegistries = settingKey[Seq[String]](
       "Target npm registries (\"npmjs\", \"github\")"
     )
+    val npmDistTag = settingKey[String](
+      "npm dist-tag to publish under. Derived from the version by default; " +
+        "set explicitly to override the heuristic"
+    )
   }
+
+  /** The npm dist-tag implied by a version.
+    *
+    * `npm publish` moves the `latest` tag BY DEFAULT, whatever the version string says. Publishing
+    * `1.32.0-rc.1` without `--tag` therefore makes a release candidate what a plain
+    * `npm install <pkg>` resolves to. One rule covers both prerelease shapes:
+    *
+    *   - `1.32.0-rc.1` (a release candidate) -> `rc`
+    *   - `1.32.0-4-abc12345` (dynver between tags, or any other prerelease) -> `dev`
+    *   - `1.32.0` -> `latest`
+    */
+  def distTagFor(ver: String): String =
+    if (DynamicVersioning.isReleaseCandidateVersion(ver)) "rc"
+    else if (DynamicVersioning.isPrereleaseVersion(ver)) "dev"
+    else "latest"
 
   /** Publish to npmjs.com from a prepared package directory.
     *
     * @param prepDir the directory containing the assembled npm package
     * @param log sbt logger
     */
-  private def publishToNpmjs(prepDir: File, log: Logger): Unit = {
+  /** The version-derived `npmDistTag` default.
+    *
+    * Lives in [[com.ossuminc.sbt.OssumIncPlugin.projectSettings]] so a project override wins
+    * wherever it is written, rather than only after the `.jsConfigure(With.Publishing.npm(...))`
+    * call — this is the escape hatch for cases the heuristic gets wrong.
+    */
+  def defaultSettings: Seq[Setting[?]] = Seq(
+    Keys.npmDistTag := distTagFor(version.value)
+  )
+
+  /** `npm publish` arguments, adding `--tag` for anything that must not become `latest`. */
+  private def publishCmd(distTag: String): Seq[String] = {
+    val base = Seq("npm", "publish", "--access", "public")
+    if (distTag == "latest") base else base ++ Seq("--tag", distTag)
+  }
+
+  private def publishToNpmjs(prepDir: File, distTag: String, log: Logger): Unit = {
     val token = sys.env.getOrElse("NPM_TOKEN",
       sys.error(
         "NPM_TOKEN environment variable is not set. " +
@@ -62,7 +97,8 @@ object NpmPublishing {
       "registry=https://registry.npmjs.org/\n"
     )
 
-    val cmd = Seq("npm", "publish", "--access", "public")
+    val cmd = publishCmd(distTag)
+    log.info(s"Publishing under dist-tag '$distTag'")
     log.info(s"Running: ${cmd.mkString(" ")}")
 
     val env = Seq("NPM_TOKEN" -> token)
@@ -88,6 +124,7 @@ object NpmPublishing {
   private def publishToGithub(
     prepDir: File,
     scope: String,
+    distTag: String,
     log: Logger
   ): Unit = {
     val token = sys.env.getOrElse("GITHUB_TOKEN",
@@ -115,7 +152,8 @@ object NpmPublishing {
       s"${scope}:registry=$registryUrl\n"
     )
 
-    val cmd = Seq("npm", "publish", "--access", "public")
+    val cmd = publishCmd(distTag)
+    log.info(s"Publishing under dist-tag '$distTag'")
     log.info(s"Running: ${cmd.mkString(" ")}")
 
     val env = Seq("GITHUB_TOKEN" -> token)
@@ -149,14 +187,14 @@ object NpmPublishing {
       Keys.npmPublishNpmjs := {
         val log = streams.value.log
         val prepDir = NpmPackaging.Keys.npmPrepare.value
-        publishToNpmjs(prepDir, log)
+        publishToNpmjs(prepDir, Keys.npmDistTag.value, log)
       },
 
       Keys.npmPublishGithub := {
         val log = streams.value.log
         val prepDir = NpmPackaging.Keys.npmPrepare.value
         val scope = NpmPackaging.Keys.npmScope.value
-        publishToGithub(prepDir, scope, log)
+        publishToGithub(prepDir, scope, Keys.npmDistTag.value, log)
       },
 
       Keys.npmPublish := {
@@ -164,12 +202,13 @@ object NpmPublishing {
         val prepDir = NpmPackaging.Keys.npmPrepare.value
         val scope = NpmPackaging.Keys.npmScope.value
         val regs = Keys.npmRegistries.value
+        val distTag = Keys.npmDistTag.value
 
         regs.foreach {
           case "npmjs" =>
-            publishToNpmjs(prepDir, log)
+            publishToNpmjs(prepDir, distTag, log)
           case "github" =>
-            publishToGithub(prepDir, scope, log)
+            publishToGithub(prepDir, scope, distTag, log)
           case other =>
             sys.error(
               s"Unknown npm registry: '$other'. " +

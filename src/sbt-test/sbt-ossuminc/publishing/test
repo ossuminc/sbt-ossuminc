@@ -6,5 +6,11 @@
 > show resolvers
 # A stale sbt server must not be able to publish a version naming another commit.
 > checkStalenessLogic
+# Prerelease/RC classification -- isSnapshot cannot answer this.
+> checkPrereleaseClassification
+> checkPrereleaseSettings
+# An RC must not be published as npm's `latest`.
+> checkDistTagRule
+> checkDistTagDefault
 # publishLocal warns rather than fails, so it must still succeed.
 > publishLocal

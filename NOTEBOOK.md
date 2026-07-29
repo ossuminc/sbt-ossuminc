@@ -602,6 +602,47 @@ v1.3.4, v1.3.3, v1.3.2, v1.3.0, v1.2.5.
 
 ## Work Completed (Recent)
 
+### Session Jul 29, 2026 — release-candidate support
+
+`task/2026-07-29-release-candidate-support.md` (from riddl, arrived mid-session).
+All three asks.
+
+**Ask 1 — npm dist-tag (the one that bites).** `npm publish` moves `latest` **by
+default, whatever the version string says**, so publishing `1.32.0-rc.1` would
+have made an RC what a plain `npm install @ossuminc/riddl-lib` resolves to.
+`NpmPublishing` hardcoded `npm publish --access public` in both registry paths.
+One rule now covers both prerelease shapes riddl described:
+
+| version | dist-tag |
+|---|---|
+| `1.32.0` | `latest` (no `--tag`) |
+| `1.32.0-rc.1` | `rc` |
+| `1.32.0-4-abc12345` | `dev` |
+
+Escape hatch is the `npmDistTag` setting, whose default lives in
+`projectSettings` — so it is order-independent from the start, applying the
+lesson from Issue 2 rather than repeating that mistake in new code.
+
+**Ask 2 — `isPrerelease` / `isReleaseCandidate`.** Exposed via `autoImport`, so
+they are usable unqualified in `build.sbt`. The important subtlety, which the
+riddl session established empirically: **`isSnapshot` is `false` for an RC tag**
+— correctly, because an RC is a real immutable artifact — so it can never proxy
+for "is this a prerelease?". Derived from `prereleaseIdentifier`, a pure SemVer
+parse that strips `+build` metadata; dynver's between-tags rendering counts as a
+prerelease (it is not the released `1.32.0`) but is deliberately **not** an RC.
+
+**Ask 3 — workflow hazards.** Documented rather than coded, which is what the
+task asked for absent shipped workflow templates. The trap worth remembering:
+**`gh release create --prerelease` still fires `release: [created]`**, so a
+Homebrew-tap dispatch overwrites the *stable* formula with an RC unless the job
+branches on `github.event.release.prerelease`. Homebrew's `devel` block is
+deprecated; the supported pattern is a separate `pkg@rc` formula with
+`conflicts_with`.
+
+*Not done:* making `With.Packaging.homebrew(...)` itself RC-aware (e.g. emitting
+a `pkg@rc` formula when `isPrerelease`). That would change generated formula
+names, so it wants a decision rather than a quiet change.
+
 ### Session Jul 29, 2026 — remaining items of the riddl npm/dynver task
 
 Issues 3, 4, 5 and 6a of `task/make-npm-packaging-and-dynver-just-work.md`.

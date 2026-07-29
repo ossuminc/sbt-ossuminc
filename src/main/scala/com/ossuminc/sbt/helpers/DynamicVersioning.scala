@@ -12,6 +12,13 @@ import scala.util.Try
 object DynamicVersioning extends AutoPluginHelper {
 
   object Keys {
+    val isPrerelease = settingKey[Boolean](
+      "True when the resolved version carries a SemVer prerelease component. " +
+        "NOT the same as isSnapshot: an RC tag yields isSnapshot=false"
+    )
+    val isReleaseCandidate = settingKey[Boolean](
+      "True when the version's prerelease component is an -rc.N identifier"
+    )
     val versionFreshness = taskKey[Option[String]](
       "None if the resolved version matches git HEAD (or staleness cannot be proven); " +
         "Some(explanation) when the version demonstrably names a different commit"
@@ -23,6 +30,37 @@ object DynamicVersioning extends AutoPluginHelper {
       "Log version + HEAD SHA and WARN if the resolved version names a different commit"
     )
   }
+
+  /** The SemVer prerelease component of `ver`, if any.
+    *
+    * For `MAJOR.MINOR.PATCH-<prerelease>[+build]` this is everything between the first `-` after
+    * the numeric core and any `+build` metadata. Returns None for a plain release version.
+    *
+    * Note that dynver's between-tags rendering (`1.32.0-4-abc12345`, optionally with a
+    * `-20260729-1318` dirty stamp) *is* a SemVer prerelease by this definition, which is correct:
+    * such a version is not the released `1.32.0`.
+    */
+  def prereleaseIdentifier(ver: String): Option[String] = {
+    val semver = raw"^\d+\.\d+\.\d+-([^+]+)(?:\+.*)?$$".r
+    ver match {
+      case semver(pre) => Some(pre)
+      case _           => None
+    }
+  }
+
+  /** Whether `ver` is a prerelease.
+    *
+    * `isSnapshot` cannot stand in for this: for an RC tag `1.32.0-rc.1`, dynver correctly reports
+    * `isSnapshot = false` — an RC is a real, immutable, non-snapshot artifact — yet it must not be
+    * what consumers resolve by default.
+    */
+  def isPrereleaseVersion(ver: String): Boolean = prereleaseIdentifier(ver).isDefined
+
+  /** Whether `ver` is specifically a release candidate, i.e. its prerelease component begins with
+    * an `rc` identifier (`1.32.0-rc.1`, `1.32.0-rc1`).
+    */
+  def isReleaseCandidateVersion(ver: String): Boolean =
+    prereleaseIdentifier(ver).exists(pre => raw"^rc[.\-]?\d*".r.findPrefixOf(pre).isDefined)
 
   /** Short SHA of `HEAD`, or None outside a git repository. */
   private def headSha(base: File): Option[String] =
@@ -66,6 +104,8 @@ object DynamicVersioning extends AutoPluginHelper {
     * stale remote publish is not correctable in place.
     */
   private def freshnessSettings: Seq[Setting[?]] = Seq(
+    Keys.isPrerelease := isPrereleaseVersion(version.value),
+    Keys.isReleaseCandidate := isReleaseCandidateVersion(version.value),
     Keys.versionFreshness := {
       headSha(baseDirectory.value).flatMap(stalenessOf(version.value, _))
     },

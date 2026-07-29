@@ -20,6 +20,16 @@ object OssumIncPlugin extends AutoPlugin {
     val CrossModule: com.ossuminc.sbt.CrossModule.type = com.ossuminc.sbt.CrossModule
     val DocSite: com.ossuminc.sbt.DocSite.type = com.ossuminc.sbt.DocSite
 
+    // Version classification. `isSnapshot` deliberately does NOT answer this:
+    // for an RC tag (1.32.0-rc.1) dynver reports isSnapshot=false, correctly,
+    // because an RC is a real immutable artifact -- which is exactly why it
+    // cannot be used as a proxy for "is this a prerelease?". Without these,
+    // every consumer re-derives the answer by string-matching the version.
+    val isPrerelease: SettingKey[Boolean] =
+      helpers.DynamicVersioning.Keys.isPrerelease
+    val isReleaseCandidate: SettingKey[Boolean] =
+      helpers.DynamicVersioning.Keys.isReleaseCandidate
+
     // Kinds of cross-builds supported by CrossModule
     val JVM: CrossModule.Target = CrossModule.JVMTarget
     val JS: CrossModule.Target = CrossModule.JSTarget
@@ -198,7 +208,7 @@ object OssumIncPlugin extends AutoPlugin {
   // needs: the override wins wherever the author writes it, rather than only
   // when it happens to follow the .configure(...) call that set the key.
   override def projectSettings: Seq[Setting[?]] =
-    helpers.NpmPackaging.defaultSettings
+    helpers.NpmPackaging.defaultSettings ++ helpers.NpmPublishing.defaultSettings
 
   override def buildSettings: Seq[Setting[?]] = Seq(
     // Provide default (sentinel) values for RootProjectInfo keys

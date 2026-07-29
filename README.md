@@ -219,6 +219,81 @@ various features that we like at Ossum Inc.:
 * Native sbt 2 Maven Central publishing via the Sonatype Central Portal
 * sbt-scoverage for code coverage measurement
 
+## Release Candidates and Prereleases
+
+Tag a release candidate `X.Y.Z-rc.N` (SemVer prerelease, no `v` prefix).
+sbt-dynver already does the right thing with it:
+
+```
+tag 1.32.0-rc.1  ->  version 1.32.0-rc.1, isSnapshot = false
+```
+
+That `isSnapshot = false` is **correct** — an RC is a real, immutable artifact,
+not a snapshot — which is precisely why `isSnapshot` cannot be used to answer
+"is this a prerelease?".
+
+### `isPrerelease` / `isReleaseCandidate` (3.1.0+)
+
+Two settings, available unqualified in `build.sbt`, so nothing has to
+string-match the version:
+
+```scala
+Compile / packageBin / publishArtifact := !isPrerelease.value
+
+someTask := {
+  if (isReleaseCandidate.value) log.info("this is an RC build")
+}
+```
+
+| Version | `isPrerelease` | `isReleaseCandidate` | `isSnapshot` |
+|---|---|---|---|
+| `1.32.0` | false | false | false |
+| `1.32.0-rc.1` | **true** | **true** | false |
+| `1.32.0-4-abc12345` | **true** | false | true |
+
+### npm dist-tags are handled for you (3.1.0+)
+
+`npm publish` moves the `latest` dist-tag **by default, whatever the version
+string says**. Publishing `1.32.0-rc.1` without `--tag` therefore makes a
+release candidate what a plain `npm install <pkg>` resolves to.
+`With.Publishing.npm(...)` derives the tag from the version:
+
+| Version | dist-tag | `npm install` behavior |
+|---|---|---|
+| `1.32.0` | `latest` | the default |
+| `1.32.0-rc.1` | `rc` | only via `npm install <pkg>@rc` |
+| `1.32.0-4-abc12345` | `dev` | only via `npm install <pkg>@dev` |
+
+Override with the `npmDistTag` setting when the heuristic is wrong; because its
+default comes from the plugin's `projectSettings`, your override wins wherever
+you write it:
+
+```scala
+com.ossuminc.sbt.helpers.NpmPublishing.Keys.npmDistTag := "next"
+```
+
+### Release workflow hazards this plugin does NOT guard
+
+Two traps live in your CI, not in the build, so you must handle them yourself:
+
+1. **`gh release create --prerelease` still fires `release: [created]`.** A
+   Homebrew-tap dispatch job wired to that event will happily overwrite your
+   **stable** formula with a release candidate. Branch on the payload:
+
+   ```yaml
+   if: github.event.release.prerelease == false
+   ```
+
+   For an RC formula, Homebrew's `devel` block is deprecated; the supported
+   pattern is a **separate versioned formula** (`pkg@rc`) declaring
+   `conflicts_with` against the stable one.
+
+2. **Announcement / notification jobs.** Same event fires for a prerelease.
+   Gate them the same way. (This repo's own `release.yml` gates `notify-blog`
+   on `endsWith(tag, '.0')`, which incidentally excludes `-rc.N` tags, but that
+   is a side effect of the patch-release rule, not an RC guard — do not rely on
+   that shape in your own workflows.)
+
 ## Module Kinds
 
 The `sbt-ossuminc` plugin automatically defines some top level objects you can

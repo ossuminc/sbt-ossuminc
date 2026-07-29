@@ -78,6 +78,25 @@ This came from riddl, which published `1.31.0-182-2bc257ae` — two commits
 stale — and got `[success]`. Consumers testing that coordinate were running
 code that predated the fixes they were asked to verify.
 
+### Release candidates (3.1.0+)
+
+Tag an RC `X.Y.Z-rc.N`. dynver handles it already: `1.32.0-rc.1` yields
+version `1.32.0-rc.1` with **`isSnapshot = false`** — correct, since an RC is
+a real immutable artifact, and exactly why `isSnapshot` is **not** a proxy for
+"is this a prerelease?".
+
+- **`isPrerelease` / `isReleaseCandidate`** — build settings, available
+  unqualified in `build.sbt`, so nothing string-matches the version.
+- **npm dist-tag is derived from the version**: `-rc.N` → `rc`, any other
+  prerelease → `dev`, otherwise `latest`. Without this, publishing an RC moves
+  npm's `latest` and a plain `npm install` resolves to the RC. Escape hatch:
+  the `npmDistTag` setting (default lives in `projectSettings`, so an override
+  wins from anywhere).
+- **Not guarded by the plugin:** `gh release create --prerelease` still fires
+  `release: [created]`, so Homebrew-tap and announcement jobs must branch on
+  `github.event.release.prerelease` or they will overwrite the stable formula
+  with an RC. See README → "Release Candidates and Prereleases".
+
 ## Project Types Provided
 
 - `Root()` - Aggregator project

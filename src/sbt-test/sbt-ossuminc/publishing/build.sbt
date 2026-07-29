@@ -43,5 +43,87 @@ lazy val root = Root("publishing-test", startYr = 2024)
       assert(msg.contains("2bc257ae") && msg.contains(head), s"message lacks both SHAs: $msg")
       assert(msg.contains("reload"), s"message does not say how to fix it: $msg")
       println("checkStalenessLogic: stale/fresh version detection OK")
+    },
+    // isSnapshot does NOT answer "is this a prerelease?": for an RC tag dynver
+    // reports isSnapshot=false, correctly, because an RC is a real immutable
+    // artifact. Without these settings every consumer string-matches version.
+    TaskKey[Unit]("checkPrereleaseClassification") := {
+      import com.ossuminc.sbt.helpers.DynamicVersioning.{
+        isPrereleaseVersion,
+        isReleaseCandidateVersion,
+        prereleaseIdentifier
+      }
+
+      // Empirically verified in riddl: tag 1.32.0-rc.1 -> version 1.32.0-rc.1.
+      assert(isPrereleaseVersion("1.32.0-rc.1"), "an RC tag is a prerelease")
+      assert(isReleaseCandidateVersion("1.32.0-rc.1"), "1.32.0-rc.1 is an RC")
+      assert(isReleaseCandidateVersion("1.32.0-rc1"), "1.32.0-rc1 is an RC too")
+
+      // dynver between-tags renderings are prereleases, but not RCs.
+      assert(isPrereleaseVersion("1.32.0-4-abc12345"), "between tags is a prerelease")
+      assert(
+        !isReleaseCandidateVersion("1.32.0-4-abc12345"),
+        "between tags is NOT a release candidate"
+      )
+      assert(
+        isPrereleaseVersion("1.32.0-4-abc12345-20260729-1318"),
+        "a dirty-tree stamp is still a prerelease"
+      )
+
+      // A plain release is neither.
+      assert(!isPrereleaseVersion("1.32.0"), "1.32.0 is a release")
+      assert(!isReleaseCandidateVersion("1.32.0"), "1.32.0 is not an RC")
+
+      // Build metadata must not be mistaken for a prerelease.
+      assert(!isPrereleaseVersion("1.32.0+build.5"), "+build is metadata, not prerelease")
+      assert(
+        prereleaseIdentifier("1.32.0-rc.1+build.5").contains("rc.1"),
+        s"build metadata must be stripped, got ${prereleaseIdentifier("1.32.0-rc.1+build.5")}"
+      )
+
+      println("checkPrereleaseClassification: prerelease/RC classification OK")
+    },
+    // npm publish moves `latest` BY DEFAULT whatever the version says, so
+    // publishing an RC without --tag makes it what `npm install <pkg>` gets.
+    TaskKey[Unit]("checkDistTagRule") := {
+      import com.ossuminc.sbt.helpers.NpmPublishing.distTagFor
+      def expect(ver: String, tag: String): Unit =
+        assert(
+          distTagFor(ver) == tag,
+          s"distTagFor('$ver') should be '$tag', got '${distTagFor(ver)}'"
+        )
+      expect("1.32.0-rc.1", "rc")
+      expect("1.32.0-rc1", "rc")
+      expect("1.32.0-4-abc12345", "dev")
+      expect("1.32.0-4-abc12345-20260729-1318", "dev")
+      expect("0.1.0-SNAPSHOT", "dev")
+      expect("1.32.0", "latest")
+      println("checkDistTagRule: dist-tag derivation OK")
+    },
+    // The escape hatch must win from anywhere -- this override is written
+    // above nothing in particular, but the default lives in the plugin's
+    // projectSettings, which sbt orders below all of build.sbt.
+    TaskKey[Unit]("checkDistTagDefault") := {
+      import com.ossuminc.sbt.helpers.NpmPublishing
+      val tag = NpmPublishing.Keys.npmDistTag.value
+      val ver = version.value
+      val expected = NpmPublishing.distTagFor(ver)
+      assert(tag == expected, s"npmDistTag for version '$ver' should be '$expected', got '$tag'")
+      println(s"checkDistTagDefault: version=$ver npmDistTag=$tag")
+    },
+    TaskKey[Unit]("checkPrereleaseSettings") := {
+      val pre = isPrerelease.value
+      val rc = isReleaseCandidate.value
+      val ver = version.value
+      import com.ossuminc.sbt.helpers.DynamicVersioning
+      assert(
+        pre == DynamicVersioning.isPrereleaseVersion(ver),
+        s"isPrerelease disagrees with the classifier for '$ver'"
+      )
+      assert(
+        rc == DynamicVersioning.isReleaseCandidateVersion(ver),
+        s"isReleaseCandidate disagrees with the classifier for '$ver'"
+      )
+      println(s"checkPrereleaseSettings: version=$ver isPrerelease=$pre isReleaseCandidate=$rc")
     }
   )
