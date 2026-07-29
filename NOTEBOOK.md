@@ -16,11 +16,11 @@ to the task file and note completion in this notebook.
 **Latest release: 3.0.3** (2026-07-24). `main` is green; full scripted suite
 23/23. **Unreleased work on `main` warrants 3.1.0** — see "Why 3.1.0" below.
 
-Task dropbox holds **one open request**:
-`2026-07-29-release-candidate-support.md` (from riddl, arrived mid-session
-2026-07-29) — RC support: npm dist-tag, `isPrerelease`, workflow guards. Not
-started. `task/done/` now has five; `make-npm-packaging-and-dynver-just-work.md`
-closed 2026-07-29 with all five acceptance criteria met.
+Task dropbox is **empty**. `task/done/` has six; both riddl requests were
+closed 2026-07-29 —`make-npm-packaging-and-dynver-just-work.md` (all five
+acceptance criteria met) and `2026-07-29-release-candidate-support.md` (all
+three asks; the npm dist-tag is unit-covered but end-to-end unproven, since no
+real registry publish was performed).
 
 ### Why 3.1.0 (not 3.0.4)
 
@@ -37,7 +37,13 @@ Two behavior changes, neither of which belongs in a patch:
    repos, all on the 1.x line where the aliases still exist.
 
 Also new and worth a release note: `publish` now **fails** when the resolved
-version names a commit other than HEAD (`publishLocal` warns).
+version names a commit other than HEAD (`publishLocal` warns), npm publishing
+derives its dist-tag from the version (an RC no longer becomes `latest`), and
+`isPrerelease` / `isReleaseCandidate` are available unqualified in `build.sbt`.
+
+**Waiting on 3.1.0:** riddl keeps its `npmTypesDir` override until it ships, and
+riddl's first RC needs the dist-tag fix to avoid publishing `1.32.0-rc.1` as
+npm's `latest`.
 
 ### Known flake
 
