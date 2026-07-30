@@ -21,8 +21,10 @@ not provided:
    ```
    git branch --show-current
    ```
-   If not on `main`, ask the user before switching. **Never
-   publish from `development` or feature branches.**
+   If not on `main`, ask the user before switching. `main` is
+   release and latest; **never publish from a work branch.**
+   (A release-preparation branch such as `release/2` gets
+   merged to `main` first, then tagged from there.)
 
 2. Assert working tree is clean:
    ```
@@ -31,12 +33,13 @@ not provided:
    If dirty, list the uncommitted files and ask the user how
    to proceed.
 
-3. **GITHUB_TOKEN handling**: Do NOT `unset GITHUB_TOKEN`
-   globally — sbt needs it for GitHub Packages resolution.
-   Only unset it immediately before `gh` commands:
-   ```
-   unset GITHUB_TOKEN && gh ...
-   ```
+3. **GITHUB_TOKEN handling**: just use `gh ...`. Both the
+   `GITHUB_TOKEN` env var and the keyring login in
+   `~/.config/gh/hosts.yml` authenticate (verified 2026-07-29
+   during the 3.1.0 release). Do NOT `unset GITHUB_TOKEN`
+   globally — sbt needs it for GitHub Packages resolution. If
+   you ever need the keyring credential specifically, scope it
+   to one command with `env -u GITHUB_TOKEN gh ...`.
 
 4. When switching to `main`, always `git pull` first to
    ensure local main is up to date with origin.
@@ -110,7 +113,7 @@ not provided:
 
 11. Create a GitHub release:
     ```
-    unset GITHUB_TOKEN && gh release create <VERSION> \
+    gh release create <VERSION> \
       --title "Release <VERSION>" --generate-notes
     ```
     This triggers the `release.yml` workflow which also
@@ -120,17 +123,23 @@ not provided:
 
 12. Confirm the release exists:
     ```
-    unset GITHUB_TOKEN && gh release view <VERSION>
+    gh release view <VERSION>
     ```
 
 13. Run `git status` to confirm the working tree is clean.
 
-14. Switch back to `development` and merge the tag forward:
+14. Confirm the workflow actually published. The release
+    existing is not the same as the artifacts existing:
     ```
-    git checkout development
-    git merge main
-    git push
+    gh run list --limit 3
+    gh release view <VERSION> --json assets \
+      --jq '.assets[].name'
+    gh api "/orgs/ossuminc/packages/maven/\
+com.ossuminc.sbt-ossuminc_sbt2_3/versions" --jq '.[0].name'
     ```
+    Expect the `Release` run to succeed, four JARs attached
+    (main, sources, javadoc, tests), and the newest package
+    version to be `<VERSION>`.
 
 15. Report a summary: tag, commit SHA, release URL, and any
     CI workflows triggered.
