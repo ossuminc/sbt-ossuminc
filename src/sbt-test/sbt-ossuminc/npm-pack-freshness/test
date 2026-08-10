@@ -1,0 +1,14 @@
+# `npmPack` must return the tarball it just produced, not an arbitrary one from
+# a `target/npm-packages` that has accumulated tarballs from earlier builds.
+# Requires the `npm` binary (unlike the `npm-packaging` test, which stops at
+# `npmPrepare`).
+> compile
+# Pre-existing tarballs from "earlier builds" -- the condition a fresh target
+# cannot reproduce, which is why this bug survived.
+> seedStaleTarballs
+> checkPackFresh
+# Same again for npmPublishLocal, which took its filename from npmPack's result
+# while taking its directory from version.value -- landing a stale artifact
+# under a current version number.
+> seedStaleTarballs
+> checkPublishLocalFresh

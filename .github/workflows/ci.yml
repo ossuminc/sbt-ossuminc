@@ -27,6 +27,14 @@ jobs:
       - name: Set Up SBT
         uses: sbt/setup-sbt@v1
 
+      # The `npm-pack-freshness` scripted test shells out to `npm pack`. The
+      # runner image ships Node already; this pins it so the dependency is
+      # explicit rather than inherited from whatever the image happens to have.
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+
       - name: Coursier UnCaching
         uses: coursier/cache-action@v8
 

@@ -14,13 +14,14 @@ to the task file and note completion in this notebook.
 ## Current Status
 
 **Latest release: 3.0.3** (2026-07-24). `main` is green; full scripted suite
-23/23. **Unreleased work on `main` warrants 3.1.0** — see "Why 3.1.0" below.
+25/25. **Unreleased work on `main` warrants 3.1.0** — see "Why 3.1.0" below.
 
-Task dropbox is **empty**. `task/done/` has six; both riddl requests were
-closed 2026-07-29 —`make-npm-packaging-and-dynver-just-work.md` (all five
-acceptance criteria met) and `2026-07-29-release-candidate-support.md` (all
-three asks; the npm dist-tag is unit-covered but end-to-end unproven, since no
-real registry publish was performed).
+Task dropbox holds **one open item**: `synapify-3.1.0-findings.md` (four asks
+from the Synapify migration — stale `With.Riddl.latest_version`, a dead
+`nonJVMDependency` parameter, and two documentation gaps). Triaged 2026-08-10;
+items 2 and 4 need a decision, not just an edit. `task/done/` has seven — the
+riddl `npmPack` staleness report was closed 2026-08-10 with all four criteria
+met.
 
 ### Why 3.1.0 (not 3.0.4)
 
@@ -44,6 +45,41 @@ derives its dist-tag from the version (an RC no longer becomes `latest`), and
 **Waiting on 3.1.0:** riddl keeps its `npmTypesDir` override until it ships, and
 riddl's first RC needs the dist-tag fix to avoid publishing `1.32.0-rc.1` as
 npm's `latest`.
+
+### FIXED: `npmPack` returned an arbitrary stale tarball (2026-08-10)
+
+Reported by riddl, which `publishLocal`'d a package **ten commits old** under a
+current version number and got `[success]`. `npmPack` globbed
+`target/npm-packages` and took `.head`; that directory is never cleaned, so it
+accumulated one tarball per version ever built and the glob returned an
+arbitrary member of that history. `npmPublishLocal` then took its *directory*
+from `version.value` (correct) and its *filename* from the glob result (stale),
+filing a months-old artifact under the current version — the worst shape of
+this bug, because every visible signal says the right thing.
+
+**Registry publishing was never affected** (`NpmPublishing.scala:189,195` run
+`npm publish` from `npmPrepare`'s directory), so no released version needed
+re-publishing. Worth stating plainly: the instinct on discovering this is to
+re-publish out of caution, and that instinct is wrong here.
+
+**Fix:** empty the directory before packing, then require exactly one tarball
+and fail with the candidate list otherwise.
+
+**The obvious fix — deriving the expected filename — is unsound**, and it is
+worth recording why so nobody "simplifies" it back. npm's tarball name comes
+from the *packaged* `package.json`, and since 3.1.0 a `package.json.template`
+can supply a `name` of its own. A name constructed from `npmScope` +
+`npmPackageName` + `version` would therefore miss for exactly the consumers
+using templates (riddl included) — trading a silent wrong answer for a loud
+wrong failure. Any future rule that has to identify a file produced by an
+external tool should constrain the *directory* rather than predict the *name*.
+
+**Why it survived:** a fresh `target` cannot reproduce it — one tarball means
+`.head` is trivially right. The `npm-pack-freshness` scripted test seeds five
+stale tarballs first, which is the whole point of it; it also asserts the
+version *inside* the packaged `package.json`, not just the filename. Same
+family as the scoverage and sbt-2-test-cache traps: a green run that measured
+the easy case.
 
 ### Known flake
 

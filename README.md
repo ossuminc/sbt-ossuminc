@@ -851,7 +851,15 @@ argument is an explicit instruction.
 - **`npmPrepare`**: Assembles the npm package directory (pure sbt, no npm
   binary required). Runs `fullOptJS`, copies JS output, generates
   `package.json`, and includes TypeScript definitions if found.
-- **`npmPack`**: Shells out to `npm pack` to create a `.tgz` archive.
+- **`npmPack`**: Shells out to `npm pack` to create a `.tgz` archive, and
+  returns the tarball it just produced. It **empties `target/npm-packages`
+  first** (3.1.1+) so exactly one tarball is present afterwards; if there is
+  not exactly one, it fails rather than guess. Before 3.1.1 that directory
+  accumulated one tarball per version ever built and `npmPack` returned an
+  arbitrary member of that history — so `npmPublishLocal` could file a
+  months-old package under the current version number, and succeed. If you
+  were collecting build artifacts out of that directory, copy them elsewhere
+  from `npmPack`'s return value instead.
 
 **TypeScript definitions** are discovered by convention (3.0.4+): the first of
 `<moduleDir>/js/types/` or `<moduleDir>/types/` that exists is used, and an

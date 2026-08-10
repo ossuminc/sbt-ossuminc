@@ -251,6 +251,15 @@ object NpmPackaging {
           val log = streams.value.log
           val prepDir = Keys.npmPrepare.value
           val targetDir = target.value / "npm-packages"
+          // Pack into an EMPTY directory. npm's tarball name is not reliably
+          // derivable here -- a package.json.template supplies its own name and
+          // version -- so the only sound way to identify the tarball just
+          // produced is to guarantee it is the only one present. This directory
+          // previously accumulated one tarball per version ever built, and the
+          // glob below then returned an arbitrary (filesystem-order) member of
+          // that history: riddl published a ten-commit-old package locally under
+          // a current version number, with `[success]`.
+          IO.delete(targetDir)
           IO.createDirectory(targetDir)
 
           val cmd = Seq(
@@ -265,15 +274,22 @@ object NpmPackaging {
             sys.error(s"npm pack failed with exit code $exitCode")
           }
 
-          // Find the produced .tgz file
-          val tgzFiles = (targetDir * "*.tgz").get()
-          if (tgzFiles.isEmpty) {
-            sys.error(
-              s"npm pack did not produce a .tgz file in $targetDir"
-            )
+          // The directory was emptied above, so `npm pack` must have left
+          // exactly one tarball. Anything else is a wrong answer, not a
+          // tie-break: fail loudly rather than pick.
+          val result = (targetDir * "*.tgz").get() match {
+            case Seq(only) => only
+            case Seq() =>
+              sys.error(
+                s"npm pack did not produce a .tgz file in $targetDir"
+              )
+            case several =>
+              sys.error(
+                s"npm pack produced ${several.size} .tgz files in $targetDir " +
+                  s"(${several.map(_.getName).sorted.mkString(", ")}); " +
+                  "expected exactly one and cannot tell which is current"
+              )
           }
-
-          val result = tgzFiles.head
           log.info(s"npm package created: $result")
           result
         },
