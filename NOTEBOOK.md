@@ -25,12 +25,22 @@ to the task file and note completion in this notebook.
 > it here**; that is what the HANDOFF rule about "verified, not remembered"
 > is for.
 
-Task dropbox holds **one open item**: `synapify-3.1.0-findings.md` (four asks
-from the Synapify migration — stale `With.Riddl.latest_version`, a dead
-`nonJVMDependency` parameter, and two documentation gaps). Triaged 2026-08-10;
-items 2 and 4 need a decision, not just an edit. `task/done/` has seven — the
-riddl `npmPack` staleness report was closed 2026-08-10 with all four criteria
-met.
+Task dropbox is **empty**. `task/done/` has eight; both 2026-08-10 closures
+carry verified Results — riddl's `npmPack` staleness report (all four criteria)
+and the Synapify 3.1.0 findings (all four items).
+
+Two findings from closing the Synapify file that consumers need and that are
+not obvious from the code:
+
+- **A JS-only `CrossModule` keeps the platform suffix on its sbt project ID** —
+  `rendererJS`, not `renderer`, since `defaultAxes(VirtualAxis.jvm, …)` has no
+  JVM row to select. `sbt renderer/compile` fails with "Not a valid key". The
+  published artifact name is unaffected.
+- **`Module(...)` + `With.ScalaJS(...)` still works on sbt 2** — a plain
+  `Module` with `ScalaJSPlugin` resolved `%% "scalajs-dom"` to
+  `scalajs-dom_sjs1_3`, so `%%` is platform-aware there and the loss of `%%%`
+  does not break the shape. Synapify need not convert its five modules to
+  migrate.
 
 ### Why 3.2.0 (not 3.1.1)
 
@@ -47,12 +57,16 @@ Since the 3.1.0 tag, `main` carries:
 Formatting-only commit `73c6037` (scalafmt over 23 drifted sources) carries no
 version implication.
 
-**Still open, decide before tagging:** `With.Riddl.latest_version` is `1.29.0`
-while riddl is at `2.0.0-rc.10` and publishes nothing under the old sbt 2
-coordinates. Bumping it to an RC just re-stales it; deprecating the no-arg form
-so callers must name a version is the better fix. Shipping 3.2.0 without
-touching it means `With.Riddl.library()` bare stays broken — this is the same
-defect that reddened CI for three weeks in July, re-aimed.
+3. **`With.Riddl.latest_version` 1.29.0 → 1.31.0** and the four Synapify
+   findings closed (dead parameter gone, CrossModule ordering and the JS-only
+   shape documented). 1.31.0 is riddl's latest *final* release; 2.0 has only
+   RCs, and a default tracking a prerelease re-stales within the week.
+
+**Release-ready for 3.2.0.** Verified 2026-08-10 from a clean sbt server and a
+throwaway `--sbt-cache`: `clean`, `scalafmtCheck`, `Test/scalafmtCheck`,
+`Test/compile`, scripted **25/25** (4m59s), with the resolved version
+`3.1.0-6-2dcd3f18` matching HEAD — so the run measured the tree that is
+actually there, not a cached earlier one.
 
 ### Why 3.1.0 was cut (shipped 2026-07-29)
 
