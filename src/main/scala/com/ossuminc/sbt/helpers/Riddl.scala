@@ -5,7 +5,22 @@ import sbt.Keys.libraryDependencies
 
 object Riddl extends AutoPluginHelper {
 
-  val latest_version = "1.29.0"
+  /** Default riddl version for [[library]] and [[testKit]].
+    *
+    * **Move this with each riddl release.** It has gone stale twice and both times the symptom was
+    * a resolve failure with nothing pointing at the cause: `1.0.0-RC6` outlived its artifacts and
+    * reddened CI for three weeks in July 2026, and `1.29.0` sat here while riddl reached 1.31.0.
+    *
+    * Verified published as `riddl-lib_3` and `riddl-testkit_3` on GitHub Packages (2026-08-10) --
+    * check with:
+    * {{{
+    * gh api /orgs/ossuminc/packages/maven/com.ossuminc.riddl-lib_3/versions
+    * }}}
+    *
+    * Deliberately NOT 2.0.0-rc.N: riddl 2.0 has no final release yet, and a default that tracks a
+    * prerelease is stale again within the week. Update this to 2.0.0 when riddl 2.0 ships.
+    */
+  val latest_version = "1.31.0"
 
   override def apply(project: Project) = testKit()(project)
 

@@ -408,6 +408,65 @@ replaces the sbt 1.x `org.portable-scala` cross-project plugins). From top to bo
 * The terse vals `foo`, `fooJS`, and `fooNative` extract the per-platform sub-projects (so you can,
   e.g., run `fooJS/test`). `.jvm`/`.js`/`.native` resolve `matrix.{jvm,js,native}.apply(scalaVersion)`.
 
+#### `.settings` is applied BEFORE `.configure`, whatever order you write them
+
+`CrossModule` accumulates the two separately and applies **all** `.settings`
+first, then **all** `.configure` transforms. Where both touch the same key, the
+`.configure` wins — even if you wrote `.settings` afterwards:
+
+```scala
+CrossModule("m", "m", scalaVersion = "3.8.4")(JS)
+  .settings(description := "FROM_SETTINGS")
+  .configure(_.settings(description := "FROM_CONFIGURE"))
+// show mJS/description  -->  FROM_CONFIGURE
+```
+
+This bites hardest with `With.BuildInfo`, which assigns `buildInfoObject`
+itself. A `.settings(buildInfoObject := "MyBuildInfo")` is silently reset to the
+default by a later `.configure(With.BuildInfo…)`, and the symptom is a *missing
+generated object at compile time* with nothing pointing at ordering. It has now
+cost debugging sessions in both riddl-generator and Synapify.
+
+**Workaround: put the override in a trailing `.configure`.**
+
+```scala
+CrossModule("facades", "facades", scalaVersion = "3.8.4")(JS)
+  .jsConfigure(With.BuildInfo.withKeys("k" -> v))
+  .configure(_.settings(buildInfoObject := "SynapifyBuildInfo"))  // last word
+```
+
+Plain `Module`/`Root` projects do **not** behave this way — that is ordinary
+sbt, where the last assignment wins. This is specific to `CrossModule`'s
+builder.
+
+#### Single-platform matrices, e.g. JS-only
+
+`CrossModule` takes `targets: Target*`, so one platform is a supported shape —
+useful for an all-Scala.js repo:
+
+```scala
+lazy val renderer_cp = CrossModule("renderer", "renderer", scalaVersion = "3.8.4")(JS)
+  .configure(With.basic)
+  .jsConfigure(With.ScalaJS("my-renderer"))
+lazy val renderer = renderer_cp.js
+```
+
+**The sbt project ID keeps its platform suffix: `rendererJS`, not `renderer`.**
+`CrossModule` pins `defaultAxes(VirtualAxis.jvm, …)`, so with no JVM row in the
+matrix the JS row is not the default and stays suffixed. Use `rendererJS` in
+`aggregate`, `addCommandAlias`, and on the command line (`sbt rendererJS/test`);
+the Scala-side `.js` accessor and the published artifact name are unaffected
+(artifact is `com.ossuminc:renderer`).
+
+**`Module(...)` + `With.ScalaJS(...)` also still works on sbt 2** — verified
+2026-08-10 by resolving `"org.scala-js" %% "scalajs-dom"` from a plain `Module`
+with `ScalaJSPlugin` enabled, which correctly fetched `scalajs-dom_sjs1_3`. `%%`
+is platform-aware there because `ScalaJSPlugin` sets the platform cross-version,
+so the loss of `%%%` does not break the plain-project shape. Prefer
+`CrossModule(…)(JS)` for new code — it is the shape the rest of this plugin is
+built around — but an existing sbt 1.x build using `Module` + `With.ScalaJS`
+does not have to be converted to migrate.
+
 ### Plugin
 
 Use this to define an SBT plugin in a sub-project, like this:
@@ -630,6 +689,13 @@ Module("my-app")
     buildInfoPackage = "com.myapp.build"
   ))
 ```
+
+> **On a `CrossModule`, do not set `buildInfoObject` in `.settings`.** The
+> builder applies every `.settings` before every `.configure`, so `With.BuildInfo`
+> resets your override no matter which you wrote first, and the only symptom is
+> a generated object that isn't found at compile time. Put the override in a
+> trailing `.configure` instead — see
+> "[.settings is applied BEFORE .configure](#settings-is-applied-before-configure-whatever-order-you-write-them)".
 
 #### **`With.coverage(percent: Double = 50.0)`**
 Enable code coverage with minimum threshold.

@@ -23,6 +23,33 @@ import sbt.Keys.*
   * parameter of [[apply]] (default 3.8.4, matching With.Scala3). It is also used to resolve the
   * per-platform sub-projects in `.jvm`/`.js`/ `.native`, so it must match the version configured by
   * `With.typical`/ `With.Scala3` on this module.
+  *
+  * ==Ordering: `.settings` runs BEFORE `.configure`==
+  *
+  * [[CrossModule.settings]] and [[CrossModule.configure]] accumulate into separate lists, and
+  * `matrix` applies ALL settings before ALL configure transforms -- independent of the order they
+  * were written in `build.sbt`. Where both assign the same key, the `.configure` wins.
+  *
+  * This is a trap with `With.BuildInfo`, which assigns `buildInfoObject` itself: a
+  * `.settings(buildInfoObject := "MyBuildInfo")` is reset to the default by the helper, and the
+  * only symptom is a generated object missing at compile time, with nothing pointing at ordering.
+  * It has cost debugging sessions in both riddl-generator and Synapify. Put the override in a
+  * trailing `.configure` instead:
+  * {{{
+  * .jsConfigure(With.BuildInfo.withKeys("k" -> v))
+  * .configure(_.settings(buildInfoObject := "SynapifyBuildInfo"))  // last word
+  * }}}
+  * Reversing this would match the natural reading of `.settings` as the last word, but would
+  * silently change which value wins for every existing consumer -- so it is documented, not
+  * changed.
+  *
+  * ==Single-platform matrices==
+  *
+  * `targets` is varargs, so `CrossModule("m", "m", sv)(JS)` is a supported shape. The generated sbt
+  * project ID keeps its platform suffix -- `mJS`, not `m` -- because `matrix` pins
+  * `defaultAxes(VirtualAxis.jvm, ...)` and a JS-only matrix has no JVM row to be the default. Use
+  * that ID in `aggregate`/`addCommandAlias`/the command line; the published artifact name is
+  * unaffected.
   */
 object CrossModule {
   sealed trait Target
