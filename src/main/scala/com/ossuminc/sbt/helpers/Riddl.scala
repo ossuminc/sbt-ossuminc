@@ -15,7 +15,7 @@ object Riddl extends AutoPluginHelper {
   // `nonJVMDependency: Boolean` (a leftover from the sbt 1.x `%%%` era) whose
   // two branches were byte-identical -- a knob that could not change the
   // outcome, but invited flipping it to "fix" a resolution problem. Removed in
-  // 3.1.0; do not reintroduce it.
+  // 3.2.0; do not reintroduce it.
 
   def library(version: String = latest_version)(project: Project): Project =
     project.settings(

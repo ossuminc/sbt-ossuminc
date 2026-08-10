@@ -13,8 +13,17 @@ to the task file and note completion in this notebook.
 
 ## Current Status
 
-**Latest release: 3.0.3** (2026-07-24). `main` is green; full scripted suite
-25/25. **Unreleased work on `main` warrants 3.1.0** — see "Why 3.1.0" below.
+**Latest release: 3.1.0** (2026-07-29 — tag pushed, GitHub release is
+`Latest`). `main` is green; full scripted suite 25/25, scalafmtCheck clean.
+**Unreleased work on `main` warrants 3.2.0** — see "Why 3.2.0" below.
+
+> This block said "Latest release: 3.0.3 / unreleased work warrants 3.1.0"
+> until 2026-08-10 — stale, because 3.1.0 was tagged and released the same day
+> that line was last touched. It caused version references to be written
+> against the wrong number before `gh release list` caught it. **Verify the
+> release state (`git describe --tags`, `gh release list`) rather than reading
+> it here**; that is what the HANDOFF rule about "verified, not remembered"
+> is for.
 
 Task dropbox holds **one open item**: `synapify-3.1.0-findings.md` (four asks
 from the Synapify migration — stale `With.Riddl.latest_version`, a dead
@@ -23,9 +32,31 @@ items 2 and 4 need a decision, not just an edit. `task/done/` has seven — the
 riddl `npmPack` staleness report was closed 2026-08-10 with all four criteria
 met.
 
-### Why 3.1.0 (not 3.0.4)
+### Why 3.2.0 (not 3.1.1)
 
-Two behavior changes, neither of which belongs in a patch:
+Since the 3.1.0 tag, `main` carries:
+
+1. **`npmPack` no longer returns a stale tarball** — the bugfix below. On its
+   own this is a patch.
+2. **`With.Riddl.library` / `.testKit` lost their `nonJVMDependency`
+   parameter** — a source-breaking signature change. The parameter was a
+   provable no-op with no caller anywhere in the org, so this is shipped as a
+   minor, consistent with how 3.1.0 handled the lowercase-alias removal that
+   was "strictly a major" by the same reasoning.
+
+Formatting-only commit `73c6037` (scalafmt over 23 drifted sources) carries no
+version implication.
+
+**Still open, decide before tagging:** `With.Riddl.latest_version` is `1.29.0`
+while riddl is at `2.0.0-rc.10` and publishes nothing under the old sbt 2
+coordinates. Bumping it to an RC just re-stales it; deprecating the no-arg form
+so callers must name a version is the better fix. Shipping 3.2.0 without
+touching it means `With.Riddl.library()` bare stays broken — this is the same
+defect that reddened CI for three weeks in July, re-aimed.
+
+### Why 3.1.0 was cut (shipped 2026-07-29)
+
+Two behavior changes, neither of which belonged in a patch:
 
 1. **A dormant `package.json.template` becomes live on upgrade** — template
    auto-discovery means a repo carrying one (riddl does) switches from the
@@ -42,9 +73,8 @@ version names a commit other than HEAD (`publishLocal` warns), npm publishing
 derives its dist-tag from the version (an RC no longer becomes `latest`), and
 `isPrerelease` / `isReleaseCandidate` are available unqualified in `build.sbt`.
 
-**Waiting on 3.1.0:** riddl keeps its `npmTypesDir` override until it ships, and
-riddl's first RC needs the dist-tag fix to avoid publishing `1.32.0-rc.1` as
-npm's `latest`.
+Those shipped in 3.1.0, so riddl can drop its `npmTypesDir` override and rely
+on the dist-tag fix now.
 
 ### FIXED: `npmPack` returned an arbitrary stale tarball (2026-08-10)
 
