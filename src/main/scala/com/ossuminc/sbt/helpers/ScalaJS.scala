@@ -19,12 +19,18 @@ object ScalaJS extends AutoPluginHelper {
 
   /** Configure Scala.js compilation
     *
-    * @param header JS header comment for output files
-    * @param hasMain Whether the project has a main method
-    * @param forProd Whether to optimize for production
-    * @param withCommonJSModule Whether to use CommonJS modules (vs ES modules)
-    * @param scalaJavaTimeVersion Version of scala-java-time to include
-    * @param scalatestVersion Version of scalatest to include for testing
+    * @param header
+    *   JS header comment for output files
+    * @param hasMain
+    *   Whether the project has a main method
+    * @param forProd
+    *   Whether to optimize for production
+    * @param withCommonJSModule
+    *   Whether to use CommonJS modules (vs ES modules)
+    * @param scalaJavaTimeVersion
+    *   Version of scala-java-time to include
+    * @param scalatestVersion
+    *   Version of scalatest to include for testing
     */
   def apply(
     header: String = "no header",
@@ -50,10 +56,8 @@ object ScalaJS extends AutoPluginHelper {
                 else "-P:scalajs:mapSourceURI"
               val localSourcesPath = baseDirectory.value.toURI
               val remoteSourcesPath =
-                s"${
-                  info.browseUrl.toString
-                    .replace("github.com", "raw.githubusercontent.com")
-                }/$headCommit"
+                s"${info.browseUrl.toString
+                    .replace("github.com", "raw.githubusercontent.com")}/$headCommit"
               Seq(s"${flag}:$localSourcesPath->$remoteSourcesPath")
             case _ =>
               // No git info or scmInfo available - skip source map configuration

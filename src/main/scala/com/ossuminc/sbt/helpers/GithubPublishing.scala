@@ -5,10 +5,9 @@ import sbt.Keys.*
 
 /** Configure publishing to GitHub Packages using plain Maven publishing.
   *
-  * sbt 2.x note: the `sbt-github-packages` plugin (com.codecommit) was abandoned
-  * and never published an sbt 2.0 build. GitHub Packages is just a Maven
-  * repository, so we configure `publishTo`, a resolver, and `Credentials`
-  * directly instead of depending on the plugin.
+  * sbt 2.x note: the `sbt-github-packages` plugin (com.codecommit) was abandoned and never
+  * published an sbt 2.0 build. GitHub Packages is just a Maven repository, so we configure
+  * `publishTo`, a resolver, and `Credentials` directly instead of depending on the plugin.
   */
 object GithubPublishing extends AutoPluginHelper {
 
@@ -17,10 +16,14 @@ object GithubPublishing extends AutoPluginHelper {
       publishMavenStyle := true,
       publishTo := {
         val org = RootProjectInfo.requireConfigured(
-          RootProjectInfo.Keys.gitHubOrganization.value, "gitHubOrganization", "GithubPublishing"
+          RootProjectInfo.Keys.gitHubOrganization.value,
+          "gitHubOrganization",
+          "GithubPublishing"
         )
         val repo = RootProjectInfo.requireConfigured(
-          RootProjectInfo.Keys.gitHubRepository.value, "gitHubRepository", "GithubPublishing"
+          RootProjectInfo.Keys.gitHubRepository.value,
+          "gitHubRepository",
+          "GithubPublishing"
         )
         // NOTE: this must NOT be named "GitHub Packages" -- that is the name of
         // the org-wide *resolver* below (and in Resolvers), which points at a
@@ -36,7 +39,9 @@ object GithubPublishing extends AutoPluginHelper {
       // added there too, and duplicate entries are noise on every resolve.
       resolvers := {
         val org = RootProjectInfo.requireConfigured(
-          RootProjectInfo.Keys.gitHubOrganization.value, "gitHubOrganization", "GithubPublishing"
+          RootProjectInfo.Keys.gitHubOrganization.value,
+          "gitHubOrganization",
+          "GithubPublishing"
         )
         (resolvers.value :+ ("GitHub Packages" at s"https://maven.pkg.github.com/$org/_")).distinct
       },
@@ -44,10 +49,9 @@ object GithubPublishing extends AutoPluginHelper {
     )
   }
 
-  /** Credentials for `maven.pkg.github.com` from the `github.token` system
-    * property (set for scripted tests via scriptedLaunchOpts) or the
-    * `GITHUB_TOKEN` env var. The user comes from `GITHUB_ACTOR` (set in CI);
-    * GitHub accepts the token regardless of the supplied username.
+  /** Credentials for `maven.pkg.github.com` from the `github.token` system property (set for
+    * scripted tests via scriptedLaunchOpts) or the `GITHUB_TOKEN` env var. The user comes from
+    * `GITHUB_ACTOR` (set in CI); GitHub accepts the token regardless of the supplied username.
     */
   private[sbt] def githubCredentials: Seq[Credentials] = {
     val token = sys.props.get("github.token").orElse(sys.env.get("GITHUB_TOKEN"))

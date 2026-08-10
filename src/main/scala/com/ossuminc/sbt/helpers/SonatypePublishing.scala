@@ -22,28 +22,27 @@ import com.ossuminc.sbt.helpers.RootProjectInfo.Keys.{gitHubOrganization, gitHub
 
 /** Configure publishing to Maven Central via the Sonatype **Central Portal**.
   *
-  * sbt 2.x ships native Central Portal support, so this helper does not use the
-  * (deprecated) `sbt-sonatype` plugin. The legacy OSSRH host was sunset; Central
-  * Portal is the current path:
+  * sbt 2.x ships native Central Portal support, so this helper does not use the (deprecated)
+  * `sbt-sonatype` plugin. The legacy OSSRH host was sunset; Central Portal is the current path:
   *
   *   - **snapshots** (`-SNAPSHOT` versions) publish to the Central snapshots repo;
-  *   - **releases** publish to the built-in `localStaging` resolver, which stages
-  *     a deployment bundle that `sonaUpload` then sends to the Central Portal.
+  *   - **releases** publish to the built-in `localStaging` resolver, which stages a deployment
+  *     bundle that `sonaUpload` then sends to the Central Portal.
   *
   * Release flow once configured (and after PGP signing is set up):
   * {{{
   *   sbt publishSigned sonaUpload sonaRelease
   * }}}
-  * `publishSigned` comes from sbt-pgp (re-exported by this plugin). `sonaUpload`
-  * and `sonaRelease` are sbt 2 built-in commands.
+  * `publishSigned` comes from sbt-pgp (re-exported by this plugin). `sonaUpload` and `sonaRelease`
+  * are sbt 2 built-in commands.
   *
-  * Credentials are read by sbt 2 natively from either the `SONATYPE_USERNAME` /
-  * `SONATYPE_PASSWORD` environment variables (CI) or
-  * `~/.sbt/sonatype_central_credentials` (local), so this helper does not set
-  * `credentials` itself. PGP signing keys come from `PGP_SECRET` /
-  * `PGP_PASSPHRASE` (CI) or the local GPG keyring.
+  * Credentials are read by sbt 2 natively from either the `SONATYPE_USERNAME` / `SONATYPE_PASSWORD`
+  * environment variables (CI) or `~/.sbt/sonatype_central_credentials` (local), so this helper does
+  * not set `credentials` itself. PGP signing keys come from `PGP_SECRET` / `PGP_PASSPHRASE` (CI) or
+  * the local GPG keyring.
   *
-  * @note Do not combine with [[GithubPublishing]].
+  * @note
+  *   Do not combine with [[GithubPublishing]].
   */
 object SonatypePublishing extends AutoPluginHelper {
 
@@ -62,10 +61,14 @@ object SonatypePublishing extends AutoPluginHelper {
       },
       scmInfo := {
         val org = RootProjectInfo.requireConfigured(
-          gitHubOrganization.value, "gitHubOrganization", "SonatypePublishing"
+          gitHubOrganization.value,
+          "gitHubOrganization",
+          "SonatypePublishing"
         )
         val repo = RootProjectInfo.requireConfigured(
-          gitHubRepository.value, "gitHubRepository", "SonatypePublishing"
+          gitHubRepository.value,
+          "gitHubRepository",
+          "SonatypePublishing"
         )
         Some(
           ScmInfo(

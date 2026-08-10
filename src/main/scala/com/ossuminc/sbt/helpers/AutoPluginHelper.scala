@@ -18,9 +18,9 @@ package com.ossuminc.sbt.helpers
 
 import sbt.Project
 
-/** A Little Help For AutoPlugins. This trait extends `(Project => Project)`
-  * so helpers can be used directly as configuration functions:
-  * `.configure(With.Scala3)` instead of `.configure(With.Scala3.configure)`.
+/** A Little Help For AutoPlugins. This trait extends `(Project => Project)` so helpers can be used
+  * directly as configuration functions: `.configure(With.Scala3)` instead of
+  * `.configure(With.Scala3.configure)`.
   */
 trait AutoPluginHelper extends (Project => Project) {
 

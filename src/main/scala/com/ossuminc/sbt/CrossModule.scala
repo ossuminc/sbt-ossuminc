@@ -5,9 +5,8 @@ import sbt.Keys.*
 
 /** A CrossModule is a module that can be built for JVM, ScalaJS and/or Native.
   *
-  * sbt 2.x: this is implemented on the built-in `projectMatrix` (which replaces
-  * the sbt-crossproject `crossProject` builder used in the sbt 1.x line). Use it
-  * like:
+  * sbt 2.x: this is implemented on the built-in `projectMatrix` (which replaces the
+  * sbt-crossproject `crossProject` builder used in the sbt 1.x line). Use it like:
   * {{{
   * lazy val cm = CrossModule("dir", "artifact")(JVM, JS, Native)
   *   .configure(With.typical)
@@ -20,11 +19,10 @@ import sbt.Keys.*
   * lazy val cm_native = cm.native
   * }}}
   *
-  * `projectMatrix` needs the Scala version(s) at platform-declaration time, so
-  * the version is a parameter of [[apply]] (default 3.8.4, matching With.Scala3).
-  * It is also used to resolve the per-platform sub-projects in `.jvm`/`.js`/
-  * `.native`, so it must match the version configured by `With.typical`/
-  * `With.Scala3` on this module.
+  * `projectMatrix` needs the Scala version(s) at platform-declaration time, so the version is a
+  * parameter of [[apply]] (default 3.8.4, matching With.Scala3). It is also used to resolve the
+  * per-platform sub-projects in `.jvm`/`.js`/ `.native`, so it must match the version configured by
+  * `With.typical`/ `With.Scala3` on this module.
   */
 object CrossModule {
   sealed trait Target
@@ -42,20 +40,24 @@ object CrossModule {
   /** Default Scala version — matches [[com.ossuminc.sbt.helpers.Scala3]]. */
   val defaultScalaVersion: String = "3.8.4"
 
-  /** scalajs-stubs version auto-added (as `provided`) to the JVM and Native
-    * rows of a JS-targeting cross module, so shared code using `@JSExport*`
-    * from `scala.scalajs.js.annotation` compiles on those rows too. */
+  /** scalajs-stubs version auto-added (as `provided`) to the JVM and Native rows of a JS-targeting
+    * cross module, so shared code using `@JSExport*` from `scala.scalajs.js.annotation` compiles on
+    * those rows too.
+    */
   val scalajsStubsVersion: String = "1.1.0"
 
-  /** Define a cross-platform subproject. Configuration is deferred (accumulated)
-    * and materialized into a `projectMatrix` the first time `.jvm`/`.js`/
-    * `.native` is accessed, so both whole-module (`configure`/`settings`) and
-    * per-platform (`jvmConfigure`/`jsConfigure`/`nativeConfigure`) customization
-    * compose the way the sbt 1.x CrossProject-based API did.
+  /** Define a cross-platform subproject. Configuration is deferred (accumulated) and materialized
+    * into a `projectMatrix` the first time `.jvm`/`.js`/ `.native` is accessed, so both
+    * whole-module (`configure`/`settings`) and per-platform
+    * (`jvmConfigure`/`jsConfigure`/`nativeConfigure`) customization compose the way the sbt 1.x
+    * CrossProject-based API did.
     *
-    * @param dirName  subdirectory containing the module
-    * @param modName  published artifact name (defaults to `dirName` if blank)
-    * @param scalaVersion  Scala version for the platform axes (default 3.8.4)
+    * @param dirName
+    *   subdirectory containing the module
+    * @param modName
+    *   published artifact name (defaults to `dirName` if blank)
+    * @param scalaVersion
+    *   Scala version for the platform axes (default 3.8.4)
     */
   def apply(
     dirName: String,
@@ -88,8 +90,15 @@ final class CrossModule private[sbt] (
     nativeXforms: Seq[Project => Project] = nativeXforms
   ): CrossModule =
     new CrossModule(
-      dirName, modName, scalaVersion, targets,
-      common, commonSettings, jvmXforms, jsXforms, nativeXforms
+      dirName,
+      modName,
+      scalaVersion,
+      targets,
+      common,
+      commonSettings,
+      jvmXforms,
+      jsXforms,
+      nativeXforms
     )
 
   /** Apply configuration function(s) to every platform of this module. */
@@ -167,7 +176,8 @@ final class CrossModule private[sbt] (
       else identity
 
     if (targets.contains(CrossModule.JVMTarget))
-      m = m.jvmPlatform(Seq(scalaVersion), Seq.empty[VirtualAxis], jvmStubs.andThen(chain(jvmXforms)))
+      m =
+        m.jvmPlatform(Seq(scalaVersion), Seq.empty[VirtualAxis], jvmStubs.andThen(chain(jvmXforms)))
     if (targets.contains(CrossModule.JSTarget))
       m = m.jsPlatform(Seq(scalaVersion), Seq.empty[VirtualAxis], chain(jsXforms))
     if (targets.contains(CrossModule.NativeTarget)) {

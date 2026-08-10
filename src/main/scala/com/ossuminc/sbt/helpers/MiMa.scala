@@ -8,20 +8,19 @@ import com.typesafe.tools.mima.plugin.MimaKeys.*
 import com.typesafe.tools.mima.plugin.MimaKeys.{mimaFailOnNoPrevious, mimaPreviousArtifacts}
 import com.typesafe.tools.mima.plugin.MimaPlugin
 
-/** LightbendLabs Migration Manager support. This includes the sbt-mima-plugin to check for backwards binary
-  * compatibility in Scala libraries.
+/** LightbendLabs Migration Manager support. This includes the sbt-mima-plugin to check for
+  * backwards binary compatibility in Scala libraries.
   *
   * @note
-  *   TASTy-level compatibility checking (sbt-tasty-mima) is omitted on sbt 2.x:
-  *   that plugin has no sbt 2.0 release yet. Binary compatibility checking via
-  *   sbt-mima-plugin is fully supported.
+  *   TASTy-level compatibility checking (sbt-tasty-mima) is omitted on sbt 2.x: that plugin has no
+  *   sbt 2.0 release yet. Binary compatibility checking via sbt-mima-plugin is fully supported.
   * @see
   *   https://index.scala-lang.org/lightbend-labs/mima
   */
 object MiMa extends AutoPluginHelper {
 
   override def apply(project: Project) = without(project)
-  
+
   /** Mark a project as not processed by MiMa */
   def without(project: Project): Project = {
     project
@@ -35,15 +34,15 @@ object MiMa extends AutoPluginHelper {
   /** Configure MiMa to operate on this project
     * @param previousVersion
     *   The mimaPreviousArtifacts setting that MiMa requires will be set to
-    *   {{{organization %% moduleName % previousVersion}}} Make sure that your organization is set with the
-    *   [[com.ossuminc.sbt.Root]] object correctly. The moduleName comes from the second argument to your
-    *   [[com.ossuminc.sbt.Module]] or [[com.ossuminc.sbt.CrossModule]] invocation.
+    *   {{{organization %% moduleName % previousVersion}}} Make sure that your organization is set
+    *   with the [[com.ossuminc.sbt.Root]] object correctly. The moduleName comes from the second
+    *   argument to your [[com.ossuminc.sbt.Module]] or [[com.ossuminc.sbt.CrossModule]] invocation.
     * @param excludedClasses
-    *   A list of classes to be excluded from Binary Issue checks. This can safely be done to prevent errors for
-    *   internal classes that are not part of the project's API
+    *   A list of classes to be excluded from Binary Issue checks. This can safely be done to
+    *   prevent errors for internal classes that are not part of the project's API
     * @param reportSignatureIssues
-    *   When set to `true`, this turns on the `mimaReportSignatureProblems` setting which compares the whole function
-    *   signature, including generic type parameters.
+    *   When set to `true`, this turns on the `mimaReportSignatureProblems` setting which compares
+    *   the whole function signature, including generic type parameters.
     */
   def apply(
     previousVersion: String,
@@ -53,7 +52,9 @@ object MiMa extends AutoPluginHelper {
     project
       .enablePlugins(MimaPlugin)
       .settings(
-        mimaPreviousArtifacts := Set[ModuleID](organization.value %% moduleName.value % previousVersion),
+        mimaPreviousArtifacts := Set[ModuleID](
+          organization.value %% moduleName.value % previousVersion
+        ),
         mimaReportSignatureProblems := reportSignatureIssues,
         mimaBinaryIssueFilters ++= excludedClasses.map { className =>
           ProblemFilters.exclude[Problem](className)

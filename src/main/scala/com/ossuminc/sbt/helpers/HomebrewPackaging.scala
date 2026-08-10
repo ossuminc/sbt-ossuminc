@@ -8,19 +8,16 @@ import java.security.MessageDigest
 
 /** Helper for generating Homebrew formula files.
   *
-  * Generates a `.rb` formula file suitable for inclusion in a Homebrew
-  * tap repository. Supports two variants:
+  * Generates a `.rb` formula file suitable for inclusion in a Homebrew tap repository. Supports two
+  * variants:
   *
-  *   - `"universal"` (default): JVM-based, depends on
-  *     `Universal/packageBin` producing a `.zip`. The formula includes
-  *     an `openjdk` dependency.
-  *   - `"native"`: Scala Native binary, depends on
-  *     `Packaging.Keys.linuxPackage` producing a `.tar.gz`. No JDK
-  *     dependency.
+  *   - `"universal"` (default): JVM-based, depends on `Universal/packageBin` producing a `.zip`.
+  *     The formula includes an `openjdk` dependency.
+  *   - `"native"`: Scala Native binary, depends on `Packaging.Keys.linuxPackage` producing a
+  *     `.tar.gz`. No JDK dependency.
   *
-  * The formula includes a SHA256 hash computed from the local build
-  * artifact. For release workflows, this value should be verified
-  * against the artifact uploaded to GitHub Releases.
+  * The formula includes a SHA256 hash computed from the local build artifact. For release
+  * workflows, this value should be verified against the artifact uploaded to GitHub Releases.
   *
   * Usage:
   * {{{
@@ -34,8 +31,8 @@ import java.security.MessageDigest
   * )
   * }}}
   *
-  * Publishing the generated formula to a tap repository is a separate
-  * git operation, not handled by this helper.
+  * Publishing the generated formula to a tap repository is a separate git operation, not handled by
+  * this helper.
   */
 object HomebrewPackaging {
 
@@ -58,10 +55,13 @@ object HomebrewPackaging {
 
   /** Capitalize first letter of each word for Ruby class name. */
   private def rubyClassName(name: String): String = {
-    name.split("[^a-zA-Z0-9]+").map { word =>
-      if (word.isEmpty) ""
-      else s"${word.head.toUpper}${word.tail.toLowerCase}"
-    }.mkString
+    name
+      .split("[^a-zA-Z0-9]+")
+      .map { word =>
+        if (word.isEmpty) ""
+        else s"${word.head.toUpper}${word.tail.toLowerCase}"
+      }
+      .mkString
   }
 
   /** Generate a Homebrew formula for a JVM universal package. */
@@ -138,8 +138,8 @@ object HomebrewPackaging {
     * @param javaVersion
     *   Required JDK version (universal variant only)
     * @param tapRepo
-    *   GitHub tap repo (e.g. "ossuminc/homebrew-tap"), for
-    *   documentation purposes only — publishing is not automated
+    *   GitHub tap repo (e.g. "ossuminc/homebrew-tap"), for documentation purposes only — publishing
+    *   is not automated
     * @param variant
     *   "universal" (JVM, default) or "native" (Scala Native binary)
     */
@@ -173,12 +173,23 @@ object HomebrewPackaging {
           log.info(s"Computed SHA256 for ${artifact.getName}: $sha")
 
           val formula = universalFormula(
-            className, pkgDescription, homepage,
-            ghOrg, ghRepo, lic, javaVersion, sha
+            className,
+            pkgDescription,
+            homepage,
+            ghOrg,
+            ghRepo,
+            lic,
+            javaVersion,
+            sha
           )
           writeFormula(
-            formulaName, formula, artifact.getName,
-            ver, tapRepo, target.value, log
+            formulaName,
+            formula,
+            artifact.getName,
+            ver,
+            tapRepo,
+            target.value,
+            log
           )
         }
 
@@ -195,19 +206,30 @@ object HomebrewPackaging {
           log.info(s"Computed SHA256 for ${artifact.getName}: $sha")
 
           val formula = nativeFormula(
-            className, binaryName, pkgDescription, homepage,
-            ghOrg, ghRepo, lic, sha
+            className,
+            binaryName,
+            pkgDescription,
+            homepage,
+            ghOrg,
+            ghRepo,
+            lic,
+            sha
           )
           writeFormula(
-            formulaName, formula, artifact.getName,
-            ver, tapRepo, target.value, log
+            formulaName,
+            formula,
+            artifact.getName,
+            ver,
+            tapRepo,
+            target.value,
+            log
           )
         }
 
       case other =>
         sys.error(
           s"Unknown homebrew variant: '$other'. " +
-          "Supported: \"universal\", \"native\""
+            "Supported: \"universal\", \"native\""
         )
     }
 

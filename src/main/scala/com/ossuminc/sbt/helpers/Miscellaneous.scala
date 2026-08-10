@@ -25,10 +25,9 @@ import java.io.File
 object Miscellaneous {
 
   /** STUB on sbt 2.x: the classpath-jar helper relied on sbt-native-packager's
-    * `scriptClasspathOrdering` plus `IO.jar`, which need migration to the sbt 2
-    * virtual-file APIs. Deferred with the rest of the packaging work (see
-    * NOTEBOOK.md "sbt 2.0 Migration Plan", Group D). Returns the project
-    * unchanged after warning, rather than silently dropping the setting.
+    * `scriptClasspathOrdering` plus `IO.jar`, which need migration to the sbt 2 virtual-file APIs.
+    * Deferred with the rest of the packaging work (see NOTEBOOK.md "sbt 2.0 Migration Plan", Group
+    * D). Returns the project unchanged after warning, rather than silently dropping the setting.
     */
   def useClassPathJar(project: Project): Project = {
     println(
@@ -72,8 +71,8 @@ object Miscellaneous {
     jgit.branch
   }
 
-  /** Generic over the file-reference type so it works with sbt 2 mappings,
-    * whose first element is now a `HashedVirtualFileRef` rather than a `File`.
+  /** Generic over the file-reference type so it works with sbt 2 mappings, whose first element is
+    * now a `HashedVirtualFileRef` rather than a `File`.
     */
   private def filter[A](ms: Seq[(A, String)]): Seq[(A, String)] = {
     ms.filter { case (_, path) =>

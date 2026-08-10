@@ -88,8 +88,8 @@ object OssumIncPlugin extends AutoPlugin {
       /** Configure artifact publishing (defaults to GitHub Packages)
         *
         * Use `With.Publishing` for default (GitHub), or explicitly:
-        * - `With.Publishing.github` for GitHub Packages
-        * - `With.Publishing.sonatype` for Sonatype/Maven Central
+        *   - `With.Publishing.github` for GitHub Packages
+        *   - `With.Publishing.sonatype` for Sonatype/Maven Central
         */
       def Publishing: helpers.Publishing.type = helpers.Publishing
 
@@ -174,10 +174,10 @@ object OssumIncPlugin extends AutoPlugin {
           publish / skip := true
         )
 
-      /** Suppress Scaladoc/Javadoc generation for this module by clearing the
-        * `doc` task's input sources. Useful where doc generation is slow or
-        * unnecessary. The (now empty) `packageDoc` artifact is still produced,
-        * so Sonatype's javadoc-jar publishing requirement remains satisfied.
+      /** Suppress Scaladoc/Javadoc generation for this module by clearing the `doc` task's input
+        * sources. Useful where doc generation is slow or unnecessary. The (now empty) `packageDoc`
+        * artifact is still produced, so Sonatype's javadoc-jar publishing requirement remains
+        * satisfied.
         */
       def NoDocs(project: Project): Project =
         project.settings(

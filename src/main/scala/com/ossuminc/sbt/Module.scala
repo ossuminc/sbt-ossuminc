@@ -7,9 +7,9 @@ import sbt.*
 /** A regular software library module. */
 object Module {
 
-  /** Define a subproject or module of the root project. Make sure to use the [[Root]] function before this Module is
-    * defined. No configuration is applied but you can do that by using the various With.* functions in this plugin.
-    * `With.typical` is typical for Scala3 development
+  /** Define a subproject or module of the root project. Make sure to use the [[Root]] function
+    * before this Module is defined. No configuration is applied but you can do that by using the
+    * various With.* functions in this plugin. `With.typical` is typical for Scala3 development
     * @param dirName
     *   The name of the subdirectory in which the module is located.
     * @param modName

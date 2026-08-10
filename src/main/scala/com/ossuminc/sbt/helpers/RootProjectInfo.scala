@@ -29,13 +29,17 @@ object RootProjectInfo {
   /** Sentinel value indicating Root() has not been configured */
   private[sbt] val NOT_CONFIGURED = "__NOT_CONFIGURED__"
 
-  /** Check if a setting has been configured (not the sentinel value).
-    * Throws RuntimeException if the setting hasn't been configured.
+  /** Check if a setting has been configured (not the sentinel value). Throws RuntimeException if
+    * the setting hasn't been configured.
     *
-    * @param value The current setting value
-    * @param settingName Name of the setting for error messages
-    * @param helperName Name of the helper that requires this setting
-    * @return The value if configured
+    * @param value
+    *   The current setting value
+    * @param settingName
+    *   Name of the setting for error messages
+    * @param helperName
+    *   Name of the helper that requires this setting
+    * @return
+    *   The value if configured
     */
   def requireConfigured(
     value: String,

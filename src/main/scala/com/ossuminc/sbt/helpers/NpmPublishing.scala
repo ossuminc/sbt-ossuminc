@@ -5,8 +5,8 @@ import sbt.Keys._
 
 /** Helper for publishing npm packages to registries.
   *
-  * Provides tasks for publishing to npmjs.com and GitHub Packages.
-  * Authentication is via environment variables:
+  * Provides tasks for publishing to npmjs.com and GitHub Packages. Authentication is via
+  * environment variables:
   *   - `NPM_TOKEN` for npmjs.com
   *   - `GITHUB_TOKEN` for GitHub Packages
   *
@@ -19,9 +19,8 @@ import sbt.Keys._
   * )
   * }}}
   *
-  * Depends on [[NpmPackaging]] — the project must also be configured
-  * with `With.Packaging.npm(...)` to provide `npmPrepare` and
-  * `npmPack` tasks.
+  * Depends on [[NpmPackaging]] — the project must also be configured with `With.Packaging.npm(...)`
+  * to provide `npmPrepare` and `npmPack` tasks.
   */
 object NpmPublishing {
 
@@ -47,8 +46,8 @@ object NpmPublishing {
   /** The npm dist-tag implied by a version.
     *
     * `npm publish` moves the `latest` tag BY DEFAULT, whatever the version string says. Publishing
-    * `1.32.0-rc.1` without `--tag` therefore makes a release candidate what a plain
-    * `npm install <pkg>` resolves to. One rule covers both prerelease shapes:
+    * `1.32.0-rc.1` without `--tag` therefore makes a release candidate what a plain `npm install
+    * <pkg>` resolves to. One rule covers both prerelease shapes:
     *
     *   - `1.32.0-rc.1` (a release candidate) -> `rc`
     *   - `1.32.0-4-abc12345` (dynver between tags, or any other prerelease) -> `dev`
@@ -61,8 +60,10 @@ object NpmPublishing {
 
   /** Publish to npmjs.com from a prepared package directory.
     *
-    * @param prepDir the directory containing the assembled npm package
-    * @param log sbt logger
+    * @param prepDir
+    *   the directory containing the assembled npm package
+    * @param log
+    *   sbt logger
     */
   /** The version-derived `npmDistTag` default.
     *
@@ -81,10 +82,11 @@ object NpmPublishing {
   }
 
   private def publishToNpmjs(prepDir: File, distTag: String, log: Logger): Unit = {
-    val token = sys.env.getOrElse("NPM_TOKEN",
+    val token = sys.env.getOrElse(
+      "NPM_TOKEN",
       sys.error(
         "NPM_TOKEN environment variable is not set. " +
-        "Set it to your npmjs.com access token."
+          "Set it to your npmjs.com access token."
       )
     )
 
@@ -92,9 +94,10 @@ object NpmPublishing {
 
     // Write .npmrc for auth in the package directory
     val npmrc = prepDir / ".npmrc"
-    IO.write(npmrc,
+    IO.write(
+      npmrc,
       "//registry.npmjs.org/:_authToken=${NPM_TOKEN}\n" +
-      "registry=https://registry.npmjs.org/\n"
+        "registry=https://registry.npmjs.org/\n"
     )
 
     val cmd = publishCmd(distTag)
@@ -117,9 +120,12 @@ object NpmPublishing {
 
   /** Publish to GitHub Packages from a prepared package directory.
     *
-    * @param prepDir the directory containing the assembled npm package
-    * @param scope the npm scope (e.g. "@ossuminc")
-    * @param log sbt logger
+    * @param prepDir
+    *   the directory containing the assembled npm package
+    * @param scope
+    *   the npm scope (e.g. "@ossuminc")
+    * @param log
+    *   sbt logger
     */
   private def publishToGithub(
     prepDir: File,
@@ -127,16 +133,17 @@ object NpmPublishing {
     distTag: String,
     log: Logger
   ): Unit = {
-    val token = sys.env.getOrElse("GITHUB_TOKEN",
+    val token = sys.env.getOrElse(
+      "GITHUB_TOKEN",
       sys.error(
         "GITHUB_TOKEN environment variable is not set. " +
-        "Set it to a GitHub token with write:packages scope."
+          "Set it to a GitHub token with write:packages scope."
       )
     )
     if (scope.isEmpty) {
       sys.error(
         "npm scope is required for GitHub Packages publishing. " +
-        "Set scope in With.Packaging.npm(scope = \"@yourorg\", ...)"
+          "Set scope in With.Packaging.npm(scope = \"@yourorg\", ...)"
       )
     }
 
@@ -147,9 +154,10 @@ object NpmPublishing {
 
     // Write .npmrc for auth in the package directory
     val npmrc = prepDir / ".npmrc"
-    IO.write(npmrc,
+    IO.write(
+      npmrc,
       s"//npm.pkg.github.com/:_authToken=$${GITHUB_TOKEN}\n" +
-      s"${scope}:registry=$registryUrl\n"
+        s"${scope}:registry=$registryUrl\n"
     )
 
     val cmd = publishCmd(distTag)
@@ -165,7 +173,7 @@ object NpmPublishing {
     if (exitCode != 0) {
       sys.error(
         "npm publish to GitHub Packages failed with " +
-        s"exit code $exitCode"
+          s"exit code $exitCode"
       )
     }
     log.info("Successfully published to GitHub Packages")
@@ -183,20 +191,17 @@ object NpmPublishing {
   )(project: Project): Project = {
     project.settings(
       Keys.npmRegistries := registries,
-
       Keys.npmPublishNpmjs := {
         val log = streams.value.log
         val prepDir = NpmPackaging.Keys.npmPrepare.value
         publishToNpmjs(prepDir, Keys.npmDistTag.value, log)
       },
-
       Keys.npmPublishGithub := {
         val log = streams.value.log
         val prepDir = NpmPackaging.Keys.npmPrepare.value
         val scope = NpmPackaging.Keys.npmScope.value
         publishToGithub(prepDir, scope, Keys.npmDistTag.value, log)
       },
-
       Keys.npmPublish := {
         val log = streams.value.log
         val prepDir = NpmPackaging.Keys.npmPrepare.value
@@ -212,7 +217,7 @@ object NpmPublishing {
           case other =>
             sys.error(
               s"Unknown npm registry: '$other'. " +
-              "Supported: \"npmjs\", \"github\""
+                "Supported: \"npmjs\", \"github\""
             )
         }
       }

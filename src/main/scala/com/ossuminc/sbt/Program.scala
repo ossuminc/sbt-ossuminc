@@ -7,8 +7,9 @@ import sbt.Keys.{mainClass, moduleName, name, run}
 
 object Program {
 
-  /** Define a sub-project that produces an executable program. It is necessary to also have used the [[Root]] function
-    * because what that function sets up is necessary for publishing this module.
+  /** Define a sub-project that produces an executable program. It is necessary to also have used
+    * the [[Root]] function because what that function sets up is necessary for publishing this
+    * module.
     * @param dirName
     *   The name of the directory in which the plugin code and tests exist
     * @param appName

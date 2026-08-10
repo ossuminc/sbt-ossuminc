@@ -4,11 +4,10 @@ import sbt.*
 
 /** STUB: IntelliJ IDEA plugin support is unavailable on sbt 2.x.
   *
-  * The JetBrains `sbt-idea-plugin` has not published an sbt 2.0 build yet
-  * (track https://youtrack.jetbrains.com/issue/SCL-23480). Until it does,
-  * `With.IdeaPlugin` cannot configure IDEA plugin builds. Use the sbt 1.x line
-  * of sbt-ossuminc (v1.4.x) for IntelliJ plugin projects until the plugin is
-  * made sbt 2.0 compatible.
+  * The JetBrains `sbt-idea-plugin` has not published an sbt 2.0 build yet (track
+  * https://youtrack.jetbrains.com/issue/SCL-23480). Until it does, `With.IdeaPlugin` cannot
+  * configure IDEA plugin builds. Use the sbt 1.x line of sbt-ossuminc (v1.4.x) for IntelliJ plugin
+  * projects until the plugin is made sbt 2.0 compatible.
   */
 object IdeaPlugin extends AutoPluginHelper {
 
@@ -24,8 +23,8 @@ object IdeaPlugin extends AutoPluginHelper {
 
   /** Unavailable on sbt 2.x — see object documentation.
     *
-    * Signature preserved so consumer builds still type-check; invoking it fails
-    * fast with an explanatory message rather than silently doing nothing.
+    * Signature preserved so consumer builds still type-check; invoking it fails fast with an
+    * explanatory message rather than silently doing nothing.
     */
   def apply(
     name: String = "foo",

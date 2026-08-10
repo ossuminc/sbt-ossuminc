@@ -3,14 +3,13 @@ package com.ossuminc.sbt
 import sbt.{Developer, Project, file, uri}
 import java.net.URI
 
-/** A configuration object for a root project of a monorepo composed of
-  * subordinate sbt projects
+/** A configuration object for a root project of a monorepo composed of subordinate sbt projects
   */
 object Root {
 
-  /** Define a Root level project whether it is for a single-project repo or
-    * a unirepo with many subprojects. This project is configured with a shell
-    * prompt, and the standard project information at ThisBuild scope.
+  /** Define a Root level project whether it is for a single-project repo or a unirepo with many
+    * subprojects. This project is configured with a shell prompt, and the standard project
+    * information at ThisBuild scope.
     *
     * @param ghRepoName
     *   The name of the GitHub repository we are building

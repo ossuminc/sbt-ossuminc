@@ -19,7 +19,11 @@ package com.ossuminc.sbt.helpers
 import com.ossuminc.sbt.OssumIncPlugin
 import sbt.*
 import sbt.Keys.*
-import com.ossuminc.sbt.helpers.RootProjectInfo.Keys.{gitHubOrganization, gitHubRepository, projectStartYear}
+import com.ossuminc.sbt.helpers.RootProjectInfo.Keys.{
+  gitHubOrganization,
+  gitHubRepository,
+  projectStartYear
+}
 import sbtunidoc.BaseUnidocPlugin.autoImport.*
 import sbtunidoc.ScalaUnidocPlugin.autoImport.*
 import sbtunidoc.ScalaUnidocPlugin
@@ -57,12 +61,16 @@ object Unidoc extends AutoPluginHelper {
       .settings(
         Compile / doc / target := apiOutput,
         apiURL := baseURL.map(uri),
-        ScalaUnidoc / unidoc / unidocProjectFilter := inProjects(inclusions*) -- inProjects(exclusions*),
+        ScalaUnidoc / unidoc / unidocProjectFilter := inProjects(inclusions*) -- inProjects(
+          exclusions*
+        ),
         ScalaUnidoc / scalaVersion := (Compile / scalaVersion).value,
         ScalaUnidoc / unidoc / target := apiOutput,
         Compile / doc / scalacOptions := {
           val logo = logoURL
-            .getOrElse(s"https://www.scala-lang.org/api/${(Compile / scalaVersion).value}/project-logo/logo_dark.svg")
+            .getOrElse(
+              s"https://www.scala-lang.org/api/${(Compile / scalaVersion).value}/project-logo/logo_dark.svg"
+            )
           Seq(
             "-project:RIDDL API Documentation",
             s"-project-version:${version.value}",

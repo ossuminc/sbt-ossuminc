@@ -11,8 +11,7 @@ object Native extends AutoPluginHelper {
   /** Default version for scalatest dependencies */
   val defaultScalatestVersion = "3.2.20"
 
-  /** The configuration function to call for this plugin helper to add support
-    * for Scala Native
+  /** The configuration function to call for this plugin helper to add support for Scala Native
     *
     * @param project
     *   The project to which the configuration should be applied
@@ -24,15 +23,24 @@ object Native extends AutoPluginHelper {
 
   /** Configure Scala Native compilation
     *
-    * @param mode Build mode: "debug", "fast", "full", "size", "release"
-    * @param buildTarget Build target: "application", "dynamic", "static"
-    * @param gc Garbage collector: "none", "immix", "commix", "boehm"
-    * @param lto Link-time optimization: "none", "thin", "full"
-    * @param debugLog Enable debug logging
-    * @param verbose Enable verbose compilation output
-    * @param targetTriple Optional target triple for cross-compilation
-    * @param linkOptions Additional linker options
-    * @param scalatestVersion Version of scalatest to include for testing
+    * @param mode
+    *   Build mode: "debug", "fast", "full", "size", "release"
+    * @param buildTarget
+    *   Build target: "application", "dynamic", "static"
+    * @param gc
+    *   Garbage collector: "none", "immix", "commix", "boehm"
+    * @param lto
+    *   Link-time optimization: "none", "thin", "full"
+    * @param debugLog
+    *   Enable debug logging
+    * @param verbose
+    *   Enable verbose compilation output
+    * @param targetTriple
+    *   Optional target triple for cross-compilation
+    * @param linkOptions
+    *   Additional linker options
+    * @param scalatestVersion
+    *   Version of scalatest to include for testing
     */
   def apply(
     mode: String = "fast",

@@ -25,7 +25,7 @@ object Scalafmt extends AutoPluginHelper {
     file(System.getProperty("user.dir")) / ".scalafmt.conf.etag"
 
   def apply(project: Project): Project = forFormatFile()(project)
-  
+
   def forFormatFile(pathArg: String = scalafmt_path)(project: Project): Project = {
     val path = if (pathArg.isEmpty) scalafmt_path else pathArg
     project

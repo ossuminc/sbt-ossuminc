@@ -5,11 +5,11 @@ import sbt.Keys.libraryDependencies
 
 /** Helper to add scala-java-time dependency for cross-platform java.time API.
   *
-  * This is particularly useful for Scala.js and Scala Native projects that need
-  * java.time support, since the JDK's java.time package is not available on
-  * these platforms natively.
+  * This is particularly useful for Scala.js and Scala Native projects that need java.time support,
+  * since the JDK's java.time package is not available on these platforms natively.
   *
-  * @see https://github.com/cquiroz/scala-java-time
+  * @see
+  *   https://github.com/cquiroz/scala-java-time
   */
 object ScalaJavaTime extends AutoPluginHelper {
 
@@ -19,9 +19,10 @@ object ScalaJavaTime extends AutoPluginHelper {
 
   /** Add scala-java-time dependency
     *
-    * @param version The version of scala-java-time to use
-    * @param nonJVM If true, uses %%% for cross-platform. If false, uses %% for
-    *               JVM-only.
+    * @param version
+    *   The version of scala-java-time to use
+    * @param nonJVM
+    *   If true, uses %%% for cross-platform. If false, uses %% for JVM-only.
     */
   def apply(
     version: String = defaultVersion,

@@ -25,8 +25,8 @@ object Akka extends AutoPluginHelper {
     * token is part of the URL path. See https://doc.akka.io/libraries/akka-dependencies/current/
     *
     * The token is read from (in order of precedence):
-    *   1. `akka.repo.token` system property (used by scripted tests)
-    *   2. `AKKA_REPO_TOKEN` environment variable (normal usage)
+    *   1. `akka.repo.token` system property (used by scripted tests) 2. `AKKA_REPO_TOKEN`
+    *      environment variable (normal usage)
     */
   private def akkaRepoUrl: String = {
     sys.props.get("akka.repo.token").orElse(sys.env.get("AKKA_REPO_TOKEN")) match {
@@ -186,8 +186,8 @@ object Akka extends AutoPluginHelper {
     *   - Prometheus endpoint for metrics export
     *   - OpenTelemetry for distributed tracing
     *
-    * NOTE: For full instrumentation at runtime, you may need to configure the Cinnamon
-    * Java agent. See: https://doc.akka.io/libraries/akka-insights/current/setup/
+    * NOTE: For full instrumentation at runtime, you may need to configure the Cinnamon Java agent.
+    * See: https://doc.akka.io/libraries/akka-insights/current/setup/
     *
     * @param version
     *   The Akka Insights version (e.g., "2.22.0" for Akka 25.10)
@@ -211,18 +211,27 @@ object Akka extends AutoPluginHelper {
       akkaModule("com.lightbend.cinnamon", "cinnamon-akka-stream", version),
       akkaModule("com.lightbend.cinnamon", "cinnamon-akka-cluster", version)
     )
-    val http = if (withHTTP) Seq(
-      akkaModule("com.lightbend.cinnamon", "cinnamon-akka-http", version)
-    ) else Seq.empty
+    val http =
+      if (withHTTP)
+        Seq(
+          akkaModule("com.lightbend.cinnamon", "cinnamon-akka-http", version)
+        )
+      else Seq.empty
     // Prometheus modules (Java-only, no Scala suffix)
-    val prometheus = if (withPrometheus) Seq(
-      javaModule("com.lightbend.cinnamon", "cinnamon-prometheus", version),
-      javaModule("com.lightbend.cinnamon", "cinnamon-prometheus-httpserver", version)
-    ) else Seq.empty
+    val prometheus =
+      if (withPrometheus)
+        Seq(
+          javaModule("com.lightbend.cinnamon", "cinnamon-prometheus", version),
+          javaModule("com.lightbend.cinnamon", "cinnamon-prometheus-httpserver", version)
+        )
+      else Seq.empty
     // OpenTelemetry module
-    val otel = if (withOpenTelemetry) Seq(
-      javaModule("com.lightbend.cinnamon", "cinnamon-opentelemetry", version)
-    ) else Seq.empty
+    val otel =
+      if (withOpenTelemetry)
+        Seq(
+          javaModule("com.lightbend.cinnamon", "cinnamon-opentelemetry", version)
+        )
+      else Seq.empty
     // Cinnamon agent (needed for runtime instrumentation)
     val agent = Seq(
       javaModule("com.lightbend.cinnamon", "cinnamon-agent", version)
@@ -314,12 +323,14 @@ object Akka extends AutoPluginHelper {
         } ++ {
           if (withKafka) kafkaModules(versions.akka_kafka) else Seq.empty[ModuleID]
         } ++ {
-          if (withInsights) insightsModules(
-            versions.akka_insights,
-            withHTTP = withHTTP,
-            withPrometheus = withInsightsPrometheus,
-            withOpenTelemetry = withInsightsOpenTelemetry
-          ) else Seq.empty[ModuleID]
+          if (withInsights)
+            insightsModules(
+              versions.akka_insights,
+              withHTTP = withHTTP,
+              withPrometheus = withInsightsPrometheus,
+              withOpenTelemetry = withInsightsOpenTelemetry
+            )
+          else Seq.empty[ModuleID]
         }
       }
     )

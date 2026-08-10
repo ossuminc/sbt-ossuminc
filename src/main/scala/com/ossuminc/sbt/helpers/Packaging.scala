@@ -6,7 +6,13 @@ import com.typesafe.sbt.packager.docker.DockerPlugin
 import com.typesafe.sbt.packager.docker.DockerPlugin.autoImport._
 import com.typesafe.sbt.packager.linux.LinuxPlugin.autoImport.daemonUser
 import com.typesafe.sbt.packager.graalvmnativeimage.GraalVMNativeImagePlugin
-import com.typesafe.sbt.packager.Keys.{maintainer, packageDescription, packageName, packageSummary, stage}
+import com.typesafe.sbt.packager.Keys.{
+  maintainer,
+  packageDescription,
+  packageName,
+  packageSummary,
+  stage
+}
 import com.typesafe.sbt.packager.archetypes.JavaAppPackaging
 import com.typesafe.sbt.packager.graalvmnativeimage.GraalVMNativeImagePlugin.autoImport.graalVMNativeImageCommand
 import scala.scalanative.sbtplugin.ScalaNativePlugin.autoImport._
@@ -190,7 +196,9 @@ object Packaging extends AutoPluginHelper {
             } else {
               IO.copyFile(child, dest)
             }
-            log.info(s"Staged: ${numDir.getName}/opt/docker/${child.getName} -> opt/docker/${child.getName}")
+            log.info(
+              s"Staged: ${numDir.getName}/opt/docker/${child.getName} -> opt/docker/${child.getName}"
+            )
           }
 
           // Generate distroless Dockerfile with EXPOSE directives
@@ -228,8 +236,11 @@ object Packaging extends AutoPluginHelper {
           // Build with buildx for amd64
           val tagArgs = tags.flatMap(t => Seq("-t", s"$fullImageName:$t"))
           val buildCmd = Seq(
-            "docker", "buildx", "build",
-            "--platform", "linux/amd64",
+            "docker",
+            "buildx",
+            "build",
+            "--platform",
+            "linux/amd64",
             "--push"
           ) ++ tagArgs ++ Seq(stageDir.getAbsolutePath)
 
@@ -247,8 +258,7 @@ object Packaging extends AutoPluginHelper {
 
   /** Configure npm packaging for a Scala.js project.
     *
-    * Delegates to [[NpmPackaging.npm]]. See that method for full
-    * parameter documentation.
+    * Delegates to [[NpmPackaging.npm]]. See that method for full parameter documentation.
     *
     * Usage:
     * {{{
@@ -270,16 +280,21 @@ object Packaging extends AutoPluginHelper {
     templateFile: Option[File] = None
   )(project: Project): Project = {
     NpmPackaging.npm(
-      scope, pkgName, pkgDescription, keywords, esModule, templateFile
+      scope,
+      pkgName,
+      pkgDescription,
+      keywords,
+      esModule,
+      templateFile
     )(project)
   }
 
   /** Normalize JVM os.arch to standard archive label. */
   private def detectArch: String = {
     System.getProperty("os.arch") match {
-      case "aarch64" => "arm64"
+      case "aarch64"          => "arm64"
       case "x86_64" | "amd64" => "amd64"
-      case other => other
+      case other              => other
     }
   }
 
@@ -294,14 +309,12 @@ object Packaging extends AutoPluginHelper {
 
   /** Create a tar.gz archive of a Scala Native binary for distribution.
     *
-    * The archive includes the native binary and optionally a README and
-    * LICENSE file from the project root. The filename follows the pattern:
-    * `<pkgName>-<version>-<os>-<arch>.tar.gz`
+    * The archive includes the native binary and optionally a README and LICENSE file from the
+    * project root. The filename follows the pattern: `<pkgName>-<version>-<os>-<arch>.tar.gz`
     *
-    * OS and architecture are auto-detected from the build host by default,
-    * since Scala Native compiles for the host platform only. For
-    * multi-platform distribution, use CI matrix runners for each target
-    * platform.
+    * OS and architecture are auto-detected from the build host by default, since Scala Native
+    * compiles for the host platform only. For multi-platform distribution, use CI matrix runners
+    * for each target platform.
     *
     * @param pkgName
     *   Base name for the archive and binary
@@ -331,7 +344,6 @@ object Packaging extends AutoPluginHelper {
       Keys.linuxPackageOs := {
         if (os.nonEmpty) os else detectOs
       },
-
       Keys.linuxPackage := Def.uncached {
         val log = streams.value.log
         val conv = fileConverter.value
@@ -356,7 +368,8 @@ object Packaging extends AutoPluginHelper {
         // Optionally include README
         if (includeReadme) {
           val readme = staging / "README.md"
-          IO.write(readme,
+          IO.write(
+            readme,
             s"""# $pkgName
                |
                |$pkgDescription
@@ -384,8 +397,11 @@ object Packaging extends AutoPluginHelper {
         val tarball = target.value / archiveName
 
         val cmd = Seq(
-          "tar", "czf", tarball.getAbsolutePath,
-          "-C", target.value.getAbsolutePath,
+          "tar",
+          "czf",
+          tarball.getAbsolutePath,
+          "-C",
+          target.value.getAbsolutePath,
           stagingName
         )
         log.info(s"Creating archive: $archiveName")
@@ -402,8 +418,7 @@ object Packaging extends AutoPluginHelper {
 
   /** Generate a Homebrew formula for the project.
     *
-    * Delegates to [[HomebrewPackaging.homebrew]]. See that method for
-    * full parameter documentation.
+    * Delegates to [[HomebrewPackaging.homebrew]]. See that method for full parameter documentation.
     *
     * Usage:
     * {{{
@@ -427,15 +442,20 @@ object Packaging extends AutoPluginHelper {
     variant: String = "universal"
   )(project: Project): Project = {
     HomebrewPackaging.homebrew(
-      formulaName, binaryName, pkgDescription, homepage,
-      javaVersion, tapRepo, variant
+      formulaName,
+      binaryName,
+      pkgDescription,
+      homepage,
+      javaVersion,
+      tapRepo,
+      variant
     )(project)
   }
 
   /** Placeholder for Windows MSI packaging — not yet implemented.
     *
-    * Logs a warning and returns the project unchanged. This reserves
-    * the API shape for future implementation.
+    * Logs a warning and returns the project unchanged. This reserves the API shape for future
+    * implementation.
     */
   def windowsMsi(
     pkgName: String,
@@ -443,7 +463,7 @@ object Packaging extends AutoPluginHelper {
   )(project: Project): Project = {
     println(
       s"[warn] With.Packaging.windowsMsi() is not yet implemented. " +
-      s"Package '$pkgName' will not produce an MSI installer."
+        s"Package '$pkgName' will not produce an MSI installer."
     )
     project
   }
