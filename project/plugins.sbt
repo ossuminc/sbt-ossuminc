@@ -22,9 +22,11 @@
 // core, so no explicit dependency/addDependencyTreePlugin is required.
 
 addSbtPlugin("com.github.sbt" % "sbt-dynver" % "5.1.1")
-addSbtPlugin("org.scalameta" % "sbt-scalafmt" % "2.6.1")
+
+addSbtPlugin("org.scalameta" % "sbt-scalafmt" % "2.6.2")
 
 // Resolve a transitive scala-xml version conflict in the meta-build.
 ThisBuild / libraryDependencySchemes +=
   "org.scala-lang.modules" %% "scala-xml" % VersionScheme.Always
+
 ThisBuild / excludeDependencies += "org.scala-lang.modules" % "scala-xml_2.13"

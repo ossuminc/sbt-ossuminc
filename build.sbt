@@ -69,9 +69,11 @@ lazy val `sbt-ossuminc` = project
     // "sbt-ossuminc/target" and the whole suite dies with
     // "java.io.FileNotFoundException: no test scripts found". Sweep it first.
     // (CI never saw this: it always runs on a fresh checkout.)
-    scripted := scripted.dependsOn(Def.task {
-      IO.delete(sbtTestDirectory.value / "sbt-ossuminc" / "target")
-    }).evaluated,
+    scripted := scripted
+      .dependsOn(Def.task {
+        IO.delete(sbtTestDirectory.value / "sbt-ossuminc" / "target")
+      })
+      .evaluated,
 
     // Scripted == sbt plugin tests
     scriptedLaunchOpts := {
@@ -80,7 +82,6 @@ lazy val `sbt-ossuminc` = project
         sys.env.get("AKKA_REPO_TOKEN").map(t => s"-Dakka.repo.token=$t").toSeq ++
         sys.env.get("GITHUB_TOKEN").map(t => s"-Dgithub.token=$t").toSeq
     },
-
     libraryDependencies ++= Seq(
       "org.apache.commons" % "commons-lang3" % "3.20.0",
       "org.slf4j" % "slf4j-simple" % "2.0.18"
@@ -138,10 +139,12 @@ addSbtPlugin(reexport("com.github.sbt" % "sbt-pgp" % "2.3.1"))
 addSbtPlugin(reexport("com.github.sbt" % "sbt-release" % "1.5.0"))
 addSbtPlugin(reexport("com.github.sbt" % "sbt-unidoc" % "0.6.1"))
 addSbtPlugin(reexport("com.eed3si9n" % "sbt-buildinfo" % "0.13.1"))
-addSbtPlugin(reexport("com.github.sbt" % "sbt-header" % "5.11.0")) // org moved from de.heikoseeberger
+addSbtPlugin(
+  reexport("com.github.sbt" % "sbt-header" % "5.11.0")
+) // org moved from de.heikoseeberger
 addSbtPlugin(reexport("com.timushev.sbt" % "sbt-updates" % "0.7.0"))
 addSbtPlugin(reexport("ch.epfl.scala" % "sbt-scalafix" % "0.14.7"))
-addSbtPlugin(reexport("org.scalameta" % "sbt-scalafmt" % "2.6.1"))
+addSbtPlugin(reexport("org.scalameta" % "sbt-scalafmt" % "2.6.2"))
 addSbtPlugin(reexport("org.scoverage" % "sbt-scoverage" % "2.4.4"))
 addSbtPlugin(reexport("org.scala-native" % "sbt-scala-native" % "0.5.12"))
 addSbtPlugin(reexport("org.scala-js" % "sbt-scalajs" % "1.22.0"))

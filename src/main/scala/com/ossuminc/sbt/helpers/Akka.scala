@@ -12,8 +12,8 @@ import sbt.Keys.*
   *      variable with your token from https://account.akka.io Used in repository URL:
   *      https://repo.akka.io/{token}/secure
   *
-  * 2. akka.license-key - Runtime license key for your application. Configure this in your
-  * application.conf, NOT as an environment variable for sbt.
+  *   2. akka.license-key - Runtime license key for your application. Configure this in your
+  *      application.conf, NOT as an environment variable for sbt.
   *
   * This helper automatically:
   *   - Adds the Akka repository resolver with tokenized URL (requires AKKA_REPO_TOKEN)
