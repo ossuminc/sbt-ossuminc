@@ -25,7 +25,7 @@ to the task file and note completion in this notebook.
 > it here**; that is what the HANDOFF rule about "verified, not remembered"
 > is for.
 
-Task dropbox is **empty**. `task/done/` has eight; both 2026-08-10 closures
+Task dropbox is **empty**. `task/done/` has nine; both 2026-08-10 closures
 carry verified Results — riddl's `npmPack` staleness report (all four criteria)
 and the Synapify 3.1.0 findings (all four items).
 
@@ -62,11 +62,14 @@ version implication.
    shape documented). 1.31.0 is riddl's latest *final* release; 2.0 has only
    RCs, and a default tracking a prerelease re-stales within the week.
 
-**Release-ready for 3.2.0.** Verified 2026-08-10 from a clean sbt server and a
-throwaway `--sbt-cache`: `clean`, `scalafmtCheck`, `Test/scalafmtCheck`,
-`Test/compile`, scripted **25/25** (4m59s), with the resolved version
-`3.1.0-6-2dcd3f18` matching HEAD — so the run measured the tree that is
-actually there, not a cached earlier one.
+4. **scalafmt 3.9.4 + sbt-scalafmt 2.6.2** (riddl's request; the loader bump is
+   mandatory, see below) and **sbt 2.0.6**.
+
+**Release-ready for 3.2.0.** Verified 2026-08-19 from a clean sbt server and a
+throwaway `--sbt-cache`: `clean`, `scalafmtCheckAll`, `scalafmtSbtCheck`,
+`Test/compile`, scripted **25/25** (4m02s) under sbt 2.0.6, with the resolved
+version `3.1.0-10-6056d9bd` matching HEAD — so the run measured the tree that
+is actually there, not a cached earlier one.
 
 ### Why 3.1.0 was cut (shipped 2026-07-29)
 
@@ -124,6 +127,50 @@ stale tarballs first, which is the whole point of it; it also asserts the
 version *inside* the packaged `package.json`, not just the filename. Same
 family as the scoverage and sbt-2-test-cache traps: a green run that measured
 the easy case.
+
+### Trap: scalafmt 3.9.4 needs TWO passes, and the cache hides it (2026-08-19)
+
+`scalafmtAll` once, then `scalafmtCheckAll`, is **not** enough on 3.9.4. It is
+not idempotent on at least one docstring shape: on `Akka.scala` pass 1
+re-indents a numbered list, pass 2 drops the now-stray blank line, passes 3-4
+are no-ops. A file committed after one pass fails `scalafmtCheck`.
+
+What made it dangerous is that the check *lied*: run immediately after
+`scalafmtAll` it reported `[success]` in 5s on a non-conformant file, because
+sbt 2 served a cached result. Only `--sbt-cache <throwaway>` after `clean`
+exposed it. Third member of the family with the scoverage trap and the sbt 2
+test cache -- **a green that was served, not computed.**
+
+Consumers hit this on first adoption of the new config: tell them to run
+`scalafmtAll` twice.
+
+### FIXED: sbt-scalafmt 2.6.1 cannot load scalafmt > 3.8.3 (2026-08-19)
+
+riddl asked for a one-line `.scalafmt.conf` bump to 3.9.4 (3.8.3 emits Scala 3
+that does not compile). The one line alone would have broken every consumer:
+
+```
+2.6.1 + 3.8.3                            -> success
+2.6.1 + 3.8.6 / 3.9.0 / 3.9.4 / 3.9.10   -> "corrupted class path"
+2.6.2 + 3.9.4                            -> success
+```
+
+Not a corrupt jar (all pass `unzip -t`), not the sbt version (identical on
+2.0.4 and 2.0.6). So `sbt-scalafmt` moved to **2.6.2** in `project/plugins.sbt`
+*and* the `build.sbt` reexport, in the same commit as the config bump.
+
+**The general lesson: `.scalafmt.conf` is a fleet-wide push with no staging.**
+`helpers/Scalafmt.scala` serves it from `main` via raw.githubusercontent and
+overwrites the consumer's copy on every `update`; `cleanFiles` deletes the etag
+so it recurs after every `clean`. Any change to that file takes effect for all
+consumers immediately, with **no release involved** -- so anything it depends
+on must already be in their hands, or shipped with a stopgap. Here the stopgap
+is one line in the consumer's own `plugins.sbt`:
+`addSbtPlugin("org.scalameta" % "sbt-scalafmt" % "2.6.2")`.
+
+Consumers cannot pin their own scalafmt version at all. That is arguably the
+real defect; `forFormatFile(pathArg)` is the seam if we decide to fix it.
+**Backlog item, deliberately not done as a rider on a version bump.**
 
 ### Known flake
 
