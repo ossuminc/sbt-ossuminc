@@ -11,7 +11,6 @@ import sbt.Keys.*
   *   1. AKKA_REPO_TOKEN - Repository access token for downloading artifacts. Set this environment
   *      variable with your token from https://account.akka.io Used in repository URL:
   *      https://repo.akka.io/{token}/secure
-  *
   *   2. akka.license-key - Runtime license key for your application. Configure this in your
   *      application.conf, NOT as an environment variable for sbt.
   *
